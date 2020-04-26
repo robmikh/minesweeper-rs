@@ -12,8 +12,10 @@ winrt::import!(
 );
 
 mod interop;
+mod minesweeper;
 
 use interop::{ro_initialize, RoInitType, CompositorDesktopInterop, create_dispatcher_queue_controller_for_current_thread};
+use minesweeper::Minesweeper;
 use winit::{
     event::{Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
@@ -53,11 +55,13 @@ fn run() -> winrt::Result<()> {
     let compositor_desktop: CompositorDesktopInterop = compositor.try_into().unwrap();
     let target = compositor_desktop.create_desktop_window_target(window_handle, false)?;
 
-    let root = compositor.create_sprite_visual()?;
+    let root = compositor.create_container_visual()?;
     root.set_relative_size_adjustment(Vector2{ x: 1.0, y: 1.0 })?;
-    let brush = compositor.create_color_brush_with_color(Colors::white()?)?;
-    root.set_brush(brush)?;
     target.set_root(&root)?;
+
+    let window_size = window.inner_size();
+    let window_size = Vector2{ x: window_size.width as f32, y: window_size.height as f32 };
+    let mut game = Minesweeper::new(&root, window_size)?;
 
     event_loop.run(move |event, _, control_flow| {
         *control_flow = ControlFlow::Wait;
@@ -70,7 +74,8 @@ fn run() -> winrt::Result<()> {
                 event: WindowEvent::Resized(size),
                 ..
             } => {
-                // TODO: resize
+                let size = Vector2{ x: size.width as f32, y: size.height as f32 };
+                game.on_parent_size_changed(size).unwrap();
             },
             _ => (),
         }
