@@ -17,7 +17,7 @@ mod minesweeper;
 use interop::{ro_initialize, RoInitType, CompositorDesktopInterop, create_dispatcher_queue_controller_for_current_thread};
 use minesweeper::Minesweeper;
 use winit::{
-    event::{Event, WindowEvent},
+    event::{Event, WindowEvent, ElementState, MouseButton},
     event_loop::{ControlFlow, EventLoop},
     window::WindowBuilder,
 };
@@ -76,6 +76,21 @@ fn run() -> winrt::Result<()> {
             } => {
                 let size = Vector2{ x: size.width as f32, y: size.height as f32 };
                 game.on_parent_size_changed(size).unwrap();
+            },
+            Event::WindowEvent {
+                event: WindowEvent::CursorMoved{position, ..},
+                ..
+            } => {
+                let point = Vector2{ x: position.x as f32, y: position.y as f32 };
+                game.on_pointer_moved(point).unwrap();
+            },
+            Event::WindowEvent {
+                event: WindowEvent::MouseInput{state, button, ..},
+                ..
+            } => {
+                if state == ElementState::Pressed {
+                    game.on_pointer_pressed(button == MouseButton::Right, false).unwrap();
+                }
             },
             _ => (),
         }
