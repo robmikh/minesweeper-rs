@@ -1,0 +1,10 @@
+[package]
+name = "minesweeper-rs"
+version = "0.1.0"
+authors = ["Robert Mikhayelyan <rob.mikh@outlook.com>"]
+edition = "2018"
+
+[dependencies]
+winit = "0.22.0"
+raw-window-handle = "0.3.3"
+winrt = { path = "../winrt-rs" }
