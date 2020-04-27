@@ -50,7 +50,7 @@ fn run() -> winrt::Result<()> {
     };
 
     let compositor = Compositor::new()?;
-    let compositor_desktop: CompositorDesktopInterop = compositor.try_into().unwrap();
+    let compositor_desktop: CompositorDesktopInterop = compositor.try_into()?;
     let target = compositor_desktop.create_desktop_window_target(window_handle, false)?;
 
     let root = compositor.create_container_visual()?;
