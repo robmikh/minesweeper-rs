@@ -1,7 +1,6 @@
 use std::ffi::c_void;
 use crate::windows::{
     ui::composition::{
-        CompositionTarget,
         desktop::{
             DesktopWindowTarget,
         },
@@ -49,6 +48,7 @@ extern "stdcall" {
     ) -> winrt::ErrorCode;
 }
 
+#[allow(dead_code)]
 #[repr(i32)]
 pub enum RoInitType {
     MultiThreaded = 0,
@@ -76,12 +76,14 @@ struct DispatcherQueueOptions {
     apartment_type: i32,
 }
 
+#[allow(dead_code)]
 #[repr(i32)]
 pub enum DispatcherQueueThreadType {
     Dedicated = 1,
     Current = 2,
 }
 
+#[allow(dead_code)]
 #[repr(i32)]
 pub enum DispatcherQueueThreadApartmentType {
     None = 0,

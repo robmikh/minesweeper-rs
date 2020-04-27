@@ -7,6 +7,10 @@ use crate::windows::{
 };
 use rand::distributions::{Distribution, Uniform};
 
+// TODO: We need to allow dead code because we don't directly construct some of these
+//       variants. The way we do that in on_pointer_pressed isn't idiomatic, so find
+//       a better way to cycle through the variants.
+#[allow(dead_code)]
 #[repr(i32)]
 #[derive(Copy, Clone, PartialEq)]
 enum MineState {
@@ -18,7 +22,7 @@ enum MineState {
 
 pub struct Minesweeper {
     compositor: Compositor,
-    root: SpriteVisual,
+    _root: SpriteVisual,
 
     game_board: ContainerVisual,
     tiles: Vec<SpriteVisual>,
@@ -71,7 +75,7 @@ impl Minesweeper {
 
         let mut result = Self {
             compositor: compositor,
-            root: root,
+            _root: root,
 
             game_board: game_board,
             tiles: Vec::new(),
@@ -206,7 +210,7 @@ impl Minesweeper {
         };
         let mut scale_factor = window_size.y / board_size.y;
 
-        if (board_size.x > window_size.x) {
+        if board_size.x > window_size.x {
             scale_factor = window_size.x / board_size.x;
         }
 
@@ -218,7 +222,7 @@ impl Minesweeper {
     }
 
     fn update_board_scale(&mut self, window_size: Vector2) -> winrt::Result<()> {
-        let scale_factor = self.compute_scale_factor()?;
+        let scale_factor = self.compute_scale_factor_from_size(window_size)?;
         self.game_board.set_scale(Vector3{ x: scale_factor, y: scale_factor, z: 1.0 })?;
         Ok(())
     }
@@ -241,14 +245,14 @@ impl Minesweeper {
             }
 
             if self.neighbor_counts[index] == 0 {
-                self.push_if_unmarked(&mut sweeps, current_x - 1, current_y - 1);
-                self.push_if_unmarked(&mut sweeps, current_x, current_y - 1);
-                self.push_if_unmarked(&mut sweeps, current_x + 1, current_y - 1);
-                self.push_if_unmarked(&mut sweeps, current_x + 1, current_y);
-                self.push_if_unmarked(&mut sweeps, current_x + 1, current_y + 1);
-                self.push_if_unmarked(&mut sweeps, current_x, current_y + 1);
-                self.push_if_unmarked(&mut sweeps, current_x - 1, current_y + 1);
-                self.push_if_unmarked(&mut sweeps, current_x - 1, current_y);
+                self.push_if_unmarked(&mut sweeps, current_x - 1, current_y - 1)?;
+                self.push_if_unmarked(&mut sweeps, current_x, current_y - 1)?;
+                self.push_if_unmarked(&mut sweeps, current_x + 1, current_y - 1)?;
+                self.push_if_unmarked(&mut sweeps, current_x + 1, current_y)?;
+                self.push_if_unmarked(&mut sweeps, current_x + 1, current_y + 1)?;
+                self.push_if_unmarked(&mut sweeps, current_x, current_y + 1)?;
+                self.push_if_unmarked(&mut sweeps, current_x - 1, current_y + 1)?;
+                self.push_if_unmarked(&mut sweeps, current_x - 1, current_y)?;
             }
 
             sweeps.pop().unwrap();
@@ -313,23 +317,23 @@ impl Minesweeper {
 
     fn generate_mines(&mut self, num_mines: i32) {
         self.mines.clear();
-        for x in 0..self.game_board_width {
-            for y in 0..self.game_board_height {
+        for _x in 0..self.game_board_width {
+            for _y in 0..self.game_board_height {
                 self.mines.push(false);
             }
         }
 
-        let between = Uniform::from(0..(self.game_board_width * self.game_board_height));
+        let between = Uniform::from(0..(self.game_board_width * self.game_board_height) as usize);
         let mut rng = rand::thread_rng();
-        for i in 0..num_mines {
-            let mut index = -1;
+        for _i in 0..num_mines {
+            let mut index: usize;
             // do while loops look weird in rust...
             while {
                 index = between.sample(&mut rng);
-                self.mines[index as usize]
+                self.mines[index]
             } {}
 
-            self.mines[index as usize] = true;
+            self.mines[index] = true;
         }
 
         self.neighbor_counts.clear();
@@ -368,7 +372,6 @@ impl Minesweeper {
     }
 
     fn get_surrounding_mine_count(&self, x: i32, y: i32) -> i32 {
-        let index = self.compute_index(x, y);
         let mut count = 0;
 
         if self.test_spot(x + 1, y) {

@@ -26,13 +26,10 @@ use raw_window_handle::HasRawWindowHandle;
 use winrt::TryInto;
 use windows::{
     foundation::{
-        numerics::{Vector2, Vector3,},
+        numerics::Vector2,
     },
-    ui::{
-        Colors,
-        composition::{
-            Compositor,
-        },
+    ui::composition::{
+        Compositor,
     },
 };
 
@@ -95,8 +92,6 @@ fn run() -> winrt::Result<()> {
             _ => (),
         }
     });
-
-    Ok(())
 }
 
 fn main() {
