@@ -5,6 +5,7 @@ use crate::windows::{
         composition::{Compositor, ContainerVisual, SpriteVisual, CompositionColorBrush},
     },
 };
+use crate::numerics::FromVector2;
 use rand::distributions::{Distribution, Uniform};
 use std::collections::VecDeque;
 
@@ -67,9 +68,9 @@ impl Minesweeper {
         nine_grid_brush.set_is_center_hollow(true)?;
         nine_grid_brush.set_source(color_brush)?;
         selection_visual.set_brush(nine_grid_brush)?;
-        selection_visual.set_offset(Vector3{ x: margin.x * -1.0, y: margin.y * -1.0, z: 0.0 })?;
+        selection_visual.set_offset(Vector3::from_vector2(&margin * -1.0, 0.0))?;
         selection_visual.set_is_visible(false)?;
-        selection_visual.set_size(Vector2{ x: tile_size.x + margin.x * 2.0, y: tile_size.y + margin.y * 2.0 })?;
+        selection_visual.set_size(&tile_size + &margin * 2.0)?;
         root.children()?.insert_at_top(&selection_visual)?;
         let current_selection_x = -1;
         let current_selection_y = -1;
@@ -104,17 +105,10 @@ impl Minesweeper {
     pub fn on_pointer_moved(&mut self, point: &Vector2) -> winrt::Result<()> {
         let window_size = &self.parent_size;
         let scale = self.compute_scale_factor()?;
-        let real_board_size = {
-            let size = self.game_board.size()?;
-            Vector2{ x: size.x * scale, y: size.y * scale }
-        };
-        let real_offset = Vector2 {
-            x: (window_size.x - real_board_size.x) / 2.0,
-            y: (window_size.y - real_board_size.y) / 2.0,
-        };
+        let real_board_size = self.game_board.size()? * scale;
+        let real_offset = (window_size - real_board_size) / 2.0;
         
-        let point = Vector2 { x: point.x - real_offset.x, y: point.y - real_offset.y };
-        let point = Vector2 { x: point.x / scale, y: point.y / scale };
+        let point = (point - real_offset) / scale;
 
         let x = (point.x / (self.tile_size.x + self.margin.x)) as i32;
         let y = (point.y / (self.tile_size.y + self.margin.y)) as i32;
@@ -169,20 +163,16 @@ impl Minesweeper {
         self.game_board_height = board_height;
 
         self.game_board.children()?.remove_all()?;
-        self.game_board.set_size(Vector2{ 
-            x: (self.tile_size.x + self.margin.x) * self.game_board_width as f32,
-            y: (self.tile_size.y + self.margin.y) * self.game_board_height as f32,
-        })?;
+        self.game_board.set_size((&self.tile_size + &self.margin) * Vector2{ x: self.game_board_width as f32, y: self.game_board_height as f32 })?;
 
         for x in 0..self.game_board_width {
             for y in 0..self.game_board_height {
                 let visual = self.compositor.create_sprite_visual()?;
                 visual.set_size(&self.tile_size)?;
-                visual.set_offset(Vector3 {
-                    x: (self.margin.x / 2.0) + ((self.tile_size.x + self.margin.x) * x as f32),
-                    y: (self.margin.y / 2.0) + ((self.tile_size.y + self.margin.y) * y as f32),
-                    z: 0.0,
-                })?;
+                visual.set_offset(Vector3::from_vector2(
+                    (&self.margin / 2.0) + ((&self.tile_size + &self.margin) * Vector2{ x: x as f32, y: y as f32}),
+                    0.0,
+                ))?;
                 visual.set_brush(self.compositor.create_color_brush_with_color(Colors::blue()?)?)?;
 
                 self.game_board.children()?.insert_at_top(&visual)?;
@@ -204,10 +194,7 @@ impl Minesweeper {
 
     fn compute_scale_factor_from_size(&self, window_size: &Vector2) -> winrt::Result<f32> {
         let board_size = self.game_board.size()?;
-        let board_size = Vector2 {
-            x: board_size.x + self.game_board_margin.x,
-            y: board_size.y + self.game_board_margin.y,
-        };
+        let board_size = board_size + &self.game_board_margin;
         let mut scale_factor = window_size.y / board_size.y;
 
         if board_size.x > window_size.x {
