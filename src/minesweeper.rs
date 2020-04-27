@@ -43,7 +43,7 @@ pub struct Minesweeper {
 }
 
 impl Minesweeper {
-    pub fn new(parent_visual: &ContainerVisual, parent_size: Vector2) -> winrt::Result<Self> {
+    pub fn new(parent_visual: &ContainerVisual, parent_size: &Vector2) -> winrt::Result<Self> {
         let compositor = parent_visual.compositor()?;
         let root = compositor.create_sprite_visual()?;
 
@@ -101,8 +101,8 @@ impl Minesweeper {
         Ok(result)
     }
 
-    pub fn on_pointer_moved(&mut self, point: Vector2) -> winrt::Result<()> {
-        let window_size = self.parent_size.clone();
+    pub fn on_pointer_moved(&mut self, point: &Vector2) -> winrt::Result<()> {
+        let window_size = &self.parent_size;
         let scale = self.compute_scale_factor()?;
         let real_board_size = {
             let size = self.game_board.size()?;
@@ -135,7 +135,7 @@ impl Minesweeper {
         Ok(())
     }
 
-    pub fn on_parent_size_changed(&mut self, new_size: Vector2) -> winrt::Result<()> {
+    pub fn on_parent_size_changed(&mut self, new_size: &Vector2) -> winrt::Result<()> {
         self.parent_size = new_size.clone();
         self.update_board_scale(new_size)?;
         Ok(())
@@ -178,7 +178,7 @@ impl Minesweeper {
         for x in 0..self.game_board_width {
             for y in 0..self.game_board_height {
                 let visual = self.compositor.create_sprite_visual()?;
-                visual.set_size(self.tile_size.clone())?;
+                visual.set_size(&self.tile_size)?;
                 visual.set_offset(Vector3 {
                     x: (self.margin.x / 2.0) + ((self.tile_size.x + self.margin.x) * x as f32),
                     y: (self.margin.y / 2.0) + ((self.tile_size.y + self.margin.y) * y as f32),
@@ -198,12 +198,12 @@ impl Minesweeper {
         self.current_selection_x = -1;
         self.current_selection_y = -1;
 
-        self.update_board_scale(self.parent_size.clone())?;
+        self.update_board_scale(&self.parent_size.clone())?;
 
         Ok(())
     }
 
-    fn compute_scale_factor_from_size(&self, window_size: Vector2) -> winrt::Result<f32> {
+    fn compute_scale_factor_from_size(&self, window_size: &Vector2) -> winrt::Result<f32> {
         let board_size = self.game_board.size()?;
         let board_size = Vector2 {
             x: board_size.x + self.game_board_margin.x,
@@ -219,10 +219,10 @@ impl Minesweeper {
     }
 
     fn compute_scale_factor(&self) -> winrt::Result<f32> {
-        self.compute_scale_factor_from_size(self.parent_size.clone())
+        self.compute_scale_factor_from_size(&self.parent_size)
     }
 
-    fn update_board_scale(&mut self, window_size: Vector2) -> winrt::Result<()> {
+    fn update_board_scale(&mut self, window_size: &Vector2) -> winrt::Result<()> {
         let scale_factor = self.compute_scale_factor_from_size(window_size)?;
         self.game_board.set_scale(Vector3{ x: scale_factor, y: scale_factor, z: 1.0 })?;
         Ok(())

@@ -58,7 +58,7 @@ fn run() -> winrt::Result<()> {
 
     let window_size = window.inner_size();
     let window_size = Vector2{ x: window_size.width as f32, y: window_size.height as f32 };
-    let mut game = Minesweeper::new(&root, window_size)?;
+    let mut game = Minesweeper::new(&root, &window_size)?;
 
     event_loop.run(move |event, _, control_flow| {
         *control_flow = ControlFlow::Wait;
@@ -72,14 +72,14 @@ fn run() -> winrt::Result<()> {
                 ..
             } => {
                 let size = Vector2{ x: size.width as f32, y: size.height as f32 };
-                game.on_parent_size_changed(size).unwrap();
+                game.on_parent_size_changed(&size).unwrap();
             },
             Event::WindowEvent {
                 event: WindowEvent::CursorMoved{position, ..},
                 ..
             } => {
                 let point = Vector2{ x: position.x as f32, y: position.y as f32 };
-                game.on_pointer_moved(point).unwrap();
+                game.on_pointer_moved(&point).unwrap();
             },
             Event::WindowEvent {
                 event: WindowEvent::MouseInput{state, button, ..},
