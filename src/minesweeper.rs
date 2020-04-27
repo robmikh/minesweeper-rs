@@ -149,6 +149,7 @@ impl Minesweeper {
             if self.mine_states[index] != MineState::Last {
                 if is_right_button || is_eraser {
                     let mut state = self.mine_states[index];
+                    // TODO: Find a more idiomatic way to do this (see enum comment).
                     state = unsafe {
                         let state: i32 = (state as i32 + 1) % MineState::Last as i32;
                         std::mem::transmute(state)
