@@ -6,6 +6,7 @@ use crate::windows::{
     },
 };
 use rand::distributions::{Distribution, Uniform};
+use std::collections::VecDeque;
 
 // TODO: We need to allow dead code because we don't directly construct some of these
 //       variants. The way we do that in on_pointer_pressed isn't idiomatic, so find
@@ -229,12 +230,12 @@ impl Minesweeper {
 
     fn sweep(&mut self, x: i32, y: i32) -> winrt::Result<bool> {
         let mut hit_mine = false;
-        let mut sweeps: Vec<usize> = Vec::new();
-        sweeps.push(self.compute_index(x, y));
-        self.reveal(*sweeps.first().unwrap())?;
+        let mut sweeps: VecDeque<usize> = VecDeque::new();
+        sweeps.push_back(self.compute_index(x, y));
+        self.reveal(*sweeps.front().unwrap())?;
 
         while !sweeps.is_empty() {
-            let index = *sweeps.first().unwrap();
+            let index = *sweeps.front().unwrap();
             let current_x = self.compute_x_from_index(index);
             let current_y = self.compute_y_from_index(index);
 
@@ -255,7 +256,7 @@ impl Minesweeper {
                 self.push_if_unmarked(&mut sweeps, current_x - 1, current_y)?;
             }
 
-            sweeps.pop().unwrap();
+            sweeps.pop_front().unwrap();
         }
 
         Ok(hit_mine)
@@ -280,11 +281,11 @@ impl Minesweeper {
         self.is_in_bounds(x, y) && self.mine_states[index] == MineState::Empty
     }
 
-    fn push_if_unmarked(&mut self, sweeps: &mut Vec<usize>, x: i32, y: i32) -> winrt::Result<()> {
+    fn push_if_unmarked(&mut self, sweeps: &mut VecDeque<usize>, x: i32, y: i32) -> winrt::Result<()> {
         if self.is_in_bounds_and_unmarked(x, y) {
             let index = self.compute_index(x, y);
             self.reveal(index)?;
-            sweeps.push(index);
+            sweeps.push_back(index);
         }
 
         Ok(())
