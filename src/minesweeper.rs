@@ -8,9 +8,9 @@ use crate::windows::{
 use rand::distributions::{Distribution, Uniform};
 use std::collections::VecDeque;
 
-// TODO: We need to allow dead code because we don't directly construct some of these
-//       variants. The way we do that in on_pointer_pressed isn't idiomatic, so find
-//       a better way to cycle through the variants.
+// TODO: We allow dead code here because we don't directly construct some of these
+//       variants. The way we cycle through mine states in on_pointer_pressed isn't 
+//       idiomatic, so we need to find a better way to do it.
 #[allow(dead_code)]
 #[repr(i32)]
 #[derive(Copy, Clone, PartialEq)]
