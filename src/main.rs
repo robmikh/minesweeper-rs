@@ -97,9 +97,8 @@ fn run() -> winrt::Result<()> {
 fn main() {
     let result = run();
 
-    let code = match result {
-        Ok(_) => winrt::ErrorCode(0),
-        Err(code) => code.code(),
-    };
-    code.unwrap();
+    // We do this for nicer HRESULT printing when errors occur.
+    if let Some(error) = result.err() {
+        error.code().unwrap();
+    }
 }
