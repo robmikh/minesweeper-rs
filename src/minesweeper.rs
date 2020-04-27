@@ -150,9 +150,7 @@ impl Minesweeper {
                 if is_right_button || is_eraser {
                     let mut state = self.mine_states[index];
                     state = unsafe {
-                        let state: i32 = std::mem::transmute(state);
-                        let last: i32 = std::mem::transmute(MineState::Last);
-                        let state: i32 = (state + 1) % last;
+                        let state: i32 = (state as i32 + 1) % MineState::Last as i32;
                         std::mem::transmute(state)
                     };
                     self.mine_states[index] = state;

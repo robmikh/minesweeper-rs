@@ -57,7 +57,7 @@ pub enum RoInitType {
 
 pub fn ro_initialize(init_type: RoInitType) -> winrt::Result<()> {
     unsafe {
-        RoInitialize(std::mem::transmute(init_type)).ok()
+        RoInitialize(init_type as i32).ok()
     }
 }
 
@@ -95,8 +95,8 @@ pub fn create_dispatcher_queue_controller(thread_type: DispatcherQueueThreadType
     unsafe {
         let options = DispatcherQueueOptions {
             size: std::mem::size_of::<DispatcherQueueOptions>() as u32,
-            thread_type: std::mem::transmute(thread_type),
-            apartment_type: std::mem::transmute(apartment_type),
+            thread_type: thread_type as i32,
+            apartment_type: apartment_type as i32,
         };
         let mut ptr = std::mem::zeroed();
         CreateDispatcherQueueController(options, &mut ptr).ok()?;
