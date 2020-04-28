@@ -4,7 +4,7 @@ use crate::windows::{
 use std::ffi::c_void;
 
 #[repr(C)]
-struct abi_ICompositorDesktopInterop {
+pub struct abi_ICompositorDesktopInterop {
     __base: [usize; 3],
     create_desktop_window_target:
         extern "system" fn(winrt::RawPtr, *mut c_void, i32, *mut winrt::RawPtr) -> winrt::ErrorCode,
@@ -12,6 +12,7 @@ struct abi_ICompositorDesktopInterop {
 }
 
 unsafe impl winrt::ComInterface for CompositorDesktopInterop {
+    type VTable = abi_ICompositorDesktopInterop;
     const GUID: winrt::Guid =
         winrt::Guid::from_values(702976506, 17767, 19914, [179, 25, 208, 242, 7, 235, 104, 7]);
 }
