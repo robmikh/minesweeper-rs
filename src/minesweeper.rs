@@ -14,6 +14,7 @@ use crate::windows::{
 use crate::numerics::FromVector2;
 use rand::distributions::{Distribution, Uniform};
 use std::collections::VecDeque;
+use std::time::Duration;
 
 // TODO: We allow dead code here because we don't directly construct some of these
 //       variants. The way we cycle through mine states in on_pointer_pressed isn't 
@@ -478,7 +479,7 @@ impl Minesweeper {
         animation.insert_key_frame(0.0, Vector3 { x: 1.0, y: 1.0, z: 1.0 })?;
         animation.insert_key_frame(0.7, Vector3 { x: 2.0, y: 2.0, z: 1.0 })?;
         animation.insert_key_frame(1.0, Vector3 { x: 1.0, y: 1.0, z: 1.0 })?;
-        animation.set_duration(TimeSpan{ duration: 6000000 })?; // 600ms
+        animation.set_duration(TimeSpan::from(Duration::from_millis(600)))?;
         animation.set_delay_time(delay)?;
         animation.set_iteration_behavior(AnimationIterationBehavior::Count)?;
         animation.set_iteration_count(1)?;
@@ -544,19 +545,19 @@ impl Minesweeper {
         }
 
         // Iterate and animate each mine
-        let animation_delay_step = TimeSpan{ duration: 1000000 }; // 100ms
-        let mut current_delay = TimeSpan{ duration: 0 };
+        let animation_delay_step = Duration::from_millis(100);
+        let mut current_delay = Duration::from_millis(0);
         let mut current_mines_count = 0;
         while !mine_indices.is_empty() {
             let mine_index = *mine_indices.front().unwrap();
-            self.play_mine_animation(mine_index, &current_delay)?;
+            self.play_mine_animation(mine_index, &TimeSpan::from(current_delay))?;
             current_mines_count = current_mines_count + 1;
 
             let mines_on_current_level = *mines_per_ring.front().unwrap();
             if current_mines_count == mines_on_current_level {
                 current_mines_count = 0;
                 mines_per_ring.pop_front().unwrap();
-                current_delay.duration = current_delay.duration + animation_delay_step.duration;
+                current_delay = current_delay + animation_delay_step;
             }
             mine_indices.pop_front().unwrap();
         }

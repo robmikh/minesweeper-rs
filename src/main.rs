@@ -14,6 +14,7 @@ winrt::import!(
 mod interop;
 mod minesweeper;
 mod numerics;
+mod time_span;
 
 use interop::{ro_initialize, RoInitType, CompositorDesktopInterop, create_dispatcher_queue_controller_for_current_thread};
 use minesweeper::Minesweeper;
