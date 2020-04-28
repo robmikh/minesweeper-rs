@@ -22,6 +22,12 @@ enum MineState {
     Last = 3, // ????
 }
 
+#[derive(Copy, Clone, PartialEq)]
+enum MineGenerationState {
+    Deferred,
+    Generated,
+}
+
 pub struct Minesweeper {
     compositor: Compositor,
     _root: SpriteVisual,
@@ -41,6 +47,8 @@ pub struct Minesweeper {
     mines: Vec<bool>,
     neighbor_counts: Vec<i32>,
     parent_size: Vector2,
+    mine_generation_state: MineGenerationState,
+    num_mines: i32,
 }
 
 impl Minesweeper {
@@ -94,6 +102,8 @@ impl Minesweeper {
             mines: Vec::new(),
             neighbor_counts: Vec::new(),
             parent_size: parent_size.clone(),
+            mine_generation_state: MineGenerationState::Deferred,
+            num_mines: 0,
         };
 
         result.new_game(16, 16, 40)?;
@@ -151,6 +161,7 @@ impl Minesweeper {
                     self.mine_states[index] = state;
                     visual.set_brush(self.get_color_brush_from_mine_state(state)?)?;
                 } else if self.mine_states[index] == MineState::Empty {
+                    // TODO: Show a message if the user hits a mine
                     self.sweep(self.current_selection_x, self.current_selection_y)?;
                 }
             }
@@ -181,7 +192,8 @@ impl Minesweeper {
             }
         }
 
-        self.generate_mines(mines);
+        self.mine_generation_state = MineGenerationState::Deferred;
+        self.num_mines = mines;
 
         self.selection_visual.set_is_visible(false)?;
         self.current_selection_x = -1;
@@ -215,6 +227,13 @@ impl Minesweeper {
     }
 
     fn sweep(&mut self, x: i32, y: i32) -> winrt::Result<bool> {
+        if self.mine_generation_state == MineGenerationState::Deferred {
+            // We don't want the first thing that the user clicks to be a mine. 
+            // Generate mines but avoid putting it where the user clicked.
+            self.generate_mines(self.num_mines, x, y);
+            self.mine_generation_state = MineGenerationState::Generated;
+        }
+
         let mut hit_mine = false;
         let mut sweeps: VecDeque<usize> = VecDeque::new();
         sweeps.push_back(self.compute_index(x, y));
@@ -302,7 +321,7 @@ impl Minesweeper {
         Ok(brush)
     }
 
-    fn generate_mines(&mut self, num_mines: i32) {
+    fn generate_mines(&mut self, num_mines: i32, exclude_x: i32, exclude_y: i32) {
         self.mines.clear();
         for _x in 0..self.game_board_width {
             for _y in 0..self.game_board_height {
@@ -314,10 +333,11 @@ impl Minesweeper {
         let mut rng = rand::thread_rng();
         for _i in 0..num_mines {
             let mut index: usize;
+            let exclude_index = self.compute_index(exclude_x, exclude_y);
             // do while loops look weird in rust...
             while {
                 index = between.sample(&mut rng);
-                self.mines[index]
+                index == exclude_index || self.mines[index]
             } {}
 
             self.mines[index] = true;
