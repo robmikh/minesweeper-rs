@@ -19,14 +19,22 @@ use std::time::Duration;
 // TODO: We allow dead code here because we don't directly construct some of these
 //       variants. The way we cycle through mine states in on_pointer_pressed isn't
 //       idiomatic, so we need to find a better way to do it.
-#[allow(dead_code)]
-#[repr(i32)]
 #[derive(Copy, Clone, PartialEq)]
 enum MineState {
-    Empty = 0,
-    Flag = 1,
-    Question = 2,
-    Last = 3, // ????
+    Empty,
+    Flag,
+    Question,
+    Last,
+}
+impl MineState {
+    fn inc(self) -> Self {
+        match self {
+            MineState::Empty => MineState::Flag,
+            MineState::Flag => MineState::Question,
+            MineState::Question => MineState::Last,
+            MineState::Last => MineState::Empty,
+        }
+    }
 }
 
 #[derive(Copy, Clone, PartialEq)]
@@ -183,13 +191,8 @@ impl Minesweeper {
 
             if self.mine_states[index] != MineState::Last {
                 if is_right_button || is_eraser {
-                    let mut state = self.mine_states[index];
-                    // TODO: Find a more idiomatic way to do this (see enum comment).
-                    state = unsafe {
-                        let state: i32 = (state as i32 + 1) % MineState::Last as i32;
-                        std::mem::transmute(state)
-                    };
-                    self.mine_states[index] = state;
+                    let state = self.mine_states[index];
+                    self.mine_states[index] = state.inc();
                     visual.set_brush(self.get_color_brush_from_mine_state(state)?)?;
                 } else if self.mine_states[index] == MineState::Empty {
                     if self.sweep(self.current_selection_x, self.current_selection_y)? {
