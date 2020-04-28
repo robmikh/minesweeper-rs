@@ -16,9 +16,6 @@ use rand::distributions::{Distribution, Uniform};
 use std::collections::VecDeque;
 use std::time::Duration;
 
-// TODO: We allow dead code here because we don't directly construct some of these
-//       variants. The way we cycle through mine states in on_pointer_pressed isn't
-//       idiomatic, so we need to find a better way to do it.
 #[derive(Copy, Clone, PartialEq)]
 enum MineState {
     Empty,
@@ -389,53 +386,29 @@ impl Minesweeper {
         &self,
         state: MineState,
     ) -> winrt::Result<CompositionColorBrush> {
-        let brush = match state {
-            MineState::Empty => self
-                .compositor
-                .create_color_brush_with_color(Colors::blue()?)?,
-            MineState::Flag => self
-                .compositor
-                .create_color_brush_with_color(Colors::orange()?)?,
-            MineState::Question => self
-                .compositor
-                .create_color_brush_with_color(Colors::lime_green()?)?,
-            _ => self
-                .compositor
-                .create_color_brush_with_color(Colors::black()?)?,
+        let color = match state {
+            MineState::Empty => Colors::blue()?,
+            MineState::Flag => Colors::orange()?,
+            MineState::Question => Colors::lime_green()?,
+            _ => Colors::black()?,
         };
+        let brush = self.compositor.create_color_brush_with_color(color)?;
         Ok(brush)
     }
 
     fn get_color_brush_from_mine_count(&self, count: i32) -> winrt::Result<CompositionColorBrush> {
-        let brush = match count {
-            1 => self
-                .compositor
-                .create_color_brush_with_color(Colors::light_blue()?)?,
-            2 => self
-                .compositor
-                .create_color_brush_with_color(Colors::light_green()?)?,
-            3 => self
-                .compositor
-                .create_color_brush_with_color(Colors::light_salmon()?)?,
-            4 => self
-                .compositor
-                .create_color_brush_with_color(Colors::light_steel_blue()?)?,
-            5 => self
-                .compositor
-                .create_color_brush_with_color(Colors::medium_purple()?)?,
-            6 => self
-                .compositor
-                .create_color_brush_with_color(Colors::light_cyan()?)?,
-            7 => self
-                .compositor
-                .create_color_brush_with_color(Colors::maroon()?)?,
-            8 => self
-                .compositor
-                .create_color_brush_with_color(Colors::dark_sea_green()?)?,
-            _ => self
-                .compositor
-                .create_color_brush_with_color(Colors::white_smoke()?)?,
+        let color = match count {
+            1 => Colors::light_blue()?,
+            2 => Colors::light_green()?,
+            3 => Colors::light_salmon()?,
+            4 => Colors::light_steel_blue()?,
+            5 => Colors::medium_purple()?,
+            6 => Colors::light_cyan()?,
+            7 => Colors::maroon()?,
+            8 => Colors::dark_sea_green()?,
+            _ => Colors::white_smoke()?,
         };
+        let brush = self.compositor.create_color_brush_with_color(color)?;
         Ok(brush)
     }
 
