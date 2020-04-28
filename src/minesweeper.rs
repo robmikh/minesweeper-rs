@@ -1,8 +1,14 @@
 use crate::windows::{
-    foundation::numerics::{Vector2, Vector3},
+    foundation::{
+        TimeSpan,
+        numerics::{Vector2, Vector3},
+    },
     ui::{
         Colors,
-        composition::{Compositor, ContainerVisual, SpriteVisual, CompositionColorBrush},
+        composition::{
+            Compositor, ContainerVisual, SpriteVisual, CompositionColorBrush, 
+            CompositionBatchTypes, AnimationIterationBehavior
+        },
     },
 };
 use crate::numerics::FromVector2;
@@ -49,6 +55,9 @@ pub struct Minesweeper {
     parent_size: Vector2,
     mine_generation_state: MineGenerationState,
     num_mines: i32,
+
+    mine_animation_playing: bool,
+    game_over: bool,
 }
 
 impl Minesweeper {
@@ -104,6 +113,9 @@ impl Minesweeper {
             parent_size: parent_size.clone(),
             mine_generation_state: MineGenerationState::Deferred,
             num_mines: 0,
+
+            mine_animation_playing: false,
+            game_over: false,
         };
 
         result.new_game(16, 16, 40)?;
@@ -113,6 +125,10 @@ impl Minesweeper {
     }
 
     pub fn on_pointer_moved(&mut self, point: &Vector2) -> winrt::Result<()> {
+        if self.game_over || self.mine_animation_playing {
+            return Ok(());
+        }
+
         let window_size = &self.parent_size;
         let scale = self.compute_scale_factor()?;
         let real_board_size = self.game_board.size()? * scale;
@@ -146,6 +162,12 @@ impl Minesweeper {
     }
 
     pub fn on_pointer_pressed(&mut self, is_right_button: bool, is_eraser: bool) -> winrt::Result<()> {
+        // TODO: Switch the condition back once we can subscribe to events.
+        //if self.game_over && !self.mine_animation_playing {
+        if self.game_over && self.mine_animation_playing {
+            self.new_game(16, 16, 40)?;
+        }
+        
         if self.current_selection_x >= 0 || self.current_selection_y >= 0 {
             let index = self.compute_index(self.current_selection_x, self.current_selection_y);
             let visual = &self.tiles[index];
@@ -161,8 +183,29 @@ impl Minesweeper {
                     self.mine_states[index] = state;
                     visual.set_brush(self.get_color_brush_from_mine_state(state)?)?;
                 } else if self.mine_states[index] == MineState::Empty {
-                    // TODO: Show a message if the user hits a mine
-                    self.sweep(self.current_selection_x, self.current_selection_y)?;
+                    if self.sweep(self.current_selection_x, self.current_selection_y)? {
+                        // We hit a mine! Setup and play an animation whiel locking any input.
+                        let hit_x = self.current_selection_x;
+                        let hit_y = self.current_selection_y;
+
+                        // First, hide the selection visual and reset the selection
+                        self.selection_visual.set_is_visible(false)?;
+                        self.current_selection_x = -1;
+                        self.current_selection_y = -1;
+
+                        // Create an animation batch so that we can know when the animations complete
+                        let batch = self.compositor.create_scoped_batch(CompositionBatchTypes::Animation)?;
+
+                        self.play_animation_on_all_mines(hit_x, hit_y)?;
+
+                        // Subscribe to the completion event and complete the batch
+                        // TODO: events
+                        batch.end()?;
+
+                        self.mine_animation_playing = true;
+                        self.game_over = true;
+                    }
+                    // TODO: Detect that the player has won
                 }
             }
         }
@@ -174,12 +217,16 @@ impl Minesweeper {
         self.game_board_height = board_height;
 
         self.game_board.children()?.remove_all()?;
+        self.tiles.clear();
+        self.mine_states.clear();
+
         self.game_board.set_size((&self.tile_size + &self.margin) * Vector2{ x: self.game_board_width as f32, y: self.game_board_height as f32 })?;
 
         for x in 0..self.game_board_width {
             for y in 0..self.game_board_height {
                 let visual = self.compositor.create_sprite_visual()?;
                 visual.set_size(&self.tile_size)?;
+                visual.set_center_point(Vector3::from_vector2(&self.tile_size / 2.0, 0.0))?;
                 visual.set_offset(Vector3::from_vector2(
                     (&self.margin / 2.0) + ((&self.tile_size + &self.margin) * Vector2{ x: x as f32, y: y as f32}),
                     0.0,
@@ -192,6 +239,8 @@ impl Minesweeper {
             }
         }
 
+        self.mine_animation_playing = false;
+        self.game_over = false;
         self.mine_generation_state = MineGenerationState::Deferred;
         self.num_mines = mines;
 
@@ -414,5 +463,104 @@ impl Minesweeper {
         }
 
         count
+    }
+
+    fn play_mine_animation(&self, index: usize, delay: &TimeSpan) -> winrt::Result<()> {
+        let visual = &self.tiles[index];
+        // First, we need to promote the visual to the top.
+        let parent_children = visual.parent()?.children()?;
+        parent_children.remove(visual)?;
+        parent_children.insert_at_top(visual)?;
+        // Make sure the visual has the mine brush
+        visual.set_brush(self.compositor.create_color_brush_with_color(Colors::red()?)?)?;
+        // Play the animation
+        let animation = self.compositor.create_vector3_key_frame_animation()?;
+        animation.insert_key_frame(0.0, Vector3 { x: 1.0, y: 1.0, z: 1.0 })?;
+        animation.insert_key_frame(0.7, Vector3 { x: 2.0, y: 2.0, z: 1.0 })?;
+        animation.insert_key_frame(1.0, Vector3 { x: 1.0, y: 1.0, z: 1.0 })?;
+        animation.set_duration(TimeSpan{ duration: 6000000 })?; // 600ms
+        animation.set_delay_time(delay)?;
+        animation.set_iteration_behavior(AnimationIterationBehavior::Count)?;
+        animation.set_iteration_count(1)?;
+        visual.start_animation("Scale", animation)?;
+        Ok(())
+    }
+
+    fn check_tile_for_mine_for_animation(&self, x: i32, y: i32, mine_indices: &mut VecDeque<usize>, visited_tiles: &mut i32, mines_in_ring: &mut i32) {
+        if self.is_in_bounds(x, y) {
+            let tile_index = self.compute_index(x, y);
+            if self.mines[tile_index] {
+                mine_indices.push_back(tile_index);
+                *mines_in_ring = *mines_in_ring + 1;
+            }
+            *visited_tiles = *visited_tiles + 1;
+        }
+    }
+
+    fn play_animation_on_all_mines(&mut self, center_x: i32, center_y: i32) -> winrt::Result<()> {
+        // Build a queue that contains the indices of the mines in a spiral starting from the clicked mine.
+        let mut mine_indices: VecDeque<usize> = VecDeque::new();
+        let mut mines_per_ring: VecDeque<i32> = VecDeque::new();
+        let mut visited_tiles: i32 = 0;
+        let mut ring_level: i32 = 0;
+        while visited_tiles < self.tiles.len() as i32 {
+            if ring_level == 0 {
+                let hit_mine_index = self.compute_index(center_x, center_y);
+                mine_indices.push_back(hit_mine_index);
+                mines_per_ring.push_back(1);
+                visited_tiles = visited_tiles + 1;
+            } else {
+                let mut current_mines_in_ring = 0;
+
+                // Check the top side
+                for x in (center_x - ring_level)..=(center_x + ring_level) {
+                    let y = center_y - ring_level;
+                    self.check_tile_for_mine_for_animation(x, y, &mut mine_indices, &mut visited_tiles, &mut current_mines_in_ring);
+                }
+
+                // Check the right side
+                for y in (center_y - ring_level + 1)..=(center_y + ring_level) {
+                    let x = center_x + ring_level;
+                    self.check_tile_for_mine_for_animation(x, y, &mut mine_indices, &mut visited_tiles, &mut current_mines_in_ring);
+                }
+
+                // Check the bottom side
+                for x in (center_x - ring_level)..(center_x + ring_level) {
+                    let y = center_y + ring_level;
+                    self.check_tile_for_mine_for_animation(x, y, &mut mine_indices, &mut visited_tiles, &mut current_mines_in_ring);
+                }
+
+                // Check the left side
+                for y in (center_y - ring_level + 1)..(center_y + ring_level) {
+                    let x = center_x - ring_level;
+                    self.check_tile_for_mine_for_animation(x, y, &mut mine_indices, &mut visited_tiles, &mut current_mines_in_ring);
+                }
+
+                if current_mines_in_ring > 0 {
+                    mines_per_ring.push_back(current_mines_in_ring);
+                }
+            }
+            ring_level = ring_level + 1;
+        }
+
+        // Iterate and animate each mine
+        let animation_delay_step = TimeSpan{ duration: 1000000 }; // 100ms
+        let mut current_delay = TimeSpan{ duration: 0 };
+        let mut current_mines_count = 0;
+        while !mine_indices.is_empty() {
+            let mine_index = *mine_indices.front().unwrap();
+            self.play_mine_animation(mine_index, &current_delay)?;
+            current_mines_count = current_mines_count + 1;
+
+            let mines_on_current_level = *mines_per_ring.front().unwrap();
+            if current_mines_count == mines_on_current_level {
+                current_mines_count = 0;
+                mines_per_ring.pop_front().unwrap();
+                current_delay.duration = current_delay.duration + animation_delay_step.duration;
+            }
+            mine_indices.pop_front().unwrap();
+        }
+
+        Ok(())
     }
 }
