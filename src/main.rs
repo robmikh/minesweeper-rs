@@ -100,7 +100,7 @@ fn main() {
     let result = run();
 
     // We do this for nicer HRESULT printing when errors occur.
-    if let Some(error) = result.err() {
+    if let Err(error) = result {
         error.code().unwrap();
     }
 }
