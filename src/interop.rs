@@ -1,24 +1,19 @@
-use std::ffi::c_void;
 use crate::windows::{
-    ui::composition::{
-        desktop::{
-            DesktopWindowTarget,
-        },
-    },
-    system::DispatcherQueueController,
+    system::DispatcherQueueController, ui::composition::desktop::DesktopWindowTarget,
 };
+use std::ffi::c_void;
 
 #[repr(C)]
 struct abi_ICompositorDesktopInterop {
-    __base : [usize; 3],
-    create_desktop_window_target: extern "system" fn(winrt::RawPtr, *mut c_void, i32, *mut winrt::RawPtr) -> winrt::ErrorCode,
+    __base: [usize; 3],
+    create_desktop_window_target:
+        extern "system" fn(winrt::RawPtr, *mut c_void, i32, *mut winrt::RawPtr) -> winrt::ErrorCode,
     ensure_on_thread: extern "system" fn(winrt::RawPtr, u32) -> winrt::ErrorCode,
 }
 
 unsafe impl winrt::ComInterface for CompositorDesktopInterop {
-    const GUID: winrt::Guid = winrt::Guid::from_values(
-        702976506, 17767, 19914, [179, 25, 208, 242, 7, 235, 104, 7]
-    );
+    const GUID: winrt::Guid =
+        winrt::Guid::from_values(702976506, 17767, 19914, [179, 25, 208, 242, 7, 235, 104, 7]);
 }
 
 #[repr(transparent)]
@@ -28,24 +23,29 @@ pub struct CompositorDesktopInterop {
 }
 
 impl CompositorDesktopInterop {
-    pub fn create_desktop_window_target(&self, hwnd: *mut c_void, is_topmost: bool) -> winrt::Result<DesktopWindowTarget> {
+    pub fn create_desktop_window_target(
+        &self,
+        hwnd: *mut c_void,
+        is_topmost: bool,
+    ) -> winrt::Result<DesktopWindowTarget> {
         unsafe {
             let mut __ok = std::mem::zeroed();
-            ((*(*(self.ptr.get() as *const *const abi_ICompositorDesktopInterop))).create_desktop_window_target)(self.ptr.get(), hwnd, is_topmost as i32, &mut __ok)
-                .and_then(|| {
-                    let result = std::mem::transmute_copy(&__ok);
-                    std::mem::forget(__ok);
-                    result
-                })
+            ((*(*(self.ptr.get() as *const *const abi_ICompositorDesktopInterop)))
+                .create_desktop_window_target)(
+                self.ptr.get(), hwnd, is_topmost as i32, &mut __ok
+            )
+            .and_then(|| {
+                let result = std::mem::transmute_copy(&__ok);
+                std::mem::forget(__ok);
+                result
+            })
         }
     }
 }
 
 #[link(name = "windowsapp")]
 extern "stdcall" {
-    fn RoInitialize(
-        init_type: i32,
-    ) -> winrt::ErrorCode;
+    fn RoInitialize(init_type: i32) -> winrt::ErrorCode;
 }
 
 #[allow(dead_code)]
@@ -56,9 +56,7 @@ pub enum RoInitType {
 }
 
 pub fn ro_initialize(init_type: RoInitType) -> winrt::Result<()> {
-    unsafe {
-        RoInitialize(init_type as i32).ok()
-    }
+    unsafe { RoInitialize(init_type as i32).ok() }
 }
 
 #[link(name = "coremessaging")]
@@ -91,7 +89,10 @@ pub enum DispatcherQueueThreadApartmentType {
     STA = 2,
 }
 
-pub fn create_dispatcher_queue_controller(thread_type: DispatcherQueueThreadType, apartment_type: DispatcherQueueThreadApartmentType) -> winrt::Result<DispatcherQueueController> {
+pub fn create_dispatcher_queue_controller(
+    thread_type: DispatcherQueueThreadType,
+    apartment_type: DispatcherQueueThreadApartmentType,
+) -> winrt::Result<DispatcherQueueController> {
     unsafe {
         let options = DispatcherQueueOptions {
             size: std::mem::size_of::<DispatcherQueueOptions>() as u32,
@@ -106,6 +107,10 @@ pub fn create_dispatcher_queue_controller(thread_type: DispatcherQueueThreadType
     }
 }
 
-pub fn create_dispatcher_queue_controller_for_current_thread() -> winrt::Result<DispatcherQueueController> {
-    create_dispatcher_queue_controller(DispatcherQueueThreadType::Current, DispatcherQueueThreadApartmentType::None)
+pub fn create_dispatcher_queue_controller_for_current_thread(
+) -> winrt::Result<DispatcherQueueController> {
+    create_dispatcher_queue_controller(
+        DispatcherQueueThreadType::Current,
+        DispatcherQueueThreadApartmentType::None,
+    )
 }
