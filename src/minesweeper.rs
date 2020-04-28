@@ -21,15 +21,15 @@ enum MineState {
     Empty,
     Flag,
     Question,
-    Last,
+    Revealed,
 }
 impl MineState {
-    fn inc(self) -> Self {
+    fn cycle(self) -> Self {
         match self {
             MineState::Empty => MineState::Flag,
             MineState::Flag => MineState::Question,
-            MineState::Question => MineState::Last,
-            MineState::Last => MineState::Empty,
+            MineState::Question => MineState::Empty,
+            MineState::Revealed => panic!("We shouldn't be cycling a revealed tile!"),
         }
     }
 }
@@ -150,7 +150,7 @@ impl Minesweeper {
         let y = (point.y / (self.tile_size.y + self.margin.y)) as i32;
         let index = self.compute_index(x, y);
 
-        if self.is_in_bounds(x, y) && self.mine_states[index] != MineState::Last {
+        if self.is_in_bounds(x, y) && self.mine_states[index] != MineState::Revealed {
             let visual = &self.tiles[index];
             self.selection_visual.set_parent_for_transform(visual)?;
             self.current_selection_x = x;
@@ -186,10 +186,10 @@ impl Minesweeper {
             let index = self.compute_index(self.current_selection_x, self.current_selection_y);
             let visual = &self.tiles[index];
 
-            if self.mine_states[index] != MineState::Last {
+            if self.mine_states[index] != MineState::Revealed {
                 if is_right_button || is_eraser {
-                    let state = self.mine_states[index];
-                    self.mine_states[index] = state.inc();
+                    let state = self.mine_states[index].cycle();
+                    self.mine_states[index] = state;
                     visual.set_brush(self.get_color_brush_from_mine_state(state)?)?;
                 } else if self.mine_states[index] == MineState::Empty {
                     if self.sweep(self.current_selection_x, self.current_selection_y)? {
@@ -358,7 +358,7 @@ impl Minesweeper {
             visual.set_brush(self.get_color_brush_from_mine_count(count)?)?;
         }
 
-        self.mine_states[index] = MineState::Last;
+        self.mine_states[index] = MineState::Revealed;
         Ok(())
     }
 
