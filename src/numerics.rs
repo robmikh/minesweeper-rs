@@ -1,5 +1,5 @@
 use crate::windows::foundation::numerics::{Vector2, Vector3};
-use std::ops::{Add, Sub, Div, Mul};
+use std::ops::{Add, Div, Mul, Sub};
 
 impl Add for Vector2 {
     type Output = Self;
@@ -144,7 +144,9 @@ impl FromVector2 for Vector3 {
     type Output = Self;
     fn from_vector2(value: Vector2, z: f32) -> Self {
         Vector3 {
-            x: value.x, y: value.y, z: z,
+            x: value.x,
+            y: value.y,
+            z: z,
         }
     }
 }

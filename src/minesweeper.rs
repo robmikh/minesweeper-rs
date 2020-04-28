@@ -1,23 +1,23 @@
+use crate::numerics::FromVector2;
 use crate::windows::{
     foundation::{
-        TimeSpan,
         numerics::{Vector2, Vector3},
+        TimeSpan,
     },
     ui::{
-        Colors,
         composition::{
-            Compositor, ContainerVisual, SpriteVisual, CompositionColorBrush, 
-            CompositionBatchTypes, AnimationIterationBehavior
+            AnimationIterationBehavior, CompositionBatchTypes, CompositionColorBrush, Compositor,
+            ContainerVisual, SpriteVisual,
         },
+        Colors,
     },
 };
-use crate::numerics::FromVector2;
 use rand::distributions::{Distribution, Uniform};
 use std::collections::VecDeque;
 use std::time::Duration;
 
 // TODO: We allow dead code here because we don't directly construct some of these
-//       variants. The way we cycle through mine states in on_pointer_pressed isn't 
+//       variants. The way we cycle through mine states in on_pointer_pressed isn't
 //       idiomatic, so we need to find a better way to do it.
 #[allow(dead_code)]
 #[repr(i32)]
@@ -66,17 +66,21 @@ impl Minesweeper {
         let compositor = parent_visual.compositor()?;
         let root = compositor.create_sprite_visual()?;
 
-        root.set_relative_size_adjustment(Vector2{ x: 1.0, y: 1.0 })?;
+        root.set_relative_size_adjustment(Vector2 { x: 1.0, y: 1.0 })?;
         root.set_brush(compositor.create_color_brush_with_color(Colors::white()?)?)?;
         parent_visual.children()?.insert_at_top(&root)?;
 
-        let tile_size = Vector2{ x: 25.0, y: 25.0 };
-        let margin = Vector2{ x: 2.5, y: 2.5 };
-        let game_board_margin = Vector2{ x: 100.0, y: 100.0 };
+        let tile_size = Vector2 { x: 25.0, y: 25.0 };
+        let margin = Vector2 { x: 2.5, y: 2.5 };
+        let game_board_margin = Vector2 { x: 100.0, y: 100.0 };
 
         let game_board = compositor.create_container_visual()?;
-        game_board.set_relative_offset_adjustment(Vector3{ x: 0.5, y: 0.5, z: 0.0 })?;
-        game_board.set_anchor_point(Vector2{ x: 0.5, y: 0.5 })?;
+        game_board.set_relative_offset_adjustment(Vector3 {
+            x: 0.5,
+            y: 0.5,
+            z: 0.0,
+        })?;
+        game_board.set_anchor_point(Vector2 { x: 0.5, y: 0.5 })?;
         root.children()?.insert_at_top(&game_board)?;
 
         let selection_visual = compositor.create_sprite_visual()?;
@@ -134,7 +138,7 @@ impl Minesweeper {
         let scale = self.compute_scale_factor()?;
         let real_board_size = self.game_board.size()? * scale;
         let real_offset = (window_size - real_board_size) / 2.0;
-        
+
         let point = (point - real_offset) / scale;
 
         let x = (point.x / (self.tile_size.x + self.margin.x)) as i32;
@@ -162,13 +166,17 @@ impl Minesweeper {
         Ok(())
     }
 
-    pub fn on_pointer_pressed(&mut self, is_right_button: bool, is_eraser: bool) -> winrt::Result<()> {
+    pub fn on_pointer_pressed(
+        &mut self,
+        is_right_button: bool,
+        is_eraser: bool,
+    ) -> winrt::Result<()> {
         // TODO: Switch the condition back once we can subscribe to events.
         //if self.game_over && !self.mine_animation_playing {
         if self.game_over && self.mine_animation_playing {
             self.new_game(16, 16, 40)?;
         }
-        
+
         if self.current_selection_x >= 0 || self.current_selection_y >= 0 {
             let index = self.compute_index(self.current_selection_x, self.current_selection_y);
             let visual = &self.tiles[index];
@@ -195,7 +203,9 @@ impl Minesweeper {
                         self.current_selection_y = -1;
 
                         // Create an animation batch so that we can know when the animations complete
-                        let batch = self.compositor.create_scoped_batch(CompositionBatchTypes::Animation)?;
+                        let batch = self
+                            .compositor
+                            .create_scoped_batch(CompositionBatchTypes::Animation)?;
 
                         self.play_animation_on_all_mines(hit_x, hit_y)?;
 
@@ -221,7 +231,13 @@ impl Minesweeper {
         self.tiles.clear();
         self.mine_states.clear();
 
-        self.game_board.set_size((&self.tile_size + &self.margin) * Vector2{ x: self.game_board_width as f32, y: self.game_board_height as f32 })?;
+        self.game_board.set_size(
+            (&self.tile_size + &self.margin)
+                * Vector2 {
+                    x: self.game_board_width as f32,
+                    y: self.game_board_height as f32,
+                },
+        )?;
 
         for x in 0..self.game_board_width {
             for y in 0..self.game_board_height {
@@ -229,10 +245,18 @@ impl Minesweeper {
                 visual.set_size(&self.tile_size)?;
                 visual.set_center_point(Vector3::from_vector2(&self.tile_size / 2.0, 0.0))?;
                 visual.set_offset(Vector3::from_vector2(
-                    (&self.margin / 2.0) + ((&self.tile_size + &self.margin) * Vector2{ x: x as f32, y: y as f32}),
+                    (&self.margin / 2.0)
+                        + ((&self.tile_size + &self.margin)
+                            * Vector2 {
+                                x: x as f32,
+                                y: y as f32,
+                            }),
                     0.0,
                 ))?;
-                visual.set_brush(self.compositor.create_color_brush_with_color(Colors::blue()?)?)?;
+                visual.set_brush(
+                    self.compositor
+                        .create_color_brush_with_color(Colors::blue()?)?,
+                )?;
 
                 self.game_board.children()?.insert_at_top(&visual)?;
                 self.tiles.push(visual);
@@ -272,13 +296,17 @@ impl Minesweeper {
 
     fn update_board_scale(&mut self, window_size: &Vector2) -> winrt::Result<()> {
         let scale_factor = self.compute_scale_factor_from_size(window_size)?;
-        self.game_board.set_scale(Vector3{ x: scale_factor, y: scale_factor, z: 1.0 })?;
+        self.game_board.set_scale(Vector3 {
+            x: scale_factor,
+            y: scale_factor,
+            z: 1.0,
+        })?;
         Ok(())
     }
 
     fn sweep(&mut self, x: i32, y: i32) -> winrt::Result<bool> {
         if self.mine_generation_state == MineGenerationState::Deferred {
-            // We don't want the first thing that the user clicks to be a mine. 
+            // We don't want the first thing that the user clicks to be a mine.
             // Generate mines but avoid putting it where the user clicked.
             self.generate_mines(self.num_mines, x, y);
             self.mine_generation_state = MineGenerationState::Generated;
@@ -321,7 +349,10 @@ impl Minesweeper {
         let visual = &self.tiles[index];
 
         if self.mines[index] {
-            visual.set_brush(self.compositor.create_color_brush_with_color(Colors::red()?)?)?;
+            visual.set_brush(
+                self.compositor
+                    .create_color_brush_with_color(Colors::red()?)?,
+            )?;
         } else {
             let count = self.neighbor_counts[index];
             visual.set_brush(self.get_color_brush_from_mine_count(count)?)?;
@@ -336,7 +367,12 @@ impl Minesweeper {
         self.is_in_bounds(x, y) && self.mine_states[index] == MineState::Empty
     }
 
-    fn push_if_unmarked(&mut self, sweeps: &mut VecDeque<usize>, x: i32, y: i32) -> winrt::Result<()> {
+    fn push_if_unmarked(
+        &mut self,
+        sweeps: &mut VecDeque<usize>,
+        x: i32,
+        y: i32,
+    ) -> winrt::Result<()> {
         if self.is_in_bounds_and_unmarked(x, y) {
             let index = self.compute_index(x, y);
             self.reveal(index)?;
@@ -346,27 +382,56 @@ impl Minesweeper {
         Ok(())
     }
 
-    fn get_color_brush_from_mine_state(&self, state: MineState) -> winrt::Result<CompositionColorBrush> {
+    fn get_color_brush_from_mine_state(
+        &self,
+        state: MineState,
+    ) -> winrt::Result<CompositionColorBrush> {
         let brush = match state {
-            MineState::Empty => self.compositor.create_color_brush_with_color(Colors::blue()?)?,
-            MineState::Flag => self.compositor.create_color_brush_with_color(Colors::orange()?)?,
-            MineState::Question => self.compositor.create_color_brush_with_color(Colors::lime_green()?)?,
-            _ => self.compositor.create_color_brush_with_color(Colors::black()?)?,
+            MineState::Empty => self
+                .compositor
+                .create_color_brush_with_color(Colors::blue()?)?,
+            MineState::Flag => self
+                .compositor
+                .create_color_brush_with_color(Colors::orange()?)?,
+            MineState::Question => self
+                .compositor
+                .create_color_brush_with_color(Colors::lime_green()?)?,
+            _ => self
+                .compositor
+                .create_color_brush_with_color(Colors::black()?)?,
         };
         Ok(brush)
     }
 
     fn get_color_brush_from_mine_count(&self, count: i32) -> winrt::Result<CompositionColorBrush> {
         let brush = match count {
-            1 => self.compositor.create_color_brush_with_color(Colors::light_blue()?)?,
-            2 => self.compositor.create_color_brush_with_color(Colors::light_green()?)?,
-            3 => self.compositor.create_color_brush_with_color(Colors::light_salmon()?)?,
-            4 => self.compositor.create_color_brush_with_color(Colors::light_steel_blue()?)?,
-            5 => self.compositor.create_color_brush_with_color(Colors::medium_purple()?)?,
-            6 => self.compositor.create_color_brush_with_color(Colors::light_cyan()?)?,
-            7 => self.compositor.create_color_brush_with_color(Colors::maroon()?)?,
-            8 => self.compositor.create_color_brush_with_color(Colors::dark_sea_green()?)?,
-            _ => self.compositor.create_color_brush_with_color(Colors::white_smoke()?)?,
+            1 => self
+                .compositor
+                .create_color_brush_with_color(Colors::light_blue()?)?,
+            2 => self
+                .compositor
+                .create_color_brush_with_color(Colors::light_green()?)?,
+            3 => self
+                .compositor
+                .create_color_brush_with_color(Colors::light_salmon()?)?,
+            4 => self
+                .compositor
+                .create_color_brush_with_color(Colors::light_steel_blue()?)?,
+            5 => self
+                .compositor
+                .create_color_brush_with_color(Colors::medium_purple()?)?,
+            6 => self
+                .compositor
+                .create_color_brush_with_color(Colors::light_cyan()?)?,
+            7 => self
+                .compositor
+                .create_color_brush_with_color(Colors::maroon()?)?,
+            8 => self
+                .compositor
+                .create_color_brush_with_color(Colors::dark_sea_green()?)?,
+            _ => self
+                .compositor
+                .create_color_brush_with_color(Colors::white_smoke()?)?,
         };
         Ok(brush)
     }
@@ -473,12 +538,36 @@ impl Minesweeper {
         parent_children.remove(visual)?;
         parent_children.insert_at_top(visual)?;
         // Make sure the visual has the mine brush
-        visual.set_brush(self.compositor.create_color_brush_with_color(Colors::red()?)?)?;
+        visual.set_brush(
+            self.compositor
+                .create_color_brush_with_color(Colors::red()?)?,
+        )?;
         // Play the animation
         let animation = self.compositor.create_vector3_key_frame_animation()?;
-        animation.insert_key_frame(0.0, Vector3 { x: 1.0, y: 1.0, z: 1.0 })?;
-        animation.insert_key_frame(0.7, Vector3 { x: 2.0, y: 2.0, z: 1.0 })?;
-        animation.insert_key_frame(1.0, Vector3 { x: 1.0, y: 1.0, z: 1.0 })?;
+        animation.insert_key_frame(
+            0.0,
+            Vector3 {
+                x: 1.0,
+                y: 1.0,
+                z: 1.0,
+            },
+        )?;
+        animation.insert_key_frame(
+            0.7,
+            Vector3 {
+                x: 2.0,
+                y: 2.0,
+                z: 1.0,
+            },
+        )?;
+        animation.insert_key_frame(
+            1.0,
+            Vector3 {
+                x: 1.0,
+                y: 1.0,
+                z: 1.0,
+            },
+        )?;
         animation.set_duration(TimeSpan::from(Duration::from_millis(600)))?;
         animation.set_delay_time(delay)?;
         animation.set_iteration_behavior(AnimationIterationBehavior::Count)?;
@@ -487,7 +576,14 @@ impl Minesweeper {
         Ok(())
     }
 
-    fn check_tile_for_mine_for_animation(&self, x: i32, y: i32, mine_indices: &mut VecDeque<usize>, visited_tiles: &mut i32, mines_in_ring: &mut i32) {
+    fn check_tile_for_mine_for_animation(
+        &self,
+        x: i32,
+        y: i32,
+        mine_indices: &mut VecDeque<usize>,
+        visited_tiles: &mut i32,
+        mines_in_ring: &mut i32,
+    ) {
         if self.is_in_bounds(x, y) {
             let tile_index = self.compute_index(x, y);
             if self.mines[tile_index] {
@@ -516,25 +612,49 @@ impl Minesweeper {
                 // Check the top side
                 for x in (center_x - ring_level)..=(center_x + ring_level) {
                     let y = center_y - ring_level;
-                    self.check_tile_for_mine_for_animation(x, y, &mut mine_indices, &mut visited_tiles, &mut current_mines_in_ring);
+                    self.check_tile_for_mine_for_animation(
+                        x,
+                        y,
+                        &mut mine_indices,
+                        &mut visited_tiles,
+                        &mut current_mines_in_ring,
+                    );
                 }
 
                 // Check the right side
                 for y in (center_y - ring_level + 1)..=(center_y + ring_level) {
                     let x = center_x + ring_level;
-                    self.check_tile_for_mine_for_animation(x, y, &mut mine_indices, &mut visited_tiles, &mut current_mines_in_ring);
+                    self.check_tile_for_mine_for_animation(
+                        x,
+                        y,
+                        &mut mine_indices,
+                        &mut visited_tiles,
+                        &mut current_mines_in_ring,
+                    );
                 }
 
                 // Check the bottom side
                 for x in (center_x - ring_level)..(center_x + ring_level) {
                     let y = center_y + ring_level;
-                    self.check_tile_for_mine_for_animation(x, y, &mut mine_indices, &mut visited_tiles, &mut current_mines_in_ring);
+                    self.check_tile_for_mine_for_animation(
+                        x,
+                        y,
+                        &mut mine_indices,
+                        &mut visited_tiles,
+                        &mut current_mines_in_ring,
+                    );
                 }
 
                 // Check the left side
                 for y in (center_y - ring_level + 1)..(center_y + ring_level) {
                     let x = center_x - ring_level;
-                    self.check_tile_for_mine_for_animation(x, y, &mut mine_indices, &mut visited_tiles, &mut current_mines_in_ring);
+                    self.check_tile_for_mine_for_animation(
+                        x,
+                        y,
+                        &mut mine_indices,
+                        &mut visited_tiles,
+                        &mut current_mines_in_ring,
+                    );
                 }
 
                 if current_mines_in_ring > 0 {
