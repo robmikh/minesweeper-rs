@@ -281,10 +281,13 @@ impl Minesweeper {
     fn compute_scale_factor_from_size(&self, window_size: &Vector2) -> winrt::Result<f32> {
         let board_size = self.game_board.size()?;
         let board_size = board_size + &self.game_board_margin;
-        let mut scale_factor = window_size.y / board_size.y;
 
-        if board_size.x > window_size.x {
-            scale_factor = window_size.x / board_size.x;
+        let window_ratio = window_size.x / window_size.y;
+        let board_ratio = board_size.x / board_size.y;
+
+        let mut scale_factor = window_size.x / board_size.x;
+        if window_ratio > board_ratio {
+            scale_factor = window_size.y / board_size.y;
         }
 
         Ok(scale_factor)
