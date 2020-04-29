@@ -6,7 +6,8 @@ use crate::windows::{
     },
     ui::{
         composition::{
-            AnimationIterationBehavior, CompositionBatchTypes, CompositionColorBrush, Compositor,
+            AnimationIterationBehavior, CompositionBatchTypes, CompositionColorBrush,
+            CompositionGeometry, CompositionShape, CompositionSpriteShape, Compositor,
             ContainerVisual, SpriteVisual,
         },
         Colors,
@@ -15,6 +16,7 @@ use crate::windows::{
 use rand::distributions::{Distribution, Uniform};
 use std::collections::VecDeque;
 use std::time::Duration;
+use winrt::TryInto;
 
 #[derive(Copy, Clone, PartialEq)]
 enum MineState {
@@ -179,7 +181,11 @@ impl Minesweeper {
         // TODO: Switch the condition back once we can subscribe to events.
         //if self.game_over && !self.mine_animation_playing {
         if self.game_over && self.mine_animation_playing {
-            self.new_game(16, 16, 40)?;
+            self.new_game(
+                self.game_board_width,
+                self.game_board_height,
+                self.num_mines,
+            )?;
         }
 
         if self.current_selection_x >= 0 || self.current_selection_y >= 0 {
@@ -359,6 +365,14 @@ impl Minesweeper {
         } else {
             let count = self.neighbor_counts[index];
             visual.set_brush(self.get_color_brush_from_mine_count(count)?)?;
+
+            if count > 0 {
+                let shape = self.get_shape_from_mine_count(count)?;
+                let shape_visual = self.compositor.create_shape_visual()?;
+                shape_visual.set_relative_size_adjustment(Vector2 { x: 1.0, y: 1.0 })?;
+                shape_visual.shapes()?.append(shape)?;
+                visual.children()?.insert_at_top(shape_visual)?;
+            }
         }
 
         self.mine_states[index] = MineState::Revealed;
@@ -662,5 +676,344 @@ impl Minesweeper {
         }
 
         Ok(())
+    }
+
+    fn get_shape_from_mine_count(&self, count: i32) -> winrt::Result<CompositionShape> {
+        let container_shape = self.compositor.create_container_shape()?;
+        let circle_geometry = self.compositor.create_ellipse_geometry()?;
+        circle_geometry.set_radius(&self.tile_size / 12.0)?;
+        let circle_geometry: CompositionGeometry = circle_geometry.try_into()?;
+        let dot_brush = self
+            .compositor
+            .create_color_brush_with_color(Colors::black()?)?;
+        let shapes = container_shape.shapes()?;
+
+        match count {
+            1 => {
+                shapes.append(self.get_dot_shape(
+                    &circle_geometry,
+                    &dot_brush,
+                    &self.tile_size / 2.0,
+                )?)?;
+            }
+            2 => {
+                let third_x = self.tile_size.x / 3.0;
+                let half_y = self.tile_size.y / 2.0;
+                shapes.append(self.get_dot_shape(
+                    &circle_geometry,
+                    &dot_brush,
+                    Vector2 {
+                        x: third_x,
+                        y: half_y,
+                    },
+                )?)?;
+                shapes.append(self.get_dot_shape(
+                    &circle_geometry,
+                    &dot_brush,
+                    Vector2 {
+                        x: third_x * 2.0,
+                        y: half_y,
+                    },
+                )?)?;
+            }
+            3 => {
+                let fourth_x = self.tile_size.x / 4.0;
+                let fourth_y = self.tile_size.y / 4.0;
+                shapes.append(self.get_dot_shape(
+                    &circle_geometry,
+                    &dot_brush,
+                    &self.tile_size / 2.0,
+                )?)?;
+                shapes.append(self.get_dot_shape(
+                    &circle_geometry,
+                    &dot_brush,
+                    Vector2 {
+                        x: fourth_x,
+                        y: fourth_y * 3.0,
+                    },
+                )?)?;
+                shapes.append(self.get_dot_shape(
+                    &circle_geometry,
+                    &dot_brush,
+                    Vector2 {
+                        x: fourth_x * 3.0,
+                        y: fourth_y,
+                    },
+                )?)?;
+            }
+            4 => {
+                let third_x = self.tile_size.x / 3.0;
+                let third_y = self.tile_size.y / 3.0;
+                shapes.append(self.get_dot_shape(
+                    &circle_geometry,
+                    &dot_brush,
+                    Vector2 {
+                        x: third_x,
+                        y: third_y,
+                    },
+                )?)?;
+                shapes.append(self.get_dot_shape(
+                    &circle_geometry,
+                    &dot_brush,
+                    Vector2 {
+                        x: third_x * 2.0,
+                        y: third_y,
+                    },
+                )?)?;
+                shapes.append(self.get_dot_shape(
+                    &circle_geometry,
+                    &dot_brush,
+                    Vector2 {
+                        x: third_x,
+                        y: third_y * 2.0,
+                    },
+                )?)?;
+                shapes.append(self.get_dot_shape(
+                    &circle_geometry,
+                    &dot_brush,
+                    Vector2 {
+                        x: third_x * 2.0,
+                        y: third_y * 2.0,
+                    },
+                )?)?;
+            }
+            5 => {
+                let fourth_x = self.tile_size.x / 4.0;
+                let fourth_y = self.tile_size.y / 4.0;
+                shapes.append(self.get_dot_shape(
+                    &circle_geometry,
+                    &dot_brush,
+                    &self.tile_size / 2.0,
+                )?)?;
+                shapes.append(self.get_dot_shape(
+                    &circle_geometry,
+                    &dot_brush,
+                    Vector2 {
+                        x: fourth_x,
+                        y: fourth_y * 3.0,
+                    },
+                )?)?;
+                shapes.append(self.get_dot_shape(
+                    &circle_geometry,
+                    &dot_brush,
+                    Vector2 {
+                        x: fourth_x * 3.0,
+                        y: fourth_y,
+                    },
+                )?)?;
+                shapes.append(self.get_dot_shape(
+                    &circle_geometry,
+                    &dot_brush,
+                    Vector2 {
+                        x: fourth_x,
+                        y: fourth_y,
+                    },
+                )?)?;
+                shapes.append(self.get_dot_shape(
+                    &circle_geometry,
+                    &dot_brush,
+                    Vector2 {
+                        x: fourth_x * 3.0,
+                        y: fourth_y * 3.0,
+                    },
+                )?)?;
+            }
+            6 => {
+                let fourth_x = self.tile_size.x / 4.0;
+                let fourth_y = self.tile_size.y / 4.0;
+                shapes.append(self.get_dot_shape(
+                    &circle_geometry,
+                    &dot_brush,
+                    Vector2 {
+                        x: fourth_x,
+                        y: fourth_y * 2.0,
+                    },
+                )?)?;
+                shapes.append(self.get_dot_shape(
+                    &circle_geometry,
+                    &dot_brush,
+                    Vector2 {
+                        x: fourth_x,
+                        y: fourth_y * 3.0,
+                    },
+                )?)?;
+                shapes.append(self.get_dot_shape(
+                    &circle_geometry,
+                    &dot_brush,
+                    Vector2 {
+                        x: fourth_x * 3.0,
+                        y: fourth_y,
+                    },
+                )?)?;
+                shapes.append(self.get_dot_shape(
+                    &circle_geometry,
+                    &dot_brush,
+                    Vector2 {
+                        x: fourth_x,
+                        y: fourth_y,
+                    },
+                )?)?;
+                shapes.append(self.get_dot_shape(
+                    &circle_geometry,
+                    &dot_brush,
+                    Vector2 {
+                        x: fourth_x * 3.0,
+                        y: fourth_y * 3.0,
+                    },
+                )?)?;
+                shapes.append(self.get_dot_shape(
+                    &circle_geometry,
+                    &dot_brush,
+                    Vector2 {
+                        x: fourth_x * 3.0,
+                        y: fourth_y * 2.0,
+                    },
+                )?)?;
+            }
+            7 => {
+                let fourth_x = self.tile_size.x / 4.0;
+                let fourth_y = self.tile_size.y / 4.0;
+                shapes.append(self.get_dot_shape(
+                    &circle_geometry,
+                    &dot_brush,
+                    Vector2 {
+                        x: fourth_x,
+                        y: fourth_y * 2.0,
+                    },
+                )?)?;
+                shapes.append(self.get_dot_shape(
+                    &circle_geometry,
+                    &dot_brush,
+                    Vector2 {
+                        x: fourth_x,
+                        y: fourth_y * 3.0,
+                    },
+                )?)?;
+                shapes.append(self.get_dot_shape(
+                    &circle_geometry,
+                    &dot_brush,
+                    Vector2 {
+                        x: fourth_x * 3.0,
+                        y: fourth_y,
+                    },
+                )?)?;
+                shapes.append(self.get_dot_shape(
+                    &circle_geometry,
+                    &dot_brush,
+                    Vector2 {
+                        x: fourth_x,
+                        y: fourth_y,
+                    },
+                )?)?;
+                shapes.append(self.get_dot_shape(
+                    &circle_geometry,
+                    &dot_brush,
+                    Vector2 {
+                        x: fourth_x * 3.0,
+                        y: fourth_y * 3.0,
+                    },
+                )?)?;
+                shapes.append(self.get_dot_shape(
+                    &circle_geometry,
+                    &dot_brush,
+                    Vector2 {
+                        x: fourth_x * 3.0,
+                        y: fourth_y * 2.0,
+                    },
+                )?)?;
+                shapes.append(self.get_dot_shape(
+                    &circle_geometry,
+                    &dot_brush,
+                    &self.tile_size / 2.0,
+                )?)?;
+            }
+            8 => {
+                let fourth_x = self.tile_size.x / 4.0;
+                let fourth_y = self.tile_size.y / 4.0;
+                let half_x = self.tile_size.x / 2.0;
+                let third_y = self.tile_size.y / 3.0;
+                shapes.append(self.get_dot_shape(
+                    &circle_geometry,
+                    &dot_brush,
+                    Vector2 {
+                        x: fourth_x,
+                        y: fourth_y * 2.0,
+                    },
+                )?)?;
+                shapes.append(self.get_dot_shape(
+                    &circle_geometry,
+                    &dot_brush,
+                    Vector2 {
+                        x: fourth_x,
+                        y: fourth_y * 3.0,
+                    },
+                )?)?;
+                shapes.append(self.get_dot_shape(
+                    &circle_geometry,
+                    &dot_brush,
+                    Vector2 {
+                        x: fourth_x * 3.0,
+                        y: fourth_y,
+                    },
+                )?)?;
+                shapes.append(self.get_dot_shape(
+                    &circle_geometry,
+                    &dot_brush,
+                    Vector2 {
+                        x: fourth_x,
+                        y: fourth_y,
+                    },
+                )?)?;
+                shapes.append(self.get_dot_shape(
+                    &circle_geometry,
+                    &dot_brush,
+                    Vector2 {
+                        x: fourth_x * 3.0,
+                        y: fourth_y * 3.0,
+                    },
+                )?)?;
+                shapes.append(self.get_dot_shape(
+                    &circle_geometry,
+                    &dot_brush,
+                    Vector2 {
+                        x: fourth_x * 3.0,
+                        y: fourth_y * 2.0,
+                    },
+                )?)?;
+                shapes.append(self.get_dot_shape(
+                    &circle_geometry,
+                    &dot_brush,
+                    Vector2 {
+                        x: half_x,
+                        y: third_y,
+                    },
+                )?)?;
+                shapes.append(self.get_dot_shape(
+                    &circle_geometry,
+                    &dot_brush,
+                    Vector2 {
+                        x: half_x,
+                        y: third_y * 2.0,
+                    },
+                )?)?;
+            }
+            _ => (),
+        }
+
+        Ok(container_shape.try_into()?)
+    }
+
+    fn get_dot_shape(
+        &self,
+        geometry: &CompositionGeometry,
+        brush: &CompositionColorBrush,
+        offset: Vector2,
+    ) -> winrt::Result<CompositionSpriteShape> {
+        let shape = self
+            .compositor
+            .create_sprite_shape_with_geometry(geometry)?;
+        shape.set_fill_brush(brush)?;
+        shape.set_offset(offset)?;
+        Ok(shape)
     }
 }
