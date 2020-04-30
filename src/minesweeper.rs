@@ -75,6 +75,7 @@ impl Minesweeper {
 
         root.set_relative_size_adjustment(Vector2 { x: 1.0, y: 1.0 })?;
         root.set_brush(compositor.create_color_brush_with_color(Colors::white()?)?)?;
+        root.set_border_mode(CompositionBorderMode::Hard)?;
         parent_visual.children()?.insert_at_top(&root)?;
 
         let tile_size = Vector2 { x: 25.0, y: 25.0 };
@@ -97,7 +98,6 @@ impl Minesweeper {
         nine_grid_brush.set_is_center_hollow(true)?;
         nine_grid_brush.set_source(color_brush)?;
         selection_visual.set_brush(nine_grid_brush)?;
-        selection_visual.set_border_mode(CompositionBorderMode::Hard)?;
         selection_visual.set_offset(Vector3::from_vector2(&margin * -1.0, 0.0))?;
         selection_visual.set_is_visible(false)?;
         selection_visual.set_size(&tile_size + &margin * 2.0)?;
@@ -264,7 +264,6 @@ impl Minesweeper {
                     self.compositor
                         .create_color_brush_with_color(Colors::blue()?)?,
                 )?;
-                visual.set_border_mode(CompositionBorderMode::Hard)?;
 
                 self.game_board.children()?.insert_at_top(&visual)?;
                 self.tiles.push(visual);
