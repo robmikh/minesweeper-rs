@@ -15,13 +15,11 @@ mod interop;
 mod minesweeper;
 mod numerics;
 mod time_span;
+mod window_target;
 
-use interop::{
-    create_dispatcher_queue_controller_for_current_thread, ro_initialize, CompositorDesktopInterop,
-    RoInitType,
-};
+use interop::{create_dispatcher_queue_controller_for_current_thread, ro_initialize, RoInitType};
 use minesweeper::Minesweeper;
-use raw_window_handle::HasRawWindowHandle;
+use window_target::CompositionDesktopWindowTargetSource;
 use winit::{
     event::{ElementState, Event, MouseButton, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
@@ -29,7 +27,6 @@ use winit::{
 };
 
 use windows::{foundation::numerics::Vector2, ui::composition::Compositor};
-use winrt::TryInto;
 
 fn run() -> winrt::Result<()> {
     ro_initialize(RoInitType::MultiThreaded)?;
@@ -39,16 +36,8 @@ fn run() -> winrt::Result<()> {
     let window = WindowBuilder::new().build(&event_loop).unwrap();
     window.set_title("Minesweeper");
 
-    // Get the window handle
-    let window_handle = window.raw_window_handle();
-    let window_handle = match window_handle {
-        raw_window_handle::RawWindowHandle::Windows(window_handle) => window_handle.hwnd,
-        _ => panic!("Unsupported platform!"),
-    };
-
     let compositor = Compositor::new()?;
-    let compositor_desktop: CompositorDesktopInterop = compositor.try_into()?;
-    let target = compositor_desktop.create_desktop_window_target(window_handle, false)?;
+    let target = window.create_window_target(&compositor, false)?;
 
     let root = compositor.create_container_visual()?;
     root.set_relative_size_adjustment(Vector2 { x: 1.0, y: 1.0 })?;
