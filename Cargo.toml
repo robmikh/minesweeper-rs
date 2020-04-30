@@ -7,5 +7,5 @@ edition = "2018"
 [dependencies]
 winit = "0.22.0"
 raw-window-handle = "0.3.3"
-winrt = { path = "../winrt-rs" }
+winrt = { git = "https://github.com/microsoft/winrt-rs" }
 rand = "0.7.3"
