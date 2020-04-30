@@ -6,9 +6,9 @@ use crate::windows::{
     },
     ui::{
         composition::{
-            AnimationIterationBehavior, CompositionBatchTypes, CompositionColorBrush,
-            CompositionGeometry, CompositionShape, CompositionSpriteShape, Compositor,
-            ContainerVisual, SpriteVisual,
+            AnimationIterationBehavior, CompositionBatchTypes, CompositionBorderMode,
+            CompositionColorBrush, CompositionGeometry, CompositionShape, CompositionSpriteShape,
+            Compositor, ContainerVisual, SpriteVisual,
         },
         Colors,
     },
@@ -97,6 +97,7 @@ impl Minesweeper {
         nine_grid_brush.set_is_center_hollow(true)?;
         nine_grid_brush.set_source(color_brush)?;
         selection_visual.set_brush(nine_grid_brush)?;
+        selection_visual.set_border_mode(CompositionBorderMode::Hard)?;
         selection_visual.set_offset(Vector3::from_vector2(&margin * -1.0, 0.0))?;
         selection_visual.set_is_visible(false)?;
         selection_visual.set_size(&tile_size + &margin * 2.0)?;
@@ -263,6 +264,7 @@ impl Minesweeper {
                     self.compositor
                         .create_color_brush_with_color(Colors::blue()?)?,
                 )?;
+                visual.set_border_mode(CompositionBorderMode::Hard)?;
 
                 self.game_board.children()?.insert_at_top(&visual)?;
                 self.tiles.push(visual);
@@ -371,6 +373,7 @@ impl Minesweeper {
                 let shape_visual = self.compositor.create_shape_visual()?;
                 shape_visual.set_relative_size_adjustment(Vector2 { x: 1.0, y: 1.0 })?;
                 shape_visual.shapes()?.append(shape)?;
+                shape_visual.set_border_mode(CompositionBorderMode::Soft)?;
                 visual.children()?.insert_at_top(shape_visual)?;
             }
         }
