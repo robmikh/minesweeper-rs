@@ -6,9 +6,9 @@ use crate::windows::{
     },
     ui::{
         composition::{
-            AnimationIterationBehavior, CompositionBatchTypes, CompositionColorBrush,
-            CompositionGeometry, CompositionShape, CompositionSpriteShape, Compositor,
-            ContainerVisual, SpriteVisual,
+            AnimationIterationBehavior, CompositionBatchTypes, CompositionBorderMode,
+            CompositionColorBrush, CompositionGeometry, CompositionShape, CompositionSpriteShape,
+            Compositor, ContainerVisual, SpriteVisual,
         },
         Colors,
     },
@@ -75,6 +75,7 @@ impl Minesweeper {
 
         root.set_relative_size_adjustment(Vector2 { x: 1.0, y: 1.0 })?;
         root.set_brush(compositor.create_color_brush_with_color(Colors::white()?)?)?;
+        root.set_border_mode(CompositionBorderMode::Hard)?;
         parent_visual.children()?.insert_at_top(&root)?;
 
         let tile_size = Vector2 { x: 25.0, y: 25.0 };
@@ -371,6 +372,7 @@ impl Minesweeper {
                 let shape_visual = self.compositor.create_shape_visual()?;
                 shape_visual.set_relative_size_adjustment(Vector2 { x: 1.0, y: 1.0 })?;
                 shape_visual.shapes()?.append(shape)?;
+                shape_visual.set_border_mode(CompositionBorderMode::Soft)?;
                 visual.children()?.insert_at_top(shape_visual)?;
             }
         }
