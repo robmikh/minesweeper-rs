@@ -35,6 +35,8 @@ fn run() -> winrt::Result<()> {
     ro_initialize(RoInitType::MultiThreaded)?;
     let _controller = create_dispatcher_queue_controller_for_current_thread()?;
 
+    bad change test
+
     let event_loop = EventLoop::new();
     let window = WindowBuilder::new().build(&event_loop).unwrap();
     window.set_title("Minesweeper");
