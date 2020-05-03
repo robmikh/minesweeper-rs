@@ -409,16 +409,12 @@ impl Minesweeper {
         Ok(())
     }
 
-    fn get_color_brush_from_mine_state(
-        &self,
-        state: MineState,
-    ) -> CompositionColorBrush {
+    fn get_color_brush_from_mine_state(&self, state: MineState) -> CompositionColorBrush {
         self.mine_state_brushes.get(&state).unwrap().clone()
     }
 
     fn get_color_brush_from_mine_count(&self, count: i32) -> CompositionColorBrush {
-        self
-            .mine_count_background_brushes
+        self.mine_count_background_brushes
             .get(&count)
             .unwrap()
             .clone()
