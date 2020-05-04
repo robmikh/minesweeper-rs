@@ -113,20 +113,20 @@ impl Minesweeper {
         let mine_brush = compositor.create_color_brush_with_color(Colors::red()?)?;
 
         let mut result = Self {
-            compositor: compositor,
+            compositor,
             _root: root,
 
-            game_board: game_board,
+            game_board,
             tiles: Vec::new(),
-            selection_visual: selection_visual,
+            selection_visual,
 
             game_board_width: 0,
             game_board_height: 0,
-            tile_size: tile_size,
-            margin: margin,
-            game_board_margin: game_board_margin,
-            current_selection_x: current_selection_x,
-            current_selection_y: current_selection_y,
+            tile_size,
+            margin,
+            game_board_margin,
+            current_selection_x,
+            current_selection_y,
             mine_states: Vec::new(),
             mines: Vec::new(),
             neighbor_counts: Vec::new(),
@@ -137,7 +137,7 @@ impl Minesweeper {
             mine_animation_playing: false,
             game_over: false,
 
-            mine_brush: mine_brush,
+            mine_brush,
             mine_state_brushes: HashMap::new(),
             mine_count_background_brushes: HashMap::new(),
             mine_count_shapes: HashMap::new(),
@@ -212,33 +212,33 @@ impl Minesweeper {
                     let state = self.mine_states[index].cycle();
                     self.mine_states[index] = state;
                     visual.set_brush(self.get_color_brush_from_mine_state(state))?;
-                } else if self.mine_states[index] == MineState::Empty {
-                    if self.sweep(self.current_selection_x, self.current_selection_y)? {
-                        // We hit a mine! Setup and play an animation whiel locking any input.
-                        let hit_x = self.current_selection_x;
-                        let hit_y = self.current_selection_y;
+                } else if self.mine_states[index] == MineState::Empty
+                    && self.sweep(self.current_selection_x, self.current_selection_y)?
+                {
+                    // We hit a mine! Setup and play an animation whiel locking any input.
+                    let hit_x = self.current_selection_x;
+                    let hit_y = self.current_selection_y;
 
-                        // First, hide the selection visual and reset the selection
-                        self.selection_visual.set_is_visible(false)?;
-                        self.current_selection_x = -1;
-                        self.current_selection_y = -1;
+                    // First, hide the selection visual and reset the selection
+                    self.selection_visual.set_is_visible(false)?;
+                    self.current_selection_x = -1;
+                    self.current_selection_y = -1;
 
-                        // Create an animation batch so that we can know when the animations complete
-                        let batch = self
-                            .compositor
-                            .create_scoped_batch(CompositionBatchTypes::Animation)?;
+                    // Create an animation batch so that we can know when the animations complete
+                    let batch = self
+                        .compositor
+                        .create_scoped_batch(CompositionBatchTypes::Animation)?;
 
-                        self.play_animation_on_all_mines(hit_x, hit_y)?;
+                    self.play_animation_on_all_mines(hit_x, hit_y)?;
 
-                        // Subscribe to the completion event and complete the batch
-                        // TODO: events
-                        batch.end()?;
+                    // Subscribe to the completion event and complete the batch
+                    // TODO: events
+                    batch.end()?;
 
-                        self.mine_animation_playing = true;
-                        self.game_over = true;
-                    }
-                    // TODO: Detect that the player has won
+                    self.mine_animation_playing = true;
+                    self.game_over = true;
                 }
+                // TODO: Detect that the player has won
             }
         }
         Ok(())
@@ -303,10 +303,11 @@ impl Minesweeper {
         let window_ratio = window_size.x / window_size.y;
         let board_ratio = board_size.x / board_size.y;
 
-        let mut scale_factor = window_size.x / board_size.x;
-        if window_ratio > board_ratio {
-            scale_factor = window_size.y / board_size.y;
-        }
+        let scale_factor = if window_ratio > board_ratio {
+            window_size.y / board_size.y
+        } else {
+            window_size.x / board_size.x
+        };
 
         Ok(scale_factor)
     }
@@ -409,15 +410,12 @@ impl Minesweeper {
         Ok(())
     }
 
-    fn get_color_brush_from_mine_state(&self, state: MineState) -> CompositionColorBrush {
-        self.mine_state_brushes.get(&state).unwrap().clone()
+    fn get_color_brush_from_mine_state(&self, state: MineState) -> &CompositionColorBrush {
+        self.mine_state_brushes.get(&state).unwrap()
     }
 
-    fn get_color_brush_from_mine_count(&self, count: i32) -> CompositionColorBrush {
-        self.mine_count_background_brushes
-            .get(&count)
-            .unwrap()
-            .clone()
+    fn get_color_brush_from_mine_count(&self, count: i32) -> &CompositionColorBrush {
+        self.mine_count_background_brushes.get(&count).unwrap()
     }
 
     fn generate_mines(&mut self, num_mines: i32, exclude_x: i32, exclude_y: i32) {
@@ -430,9 +428,10 @@ impl Minesweeper {
 
         let between = Uniform::from(0..(self.game_board_width * self.game_board_height) as usize);
         let mut rng = rand::thread_rng();
+        let exclude_index = self.compute_index(exclude_x, exclude_y);
+
         for _i in 0..num_mines {
             let mut index: usize;
-            let exclude_index = self.compute_index(exclude_x, exclude_y);
             // do while loops look weird in rust...
             while {
                 index = between.sample(&mut rng);
@@ -443,14 +442,13 @@ impl Minesweeper {
         }
 
         self.neighbor_counts.clear();
-        for i in 0..self.mines.len() {
-            let x = self.compute_x_from_index(i);
-            let y = self.compute_y_from_index(i);
-
-            if self.mines[i] {
+        for (i, &mine) in self.mines.iter().enumerate() {
+            if mine {
                 // -1 means a mine
                 self.neighbor_counts.push(-1);
             } else {
+                let x = self.compute_x_from_index(i);
+                let y = self.compute_y_from_index(i);
                 let count = self.get_surrounding_mine_count(x, y);
                 self.neighbor_counts.push(count);
             }
@@ -481,35 +479,35 @@ impl Minesweeper {
         let mut count = 0;
 
         if self.test_spot(x + 1, y) {
-            count = count + 1;
+            count += 1;
         }
 
         if self.test_spot(x - 1, y) {
-            count = count + 1;
+            count += 1;
         }
 
         if self.test_spot(x, y + 1) {
-            count = count + 1;
+            count += 1;
         }
 
         if self.test_spot(x, y - 1) {
-            count = count + 1;
+            count += 1;
         }
 
         if self.test_spot(x + 1, y + 1) {
-            count = count + 1;
+            count += 1;
         }
 
         if self.test_spot(x - 1, y - 1) {
-            count = count + 1;
+            count += 1;
         }
 
         if self.test_spot(x - 1, y + 1) {
-            count = count + 1;
+            count += 1;
         }
 
         if self.test_spot(x + 1, y - 1) {
-            count = count + 1;
+            count += 1;
         }
 
         count
@@ -569,9 +567,9 @@ impl Minesweeper {
             let tile_index = self.compute_index(x, y);
             if self.mines[tile_index] {
                 mine_indices.push_back(tile_index);
-                *mines_in_ring = *mines_in_ring + 1;
+                *mines_in_ring += 1;
             }
-            *visited_tiles = *visited_tiles + 1;
+            *visited_tiles += 1;
         }
     }
 
@@ -586,7 +584,7 @@ impl Minesweeper {
                 let hit_mine_index = self.compute_index(center_x, center_y);
                 mine_indices.push_back(hit_mine_index);
                 mines_per_ring.push_back(1);
-                visited_tiles = visited_tiles + 1;
+                visited_tiles += 1;
             } else {
                 let mut current_mines_in_ring = 0;
 
@@ -642,7 +640,7 @@ impl Minesweeper {
                     mines_per_ring.push_back(current_mines_in_ring);
                 }
             }
-            ring_level = ring_level + 1;
+            ring_level += 1;
         }
 
         // Iterate and animate each mine
@@ -652,13 +650,13 @@ impl Minesweeper {
         while !mine_indices.is_empty() {
             let mine_index = *mine_indices.front().unwrap();
             self.play_mine_animation(mine_index, &TimeSpan::from(current_delay))?;
-            current_mines_count = current_mines_count + 1;
+            current_mines_count += 1;
 
             let mines_on_current_level = *mines_per_ring.front().unwrap();
             if current_mines_count == mines_on_current_level {
                 current_mines_count = 0;
                 mines_per_ring.pop_front().unwrap();
-                current_delay = current_delay + animation_delay_step;
+                current_delay += animation_delay_step;
             }
             mine_indices.pop_front().unwrap();
         }
@@ -666,8 +664,8 @@ impl Minesweeper {
         Ok(())
     }
 
-    fn get_shape_from_mine_count(&self, count: i32) -> CompositionShape {
-        self.mine_count_shapes.get(&count).unwrap().clone()
+    fn get_shape_from_mine_count(&self, count: i32) -> &CompositionShape {
+        self.mine_count_shapes.get(&count).unwrap()
     }
 
     fn get_dot_shape(
