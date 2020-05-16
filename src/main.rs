@@ -12,6 +12,7 @@ winrt::import!(
 );
 
 mod comp_assets;
+mod comp_ui;
 mod interop;
 mod minesweeper;
 mod numerics;

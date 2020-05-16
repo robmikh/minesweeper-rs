@@ -162,10 +162,6 @@ impl VisualGrid {
         self.current_selection
     }
 
-    pub fn num_tiles(&self) -> usize {
-        self.tiles.len()
-    }
-
     fn compute_index(&self, x: i32, y: i32) -> usize {
         (x * self.grid_height_in_tiles + y) as usize
     }
