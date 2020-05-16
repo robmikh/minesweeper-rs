@@ -37,10 +37,7 @@ pub struct IndexHelper {
 
 impl IndexHelper {
     pub fn new(width: i32, height: i32) -> Self {
-        Self {
-            width,
-            height,
-        }
+        Self { width, height }
     }
 
     pub fn compute_index(&self, x: i32, y: i32) -> usize {
