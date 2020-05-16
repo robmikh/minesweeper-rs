@@ -317,7 +317,9 @@ impl Minesweeper {
                 self.neighbor_counts.push(-1);
                 // DEBUG
                 if cfg!(debug_assertions) {
-                    self.ui.update_tile_with_state(&TileCoordinate { x: x, y: y }, MineState::Question).unwrap();
+                    self.ui
+                        .update_tile_with_state(&TileCoordinate { x: x, y: y }, MineState::Question)
+                        .unwrap();
                 }
             } else {
                 let count = self.get_surrounding_mine_count(x, y);
