@@ -36,7 +36,7 @@ impl CompAssets {
         let mine_brush = compositor.create_color_brush_with_color(Colors::red()?)?;
 
         let mut result = Self {
-            mine_brush: mine_brush,
+            mine_brush,
             mine_state_brushes: HashMap::new(),
             mine_count_background_brushes: HashMap::new(),
             mine_count_shapes: HashMap::new(),

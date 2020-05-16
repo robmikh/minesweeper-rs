@@ -51,11 +51,11 @@ impl VisualGrid {
         selection_visual.set_size(tile_size + margin * 2.0)?;
 
         let mut result = Self {
-            compositor: compositor,
-            root: root,
+            compositor,
+            root,
 
             tiles: Vec::new(),
-            selection_visual: selection_visual,
+            selection_visual,
 
             grid_width_in_tiles: grid_size_in_tiles.width,
             grid_height_in_tiles: grid_size_in_tiles.height,
@@ -131,7 +131,7 @@ impl VisualGrid {
         let y = (point.y / (self.tile_size.y + self.margin.y)) as i32;
 
         if self.is_in_bounds(x, y) {
-            Some(TileCoordinate { x: x, y: y })
+            Some(TileCoordinate { x, y })
         } else {
             None
         }

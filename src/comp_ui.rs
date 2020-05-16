@@ -69,14 +69,14 @@ impl CompUI {
         let assets = CompAssets::new(&compositor, &tile_size)?;
 
         Ok(Self {
-            compositor: compositor,
+            compositor,
             _root: root,
             parent_size: parent_size.clone(),
-            game_board_margin: game_board_margin,
+            game_board_margin,
             index_helper: IndexHelper::new(grid_size_in_tiles.width, grid_size_in_tiles.height),
 
-            game_board: game_board,
-            assets: assets,
+            game_board,
+            assets,
             mine_animation_playing: false,
         })
     }
@@ -185,13 +185,13 @@ impl CompUI {
         while !mine_indices.is_empty() {
             let mine_index = *mine_indices.front().unwrap();
             self.play_mine_animation(mine_index, &TimeSpan::from(current_delay))?;
-            current_mines_count = current_mines_count + 1;
+            current_mines_count += 1;
 
             let mines_on_current_level = *mines_per_ring.front().unwrap();
             if current_mines_count == mines_on_current_level {
                 current_mines_count = 0;
                 mines_per_ring.pop_front().unwrap();
-                current_delay = current_delay + animation_delay_step;
+                current_delay += animation_delay_step;
             }
             mine_indices.pop_front().unwrap();
         }

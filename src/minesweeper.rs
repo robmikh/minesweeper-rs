@@ -38,8 +38,8 @@ pub struct IndexHelper {
 impl IndexHelper {
     pub fn new(width: i32, height: i32) -> Self {
         Self {
-            width: width,
-            height: height,
+            width,
+            height,
         }
     }
 
@@ -85,7 +85,7 @@ impl Minesweeper {
         let ui = CompUI::new(parent_visual, parent_size, &game_board_size_in_tiles)?;
 
         let mut result = Self {
-            ui: ui,
+            ui,
 
             game_board_width: game_board_size_in_tiles.width,
             game_board_height: game_board_size_in_tiles.height,
@@ -318,7 +318,7 @@ impl Minesweeper {
                 // DEBUG
                 if cfg!(debug_assertions) {
                     self.ui
-                        .update_tile_with_state(&TileCoordinate { x: x, y: y }, MineState::Question)
+                        .update_tile_with_state(&TileCoordinate { x, y }, MineState::Question)
                         .unwrap();
                 }
             } else {
@@ -336,35 +336,35 @@ impl Minesweeper {
         let mut count = 0;
 
         if self.test_spot(x + 1, y) {
-            count = count + 1;
+            count += 1;
         }
 
         if self.test_spot(x - 1, y) {
-            count = count + 1;
+            count += 1;
         }
 
         if self.test_spot(x, y + 1) {
-            count = count + 1;
+            count += 1;
         }
 
         if self.test_spot(x, y - 1) {
-            count = count + 1;
+            count += 1;
         }
 
         if self.test_spot(x + 1, y + 1) {
-            count = count + 1;
+            count += 1;
         }
 
         if self.test_spot(x - 1, y - 1) {
-            count = count + 1;
+            count += 1;
         }
 
         if self.test_spot(x - 1, y + 1) {
-            count = count + 1;
+            count += 1;
         }
 
         if self.test_spot(x + 1, y - 1) {
-            count = count + 1;
+            count += 1;
         }
 
         count
@@ -382,9 +382,9 @@ impl Minesweeper {
             let tile_index = self.index_helper.compute_index(x, y);
             if self.mines[tile_index] {
                 mine_indices.push_back(tile_index);
-                *mines_in_ring = *mines_in_ring + 1;
+                *mines_in_ring += 1;
             }
-            *visited_tiles = *visited_tiles + 1;
+            *visited_tiles += 1;
         }
     }
 
@@ -399,7 +399,7 @@ impl Minesweeper {
                 let hit_mine_index = self.index_helper.compute_index(center_x, center_y);
                 mine_indices.push_back(hit_mine_index);
                 mines_per_ring.push_back(1);
-                visited_tiles = visited_tiles + 1;
+                visited_tiles += 1;
             } else {
                 let mut current_mines_in_ring = 0;
 
@@ -455,7 +455,7 @@ impl Minesweeper {
                     mines_per_ring.push_back(current_mines_in_ring);
                 }
             }
-            ring_level = ring_level + 1;
+            ring_level += 1;
         }
 
         // Iterate and animate each mine

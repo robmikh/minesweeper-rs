@@ -146,7 +146,7 @@ impl FromVector2 for Vector3 {
         Vector3 {
             x: value.x,
             y: value.y,
-            z: z,
+            z,
         }
     }
 }
