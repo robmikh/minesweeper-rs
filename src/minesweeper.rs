@@ -1,9 +1,10 @@
-use crate::numerics::FromVector2;
+use crate::visual_grid::VisualGrid;
 use crate::windows::{
     foundation::{
         numerics::{Vector2, Vector3},
         TimeSpan,
     },
+    graphics::SizeInt32,
     ui::{
         composition::{
             AnimationIterationBehavior, CompositionBatchTypes, CompositionBorderMode,
@@ -46,17 +47,13 @@ pub struct Minesweeper {
     compositor: Compositor,
     _root: SpriteVisual,
 
-    game_board: ContainerVisual,
-    tiles: Vec<SpriteVisual>,
-    selection_visual: SpriteVisual,
+    game_board: VisualGrid,
+    tile_size: Vector2,
 
     game_board_width: i32,
     game_board_height: i32,
-    tile_size: Vector2,
-    margin: Vector2,
     game_board_margin: Vector2,
-    current_selection_x: i32,
-    current_selection_y: i32,
+
     mine_states: Vec<MineState>,
     mines: Vec<bool>,
     neighbor_counts: Vec<i32>,
@@ -84,31 +81,28 @@ impl Minesweeper {
         parent_visual.children()?.insert_at_top(&root)?;
 
         let tile_size = Vector2 { x: 25.0, y: 25.0 };
-        let margin = Vector2 { x: 2.5, y: 2.5 };
+        let game_board = VisualGrid::new(
+            &compositor,
+            &SizeInt32 {
+                width: 16,
+                height: 16,
+            },
+            &tile_size,
+            &Vector2 { x: 2.5, y: 2.5 },
+        )?;
         let game_board_margin = Vector2 { x: 100.0, y: 100.0 };
 
-        let game_board = compositor.create_container_visual()?;
-        game_board.set_relative_offset_adjustment(Vector3 {
+        let game_board_visual = game_board.root();
+        game_board_visual.set_relative_offset_adjustment(Vector3 {
             x: 0.5,
             y: 0.5,
             z: 0.0,
         })?;
-        game_board.set_anchor_point(Vector2 { x: 0.5, y: 0.5 })?;
-        root.children()?.insert_at_top(&game_board)?;
+        game_board_visual.set_anchor_point(Vector2 { x: 0.5, y: 0.5 })?;
+        root.children()?.insert_at_top(game_board_visual)?;
 
-        let selection_visual = compositor.create_sprite_visual()?;
-        let color_brush = compositor.create_color_brush_with_color(Colors::red()?)?;
-        let nine_grid_brush = compositor.create_nine_grid_brush()?;
-        nine_grid_brush.set_insets_with_values(margin.x, margin.y, margin.x, margin.y)?;
-        nine_grid_brush.set_is_center_hollow(true)?;
-        nine_grid_brush.set_source(color_brush)?;
-        selection_visual.set_brush(nine_grid_brush)?;
-        selection_visual.set_offset(Vector3::from_vector2(&margin * -1.0, 0.0))?;
-        selection_visual.set_is_visible(false)?;
-        selection_visual.set_size(&tile_size + &margin * 2.0)?;
-        root.children()?.insert_at_top(&selection_visual)?;
-        let current_selection_x = -1;
-        let current_selection_y = -1;
+        let selection_visual = game_board.selection_visual();
+        root.children()?.insert_at_top(selection_visual)?;
 
         let mine_brush = compositor.create_color_brush_with_color(Colors::red()?)?;
 
@@ -117,16 +111,12 @@ impl Minesweeper {
             _root: root,
 
             game_board: game_board,
-            tiles: Vec::new(),
-            selection_visual: selection_visual,
+            tile_size: tile_size,
 
             game_board_width: 0,
             game_board_height: 0,
-            tile_size: tile_size,
-            margin: margin,
             game_board_margin: game_board_margin,
-            current_selection_x: current_selection_x,
-            current_selection_y: current_selection_y,
+
             mine_states: Vec::new(),
             mines: Vec::new(),
             neighbor_counts: Vec::new(),
@@ -163,21 +153,16 @@ impl Minesweeper {
 
         let point = (point - real_offset) / scale;
 
-        let x = (point.x / (self.tile_size.x + self.margin.x)) as i32;
-        let y = (point.y / (self.tile_size.y + self.margin.y)) as i32;
-        let index = self.compute_index(x, y);
-
-        if self.is_in_bounds(x, y) && self.mine_states[index] != MineState::Revealed {
-            let visual = &self.tiles[index];
-            self.selection_visual.set_parent_for_transform(visual)?;
-            self.current_selection_x = x;
-            self.current_selection_y = y;
-            self.selection_visual.set_is_visible(true)?;
+        let selected_tile = if let Some(tile) = self.game_board.hit_test(&point) {
+            if self.mine_states[self.compute_index(tile.x, tile.y)] != MineState::Revealed {
+                Some(tile)
+            } else {
+                None
+            }
         } else {
-            self.current_selection_x = -1;
-            self.current_selection_y = -1;
-            self.selection_visual.set_is_visible(false)?;
-        }
+            None
+        };
+        self.game_board.select_tile(selected_tile)?;
 
         Ok(())
     }
@@ -203,9 +188,13 @@ impl Minesweeper {
             )?;
         }
 
-        if self.current_selection_x >= 0 || self.current_selection_y >= 0 {
-            let index = self.compute_index(self.current_selection_x, self.current_selection_y);
-            let visual = &self.tiles[index];
+        let current_selection = self.game_board.current_selected_tile();
+        if let Some(current_selection) = current_selection {
+            let index = self.compute_index(current_selection.x, current_selection.y);
+            let visual = self
+                .game_board
+                .get_tile(current_selection.x, current_selection.y)
+                .unwrap();
 
             if self.mine_states[index] != MineState::Revealed {
                 if is_right_button || is_eraser {
@@ -213,15 +202,13 @@ impl Minesweeper {
                     self.mine_states[index] = state;
                     visual.set_brush(self.get_color_brush_from_mine_state(state))?;
                 } else if self.mine_states[index] == MineState::Empty {
-                    if self.sweep(self.current_selection_x, self.current_selection_y)? {
+                    if self.sweep(current_selection.x, current_selection.y)? {
                         // We hit a mine! Setup and play an animation whiel locking any input.
-                        let hit_x = self.current_selection_x;
-                        let hit_y = self.current_selection_y;
+                        let hit_x = current_selection.x;
+                        let hit_y = current_selection.y;
 
                         // First, hide the selection visual and reset the selection
-                        self.selection_visual.set_is_visible(false)?;
-                        self.current_selection_x = -1;
-                        self.current_selection_y = -1;
+                        self.game_board.select_tile(None)?;
 
                         // Create an animation batch so that we can know when the animations complete
                         let batch = self
@@ -248,48 +235,21 @@ impl Minesweeper {
         self.game_board_width = board_width;
         self.game_board_height = board_height;
 
-        self.game_board.children()?.remove_all()?;
-        self.tiles.clear();
+        self.game_board.reset(&SizeInt32 {
+            width: board_width,
+            height: board_height,
+        })?;
         self.mine_states.clear();
 
-        self.game_board.set_size(
-            (&self.tile_size + &self.margin)
-                * Vector2 {
-                    x: self.game_board_width as f32,
-                    y: self.game_board_height as f32,
-                },
-        )?;
-
-        for x in 0..self.game_board_width {
-            for y in 0..self.game_board_height {
-                let visual = self.compositor.create_sprite_visual()?;
-                visual.set_size(&self.tile_size)?;
-                visual.set_center_point(Vector3::from_vector2(&self.tile_size / 2.0, 0.0))?;
-                visual.set_offset(Vector3::from_vector2(
-                    (&self.margin / 2.0)
-                        + ((&self.tile_size + &self.margin)
-                            * Vector2 {
-                                x: x as f32,
-                                y: y as f32,
-                            }),
-                    0.0,
-                ))?;
-                visual.set_brush(self.get_color_brush_from_mine_state(MineState::Empty))?;
-
-                self.game_board.children()?.insert_at_top(&visual)?;
-                self.tiles.push(visual);
-                self.mine_states.push(MineState::Empty);
-            }
+        for visual in self.game_board.tiles_iter() {
+            visual.set_brush(self.get_color_brush_from_mine_state(MineState::Empty))?;
+            self.mine_states.push(MineState::Empty);
         }
 
         self.mine_animation_playing = false;
         self.game_over = false;
         self.mine_generation_state = MineGenerationState::Deferred;
         self.num_mines = mines;
-
-        self.selection_visual.set_is_visible(false)?;
-        self.current_selection_x = -1;
-        self.current_selection_y = -1;
 
         self.update_board_scale(&self.parent_size.clone())?;
 
@@ -317,7 +277,7 @@ impl Minesweeper {
 
     fn update_board_scale(&mut self, window_size: &Vector2) -> winrt::Result<()> {
         let scale_factor = self.compute_scale_factor_from_size(window_size)?;
-        self.game_board.set_scale(Vector3 {
+        self.game_board.root().set_scale(Vector3 {
             x: scale_factor,
             y: scale_factor,
             z: 1.0,
@@ -367,7 +327,13 @@ impl Minesweeper {
     }
 
     fn reveal(&mut self, index: usize) -> winrt::Result<()> {
-        let visual = &self.tiles[index];
+        let visual = self
+            .game_board
+            .get_tile(
+                self.compute_x_from_index(index),
+                self.compute_y_from_index(index),
+            )
+            .unwrap();
 
         if self.mines[index] {
             visual.set_brush(&self.mine_brush)?;
@@ -516,7 +482,13 @@ impl Minesweeper {
     }
 
     fn play_mine_animation(&self, index: usize, delay: &TimeSpan) -> winrt::Result<()> {
-        let visual = &self.tiles[index];
+        let visual = self
+            .game_board
+            .get_tile(
+                self.compute_x_from_index(index),
+                self.compute_y_from_index(index),
+            )
+            .unwrap();
         // First, we need to promote the visual to the top.
         let parent_children = visual.parent()?.children()?;
         parent_children.remove(visual)?;
@@ -581,7 +553,7 @@ impl Minesweeper {
         let mut mines_per_ring: VecDeque<i32> = VecDeque::new();
         let mut visited_tiles: i32 = 0;
         let mut ring_level: i32 = 0;
-        while visited_tiles < self.tiles.len() as i32 {
+        while visited_tiles < self.game_board.num_tiles() as i32 {
             if ring_level == 0 {
                 let hit_mine_index = self.compute_index(center_x, center_y);
                 mine_indices.push_back(hit_mine_index);

@@ -15,6 +15,7 @@ mod interop;
 mod minesweeper;
 mod numerics;
 mod time_span;
+mod visual_grid;
 mod window_target;
 
 use interop::{create_dispatcher_queue_controller_for_current_thread, ro_initialize, RoInitType};
