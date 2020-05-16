@@ -1,9 +1,7 @@
 use crate::comp_ui::CompUI;
 use crate::visual_grid::TileCoordinate;
 use crate::windows::{
-    foundation::numerics::Vector2,
-    graphics::SizeInt32,
-    ui::composition::ContainerVisual,
+    foundation::numerics::Vector2, graphics::SizeInt32, ui::composition::ContainerVisual,
 };
 use rand::distributions::{Distribution, Uniform};
 use std::collections::VecDeque;
@@ -91,7 +89,10 @@ impl Minesweeper {
 
             game_board_width: game_board_size_in_tiles.width,
             game_board_height: game_board_size_in_tiles.height,
-            index_helper: IndexHelper::new(game_board_size_in_tiles.width, game_board_size_in_tiles.height),
+            index_helper: IndexHelper::new(
+                game_board_size_in_tiles.width,
+                game_board_size_in_tiles.height,
+            ),
 
             mine_states: Vec::new(),
             mines: Vec::new(),
@@ -114,7 +115,9 @@ impl Minesweeper {
         }
 
         let selected_tile = if let Some(tile) = self.ui.hit_test(&point)? {
-            if self.mine_states[self.index_helper.compute_index(tile.x, tile.y)] != MineState::Revealed {
+            if self.mine_states[self.index_helper.compute_index(tile.x, tile.y)]
+                != MineState::Revealed
+            {
                 Some(tile)
             } else {
                 None
@@ -149,7 +152,9 @@ impl Minesweeper {
 
         let current_selection = self.ui.current_selected_tile();
         if let Some(current_selection) = current_selection {
-            let index = self.index_helper.compute_index(current_selection.x, current_selection.y);
+            let index = self
+                .index_helper
+                .compute_index(current_selection.x, current_selection.y);
 
             if self.mine_states[index] != MineState::Revealed {
                 if is_right_button || is_eraser {
@@ -190,7 +195,7 @@ impl Minesweeper {
         for _ in 0..(board_width * board_height) {
             self.mine_states.push(MineState::Empty);
         }
-  
+
         self.game_over = false;
         self.mine_generation_state = MineGenerationState::Deferred;
         self.num_mines = mines;
@@ -249,7 +254,8 @@ impl Minesweeper {
             self.ui.update_tile_as_mine(&tile_coordinate)?;
         } else {
             let count = self.neighbor_counts[index];
-            self.ui.update_tile_with_mine_count(&tile_coordinate, count)?;
+            self.ui
+                .update_tile_with_mine_count(&tile_coordinate, count)?;
         }
 
         self.mine_states[index] = MineState::Revealed;
@@ -313,7 +319,6 @@ impl Minesweeper {
         }
     }
 
-    
     fn test_spot(&self, x: i32, y: i32) -> bool {
         self.index_helper.is_in_bounds(x, y) && self.mines[self.index_helper.compute_index(x, y)]
     }

@@ -1,6 +1,6 @@
 use crate::comp_assets::CompAssets;
-use crate::minesweeper::{MineState, IndexHelper};
-use crate::visual_grid::{VisualGrid, TileCoordinate};
+use crate::minesweeper::{IndexHelper, MineState};
+use crate::visual_grid::{TileCoordinate, VisualGrid};
 use crate::windows::{
     foundation::{
         numerics::{Vector2, Vector3},
@@ -9,8 +9,8 @@ use crate::windows::{
     graphics::SizeInt32,
     ui::{
         composition::{
-            AnimationIterationBehavior, CompositionBatchTypes, CompositionBorderMode,
-            Compositor, ContainerVisual, SpriteVisual,
+            AnimationIterationBehavior, CompositionBatchTypes, CompositionBorderMode, Compositor,
+            ContainerVisual, SpriteVisual,
         },
         Colors,
     },
@@ -32,7 +32,11 @@ pub struct CompUI {
 }
 
 impl CompUI {
-    pub fn new(parent_visual: &ContainerVisual, parent_size: &Vector2, grid_size_in_tiles: &SizeInt32) -> winrt::Result<Self> {
+    pub fn new(
+        parent_visual: &ContainerVisual,
+        parent_size: &Vector2,
+        grid_size_in_tiles: &SizeInt32,
+    ) -> winrt::Result<Self> {
         let compositor = parent_visual.compositor()?;
         let root = compositor.create_sprite_visual()?;
 
@@ -101,11 +105,15 @@ impl CompUI {
         self.game_board.current_selected_tile()
     }
 
-    pub fn update_tile_with_state(&self, tile_coordinate: &TileCoordinate, mine_state: MineState) -> winrt::Result<()> {
+    pub fn update_tile_with_state(
+        &self,
+        tile_coordinate: &TileCoordinate,
+        mine_state: MineState,
+    ) -> winrt::Result<()> {
         let visual = self
-                .game_board
-                .get_tile(tile_coordinate.x, tile_coordinate.y)
-                .unwrap();
+            .game_board
+            .get_tile(tile_coordinate.x, tile_coordinate.y)
+            .unwrap();
 
         visual.set_brush(self.assets.get_color_brush_from_mine_state(mine_state))?;
         Ok(())
@@ -116,7 +124,10 @@ impl CompUI {
         self.index_helper = IndexHelper::new(grid_size_in_tiles.width, grid_size_in_tiles.height);
 
         for visual in self.game_board.tiles_iter() {
-            visual.set_brush(self.assets.get_color_brush_from_mine_state(MineState::Empty))?;
+            visual.set_brush(
+                self.assets
+                    .get_color_brush_from_mine_state(MineState::Empty),
+            )?;
         }
 
         self.update_board_scale(&self.parent_size.clone())?;
@@ -128,23 +139,21 @@ impl CompUI {
     pub fn update_tile_as_mine(&self, tile_coordinate: &TileCoordinate) -> winrt::Result<()> {
         let visual = self
             .game_board
-            .get_tile(
-                tile_coordinate.x,
-                tile_coordinate.y,
-            )
+            .get_tile(tile_coordinate.x, tile_coordinate.y)
             .unwrap();
 
         visual.set_brush(&self.assets.get_mine_brush())?;
         Ok(())
     }
 
-    pub fn update_tile_with_mine_count(&self, tile_coordinate: &TileCoordinate, num_mines: i32) -> winrt::Result<()> {
+    pub fn update_tile_with_mine_count(
+        &self,
+        tile_coordinate: &TileCoordinate,
+        num_mines: i32,
+    ) -> winrt::Result<()> {
         let visual = self
             .game_board
-            .get_tile(
-                tile_coordinate.x,
-                tile_coordinate.y,
-            )
+            .get_tile(tile_coordinate.x, tile_coordinate.y)
             .unwrap();
         visual.set_brush(self.assets.get_color_brush_from_mine_count(num_mines))?;
 
@@ -160,11 +169,15 @@ impl CompUI {
         Ok(())
     }
 
-    pub fn play_mine_animations(&mut self, mut mine_indices: VecDeque<usize>, mut mines_per_ring: VecDeque<i32>) -> winrt::Result<()> {
+    pub fn play_mine_animations(
+        &mut self,
+        mut mine_indices: VecDeque<usize>,
+        mut mines_per_ring: VecDeque<i32>,
+    ) -> winrt::Result<()> {
         // Create an animation batch so that we can know when the animations complete
         let batch = self
-                            .compositor
-                            .create_scoped_batch(CompositionBatchTypes::Animation)?;
+            .compositor
+            .create_scoped_batch(CompositionBatchTypes::Animation)?;
 
         let animation_delay_step = Duration::from_millis(100);
         let mut current_delay = Duration::from_millis(0);

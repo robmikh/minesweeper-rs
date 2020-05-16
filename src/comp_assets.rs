@@ -1,8 +1,6 @@
 use crate::minesweeper::MineState;
 use crate::windows::{
-    foundation::{
-        numerics::Vector2,
-    },
+    foundation::numerics::Vector2,
     ui::{
         composition::{
             CompositionColorBrush, CompositionGeometry, CompositionShape, CompositionSpriteShape,
@@ -20,8 +18,7 @@ fn get_dot_shape(
     brush: &CompositionColorBrush,
     offset: Vector2,
 ) -> winrt::Result<CompositionSpriteShape> {
-    let shape = compositor
-        .create_sprite_shape_with_geometry(geometry)?;
+    let shape = compositor.create_sprite_shape_with_geometry(geometry)?;
     shape.set_fill_brush(brush)?;
     shape.set_offset(offset)?;
     Ok(shape)
@@ -69,77 +66,68 @@ impl CompAssets {
             .clone()
     }
 
-    fn generate_assets(&mut self, compositor: &Compositor, tile_size: &Vector2) -> winrt::Result<()> {
+    fn generate_assets(
+        &mut self,
+        compositor: &Compositor,
+        tile_size: &Vector2,
+    ) -> winrt::Result<()> {
         self.mine_state_brushes.clear();
         self.mine_state_brushes.insert(
             MineState::Empty,
-            compositor
-                .create_color_brush_with_color(Colors::blue()?)?,
+            compositor.create_color_brush_with_color(Colors::blue()?)?,
         );
         self.mine_state_brushes.insert(
             MineState::Flag,
-            compositor
-                .create_color_brush_with_color(Colors::orange()?)?,
+            compositor.create_color_brush_with_color(Colors::orange()?)?,
         );
         self.mine_state_brushes.insert(
             MineState::Question,
-            compositor
-                .create_color_brush_with_color(Colors::lime_green()?)?,
+            compositor.create_color_brush_with_color(Colors::lime_green()?)?,
         );
 
         self.mine_count_background_brushes.clear();
         self.mine_count_background_brushes.insert(
             1,
-            compositor
-                .create_color_brush_with_color(Colors::light_blue()?)?,
+            compositor.create_color_brush_with_color(Colors::light_blue()?)?,
         );
         self.mine_count_background_brushes.insert(
             2,
-            compositor
-                .create_color_brush_with_color(Colors::light_green()?)?,
+            compositor.create_color_brush_with_color(Colors::light_green()?)?,
         );
         self.mine_count_background_brushes.insert(
             3,
-            compositor
-                .create_color_brush_with_color(Colors::light_salmon()?)?,
+            compositor.create_color_brush_with_color(Colors::light_salmon()?)?,
         );
         self.mine_count_background_brushes.insert(
             4,
-            compositor
-                .create_color_brush_with_color(Colors::light_steel_blue()?)?,
+            compositor.create_color_brush_with_color(Colors::light_steel_blue()?)?,
         );
         self.mine_count_background_brushes.insert(
             5,
-            compositor
-                .create_color_brush_with_color(Colors::medium_purple()?)?,
+            compositor.create_color_brush_with_color(Colors::medium_purple()?)?,
         );
         self.mine_count_background_brushes.insert(
             6,
-            compositor
-                .create_color_brush_with_color(Colors::light_cyan()?)?,
+            compositor.create_color_brush_with_color(Colors::light_cyan()?)?,
         );
         self.mine_count_background_brushes.insert(
             7,
-            compositor
-                .create_color_brush_with_color(Colors::maroon()?)?,
+            compositor.create_color_brush_with_color(Colors::maroon()?)?,
         );
         self.mine_count_background_brushes.insert(
             8,
-            compositor
-                .create_color_brush_with_color(Colors::dark_sea_green()?)?,
+            compositor.create_color_brush_with_color(Colors::dark_sea_green()?)?,
         );
         self.mine_count_background_brushes.insert(
             0,
-            compositor
-                .create_color_brush_with_color(Colors::white_smoke()?)?,
+            compositor.create_color_brush_with_color(Colors::white_smoke()?)?,
         );
 
         self.mine_count_shapes.clear();
         let circle_geometry = compositor.create_ellipse_geometry()?;
         circle_geometry.set_radius(tile_size / 12.0)?;
         let circle_geometry: CompositionGeometry = circle_geometry.try_into()?;
-        let dot_brush = compositor
-            .create_color_brush_with_color(Colors::black()?)?;
+        let dot_brush = compositor.create_color_brush_with_color(Colors::black()?)?;
 
         // 1
         {
