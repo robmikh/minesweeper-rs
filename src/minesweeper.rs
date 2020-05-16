@@ -142,7 +142,7 @@ impl Minesweeper {
     ) -> winrt::Result<()> {
         // TODO: Switch the condition back once we can subscribe to events.
         //if self.game_over && !self.ui.is_animation_playing() {
-        if self.game_over && self.ui.is_animation_playing() {
+        if self.game_over {
             self.new_game(
                 self.game_board_width,
                 self.game_board_height,
@@ -173,8 +173,11 @@ impl Minesweeper {
                         self.play_animation_on_all_mines(hit_x, hit_y)?;
 
                         self.game_over = true;
+                    } else if self.check_if_won() {
+                        self.ui.select_tile(None)?;
+                        // TODO: Play a win animation
+                        self.game_over = true;
                     }
-                    // TODO: Detect that the player has won
                 }
             }
         }
@@ -312,6 +315,10 @@ impl Minesweeper {
             if self.mines[i] {
                 // -1 means a mine
                 self.neighbor_counts.push(-1);
+                // DEBUG
+                if cfg!(debug_assertions) {
+                    self.ui.update_tile_with_state(&TileCoordinate { x: x, y: y }, MineState::Question).unwrap();
+                }
             } else {
                 let count = self.get_surrounding_mine_count(x, y);
                 self.neighbor_counts.push(count);
@@ -453,5 +460,17 @@ impl Minesweeper {
         self.ui.play_mine_animations(mine_indices, mines_per_ring)?;
 
         Ok(())
+    }
+
+    fn check_if_won(&self) -> bool {
+        // Get the number of non-revealed tiles
+        let mut non_revealed_tiles = 0;
+        for state in &self.mine_states {
+            if *state != MineState::Revealed {
+                non_revealed_tiles += 1;
+            }
+        }
+
+        non_revealed_tiles == self.num_mines
     }
 }
