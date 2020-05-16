@@ -1,3 +1,4 @@
+use crate::comp_assets::CompAssets;
 use crate::visual_grid::VisualGrid;
 use crate::windows::{
     foundation::{
@@ -8,19 +9,17 @@ use crate::windows::{
     ui::{
         composition::{
             AnimationIterationBehavior, CompositionBatchTypes, CompositionBorderMode,
-            CompositionColorBrush, CompositionGeometry, CompositionShape, CompositionSpriteShape,
             Compositor, ContainerVisual, SpriteVisual,
         },
         Colors,
     },
 };
 use rand::distributions::{Distribution, Uniform};
-use std::collections::{HashMap, VecDeque};
+use std::collections::VecDeque;
 use std::time::Duration;
-use winrt::TryInto;
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
-enum MineState {
+pub enum MineState {
     Empty,
     Flag,
     Question,
@@ -48,7 +47,6 @@ pub struct Minesweeper {
     _root: SpriteVisual,
 
     game_board: VisualGrid,
-    tile_size: Vector2,
 
     game_board_width: i32,
     game_board_height: i32,
@@ -64,10 +62,7 @@ pub struct Minesweeper {
     mine_animation_playing: bool,
     game_over: bool,
 
-    mine_brush: CompositionColorBrush,
-    mine_state_brushes: HashMap<MineState, CompositionColorBrush>,
-    mine_count_background_brushes: HashMap<i32, CompositionColorBrush>,
-    mine_count_shapes: HashMap<i32, CompositionShape>,
+    assets: CompAssets,
 }
 
 impl Minesweeper {
@@ -104,14 +99,13 @@ impl Minesweeper {
         let selection_visual = game_board.selection_visual();
         root.children()?.insert_at_top(selection_visual)?;
 
-        let mine_brush = compositor.create_color_brush_with_color(Colors::red()?)?;
+        let assets = CompAssets::new(&compositor, &tile_size)?;
 
         let mut result = Self {
             compositor: compositor,
             _root: root,
 
             game_board: game_board,
-            tile_size: tile_size,
 
             game_board_width: 0,
             game_board_height: 0,
@@ -127,13 +121,8 @@ impl Minesweeper {
             mine_animation_playing: false,
             game_over: false,
 
-            mine_brush: mine_brush,
-            mine_state_brushes: HashMap::new(),
-            mine_count_background_brushes: HashMap::new(),
-            mine_count_shapes: HashMap::new(),
+            assets: assets,
         };
-
-        result.generate_assets()?;
 
         result.new_game(16, 16, 40)?;
         result.on_parent_size_changed(parent_size)?;
@@ -200,7 +189,7 @@ impl Minesweeper {
                 if is_right_button || is_eraser {
                     let state = self.mine_states[index].cycle();
                     self.mine_states[index] = state;
-                    visual.set_brush(self.get_color_brush_from_mine_state(state))?;
+                    visual.set_brush(self.assets.get_color_brush_from_mine_state(state))?;
                 } else if self.mine_states[index] == MineState::Empty {
                     if self.sweep(current_selection.x, current_selection.y)? {
                         // We hit a mine! Setup and play an animation whiel locking any input.
@@ -242,7 +231,7 @@ impl Minesweeper {
         self.mine_states.clear();
 
         for visual in self.game_board.tiles_iter() {
-            visual.set_brush(self.get_color_brush_from_mine_state(MineState::Empty))?;
+            visual.set_brush(self.assets.get_color_brush_from_mine_state(MineState::Empty))?;
             self.mine_states.push(MineState::Empty);
         }
 
@@ -336,13 +325,13 @@ impl Minesweeper {
             .unwrap();
 
         if self.mines[index] {
-            visual.set_brush(&self.mine_brush)?;
+            visual.set_brush(&self.assets.get_mine_brush())?;
         } else {
             let count = self.neighbor_counts[index];
-            visual.set_brush(self.get_color_brush_from_mine_count(count))?;
+            visual.set_brush(self.assets.get_color_brush_from_mine_count(count))?;
 
             if count > 0 {
-                let shape = self.get_shape_from_mine_count(count);
+                let shape = self.assets.get_shape_from_mine_count(count);
                 let shape_visual = self.compositor.create_shape_visual()?;
                 shape_visual.set_relative_size_adjustment(Vector2 { x: 1.0, y: 1.0 })?;
                 shape_visual.shapes()?.append(shape)?;
@@ -373,17 +362,6 @@ impl Minesweeper {
         }
 
         Ok(())
-    }
-
-    fn get_color_brush_from_mine_state(&self, state: MineState) -> CompositionColorBrush {
-        self.mine_state_brushes.get(&state).unwrap().clone()
-    }
-
-    fn get_color_brush_from_mine_count(&self, count: i32) -> CompositionColorBrush {
-        self.mine_count_background_brushes
-            .get(&count)
-            .unwrap()
-            .clone()
     }
 
     fn generate_mines(&mut self, num_mines: i32, exclude_x: i32, exclude_y: i32) {
@@ -494,7 +472,7 @@ impl Minesweeper {
         parent_children.remove(visual)?;
         parent_children.insert_at_top(visual)?;
         // Make sure the visual has the mine brush
-        visual.set_brush(&self.mine_brush)?;
+        visual.set_brush(&self.assets.get_mine_brush())?;
         // Play the animation
         let animation = self.compositor.create_vector3_key_frame_animation()?;
         animation.insert_key_frame(
@@ -633,449 +611,6 @@ impl Minesweeper {
                 current_delay = current_delay + animation_delay_step;
             }
             mine_indices.pop_front().unwrap();
-        }
-
-        Ok(())
-    }
-
-    fn get_shape_from_mine_count(&self, count: i32) -> CompositionShape {
-        self.mine_count_shapes.get(&count).unwrap().clone()
-    }
-
-    fn get_dot_shape(
-        &self,
-        geometry: &CompositionGeometry,
-        brush: &CompositionColorBrush,
-        offset: Vector2,
-    ) -> winrt::Result<CompositionSpriteShape> {
-        let shape = self
-            .compositor
-            .create_sprite_shape_with_geometry(geometry)?;
-        shape.set_fill_brush(brush)?;
-        shape.set_offset(offset)?;
-        Ok(shape)
-    }
-
-    fn generate_assets(&mut self) -> winrt::Result<()> {
-        self.mine_state_brushes.clear();
-        self.mine_state_brushes.insert(
-            MineState::Empty,
-            self.compositor
-                .create_color_brush_with_color(Colors::blue()?)?,
-        );
-        self.mine_state_brushes.insert(
-            MineState::Flag,
-            self.compositor
-                .create_color_brush_with_color(Colors::orange()?)?,
-        );
-        self.mine_state_brushes.insert(
-            MineState::Question,
-            self.compositor
-                .create_color_brush_with_color(Colors::lime_green()?)?,
-        );
-
-        self.mine_count_background_brushes.clear();
-        self.mine_count_background_brushes.insert(
-            1,
-            self.compositor
-                .create_color_brush_with_color(Colors::light_blue()?)?,
-        );
-        self.mine_count_background_brushes.insert(
-            2,
-            self.compositor
-                .create_color_brush_with_color(Colors::light_green()?)?,
-        );
-        self.mine_count_background_brushes.insert(
-            3,
-            self.compositor
-                .create_color_brush_with_color(Colors::light_salmon()?)?,
-        );
-        self.mine_count_background_brushes.insert(
-            4,
-            self.compositor
-                .create_color_brush_with_color(Colors::light_steel_blue()?)?,
-        );
-        self.mine_count_background_brushes.insert(
-            5,
-            self.compositor
-                .create_color_brush_with_color(Colors::medium_purple()?)?,
-        );
-        self.mine_count_background_brushes.insert(
-            6,
-            self.compositor
-                .create_color_brush_with_color(Colors::light_cyan()?)?,
-        );
-        self.mine_count_background_brushes.insert(
-            7,
-            self.compositor
-                .create_color_brush_with_color(Colors::maroon()?)?,
-        );
-        self.mine_count_background_brushes.insert(
-            8,
-            self.compositor
-                .create_color_brush_with_color(Colors::dark_sea_green()?)?,
-        );
-        self.mine_count_background_brushes.insert(
-            0,
-            self.compositor
-                .create_color_brush_with_color(Colors::white_smoke()?)?,
-        );
-
-        self.mine_count_shapes.clear();
-        let circle_geometry = self.compositor.create_ellipse_geometry()?;
-        circle_geometry.set_radius(&self.tile_size / 12.0)?;
-        let circle_geometry: CompositionGeometry = circle_geometry.try_into()?;
-        let dot_brush = self
-            .compositor
-            .create_color_brush_with_color(Colors::black()?)?;
-
-        // 1
-        {
-            let container_shape = self.compositor.create_container_shape()?;
-            let shapes = container_shape.shapes()?;
-            shapes.append(self.get_dot_shape(
-                &circle_geometry,
-                &dot_brush,
-                &self.tile_size / 2.0,
-            )?)?;
-            self.mine_count_shapes
-                .insert(1, container_shape.try_into()?);
-        }
-        // 2
-        {
-            let container_shape = self.compositor.create_container_shape()?;
-            let shapes = container_shape.shapes()?;
-            let third_x = self.tile_size.x / 3.0;
-            let half_y = self.tile_size.y / 2.0;
-            shapes.append(self.get_dot_shape(
-                &circle_geometry,
-                &dot_brush,
-                Vector2 {
-                    x: third_x,
-                    y: half_y,
-                },
-            )?)?;
-            shapes.append(self.get_dot_shape(
-                &circle_geometry,
-                &dot_brush,
-                Vector2 {
-                    x: third_x * 2.0,
-                    y: half_y,
-                },
-            )?)?;
-            self.mine_count_shapes
-                .insert(2, container_shape.try_into()?);
-        }
-        // 3
-        {
-            let container_shape = self.compositor.create_container_shape()?;
-            let shapes = container_shape.shapes()?;
-            let fourth_x = self.tile_size.x / 4.0;
-            let fourth_y = self.tile_size.y / 4.0;
-            shapes.append(self.get_dot_shape(
-                &circle_geometry,
-                &dot_brush,
-                &self.tile_size / 2.0,
-            )?)?;
-            shapes.append(self.get_dot_shape(
-                &circle_geometry,
-                &dot_brush,
-                Vector2 {
-                    x: fourth_x,
-                    y: fourth_y * 3.0,
-                },
-            )?)?;
-            shapes.append(self.get_dot_shape(
-                &circle_geometry,
-                &dot_brush,
-                Vector2 {
-                    x: fourth_x * 3.0,
-                    y: fourth_y,
-                },
-            )?)?;
-            self.mine_count_shapes
-                .insert(3, container_shape.try_into()?);
-        }
-        // 4
-        {
-            let container_shape = self.compositor.create_container_shape()?;
-            let shapes = container_shape.shapes()?;
-            let third_x = self.tile_size.x / 3.0;
-            let third_y = self.tile_size.y / 3.0;
-            shapes.append(self.get_dot_shape(
-                &circle_geometry,
-                &dot_brush,
-                Vector2 {
-                    x: third_x,
-                    y: third_y,
-                },
-            )?)?;
-            shapes.append(self.get_dot_shape(
-                &circle_geometry,
-                &dot_brush,
-                Vector2 {
-                    x: third_x * 2.0,
-                    y: third_y,
-                },
-            )?)?;
-            shapes.append(self.get_dot_shape(
-                &circle_geometry,
-                &dot_brush,
-                Vector2 {
-                    x: third_x,
-                    y: third_y * 2.0,
-                },
-            )?)?;
-            shapes.append(self.get_dot_shape(
-                &circle_geometry,
-                &dot_brush,
-                Vector2 {
-                    x: third_x * 2.0,
-                    y: third_y * 2.0,
-                },
-            )?)?;
-            self.mine_count_shapes
-                .insert(4, container_shape.try_into()?);
-        }
-        // 5
-        {
-            let container_shape = self.compositor.create_container_shape()?;
-            let shapes = container_shape.shapes()?;
-            let fourth_x = self.tile_size.x / 4.0;
-            let fourth_y = self.tile_size.y / 4.0;
-            shapes.append(self.get_dot_shape(
-                &circle_geometry,
-                &dot_brush,
-                &self.tile_size / 2.0,
-            )?)?;
-            shapes.append(self.get_dot_shape(
-                &circle_geometry,
-                &dot_brush,
-                Vector2 {
-                    x: fourth_x,
-                    y: fourth_y * 3.0,
-                },
-            )?)?;
-            shapes.append(self.get_dot_shape(
-                &circle_geometry,
-                &dot_brush,
-                Vector2 {
-                    x: fourth_x * 3.0,
-                    y: fourth_y,
-                },
-            )?)?;
-            shapes.append(self.get_dot_shape(
-                &circle_geometry,
-                &dot_brush,
-                Vector2 {
-                    x: fourth_x,
-                    y: fourth_y,
-                },
-            )?)?;
-            shapes.append(self.get_dot_shape(
-                &circle_geometry,
-                &dot_brush,
-                Vector2 {
-                    x: fourth_x * 3.0,
-                    y: fourth_y * 3.0,
-                },
-            )?)?;
-            self.mine_count_shapes
-                .insert(5, container_shape.try_into()?);
-        }
-        // 6
-        {
-            let container_shape = self.compositor.create_container_shape()?;
-            let shapes = container_shape.shapes()?;
-            let fourth_x = self.tile_size.x / 4.0;
-            let fourth_y = self.tile_size.y / 4.0;
-            shapes.append(self.get_dot_shape(
-                &circle_geometry,
-                &dot_brush,
-                Vector2 {
-                    x: fourth_x,
-                    y: fourth_y * 2.0,
-                },
-            )?)?;
-            shapes.append(self.get_dot_shape(
-                &circle_geometry,
-                &dot_brush,
-                Vector2 {
-                    x: fourth_x,
-                    y: fourth_y * 3.0,
-                },
-            )?)?;
-            shapes.append(self.get_dot_shape(
-                &circle_geometry,
-                &dot_brush,
-                Vector2 {
-                    x: fourth_x * 3.0,
-                    y: fourth_y,
-                },
-            )?)?;
-            shapes.append(self.get_dot_shape(
-                &circle_geometry,
-                &dot_brush,
-                Vector2 {
-                    x: fourth_x,
-                    y: fourth_y,
-                },
-            )?)?;
-            shapes.append(self.get_dot_shape(
-                &circle_geometry,
-                &dot_brush,
-                Vector2 {
-                    x: fourth_x * 3.0,
-                    y: fourth_y * 3.0,
-                },
-            )?)?;
-            shapes.append(self.get_dot_shape(
-                &circle_geometry,
-                &dot_brush,
-                Vector2 {
-                    x: fourth_x * 3.0,
-                    y: fourth_y * 2.0,
-                },
-            )?)?;
-            self.mine_count_shapes
-                .insert(6, container_shape.try_into()?);
-        }
-        // 7
-        {
-            let container_shape = self.compositor.create_container_shape()?;
-            let shapes = container_shape.shapes()?;
-            let fourth_x = self.tile_size.x / 4.0;
-            let fourth_y = self.tile_size.y / 4.0;
-            shapes.append(self.get_dot_shape(
-                &circle_geometry,
-                &dot_brush,
-                Vector2 {
-                    x: fourth_x,
-                    y: fourth_y * 2.0,
-                },
-            )?)?;
-            shapes.append(self.get_dot_shape(
-                &circle_geometry,
-                &dot_brush,
-                Vector2 {
-                    x: fourth_x,
-                    y: fourth_y * 3.0,
-                },
-            )?)?;
-            shapes.append(self.get_dot_shape(
-                &circle_geometry,
-                &dot_brush,
-                Vector2 {
-                    x: fourth_x * 3.0,
-                    y: fourth_y,
-                },
-            )?)?;
-            shapes.append(self.get_dot_shape(
-                &circle_geometry,
-                &dot_brush,
-                Vector2 {
-                    x: fourth_x,
-                    y: fourth_y,
-                },
-            )?)?;
-            shapes.append(self.get_dot_shape(
-                &circle_geometry,
-                &dot_brush,
-                Vector2 {
-                    x: fourth_x * 3.0,
-                    y: fourth_y * 3.0,
-                },
-            )?)?;
-            shapes.append(self.get_dot_shape(
-                &circle_geometry,
-                &dot_brush,
-                Vector2 {
-                    x: fourth_x * 3.0,
-                    y: fourth_y * 2.0,
-                },
-            )?)?;
-            shapes.append(self.get_dot_shape(
-                &circle_geometry,
-                &dot_brush,
-                &self.tile_size / 2.0,
-            )?)?;
-            self.mine_count_shapes
-                .insert(7, container_shape.try_into()?);
-        }
-        // 8
-        {
-            let container_shape = self.compositor.create_container_shape()?;
-            let shapes = container_shape.shapes()?;
-            let fourth_x = self.tile_size.x / 4.0;
-            let fourth_y = self.tile_size.y / 4.0;
-            let half_x = self.tile_size.x / 2.0;
-            let third_y = self.tile_size.y / 3.0;
-            shapes.append(self.get_dot_shape(
-                &circle_geometry,
-                &dot_brush,
-                Vector2 {
-                    x: fourth_x,
-                    y: fourth_y * 2.0,
-                },
-            )?)?;
-            shapes.append(self.get_dot_shape(
-                &circle_geometry,
-                &dot_brush,
-                Vector2 {
-                    x: fourth_x,
-                    y: fourth_y * 3.0,
-                },
-            )?)?;
-            shapes.append(self.get_dot_shape(
-                &circle_geometry,
-                &dot_brush,
-                Vector2 {
-                    x: fourth_x * 3.0,
-                    y: fourth_y,
-                },
-            )?)?;
-            shapes.append(self.get_dot_shape(
-                &circle_geometry,
-                &dot_brush,
-                Vector2 {
-                    x: fourth_x,
-                    y: fourth_y,
-                },
-            )?)?;
-            shapes.append(self.get_dot_shape(
-                &circle_geometry,
-                &dot_brush,
-                Vector2 {
-                    x: fourth_x * 3.0,
-                    y: fourth_y * 3.0,
-                },
-            )?)?;
-            shapes.append(self.get_dot_shape(
-                &circle_geometry,
-                &dot_brush,
-                Vector2 {
-                    x: fourth_x * 3.0,
-                    y: fourth_y * 2.0,
-                },
-            )?)?;
-            shapes.append(self.get_dot_shape(
-                &circle_geometry,
-                &dot_brush,
-                Vector2 {
-                    x: half_x,
-                    y: third_y,
-                },
-            )?)?;
-            shapes.append(self.get_dot_shape(
-                &circle_geometry,
-                &dot_brush,
-                Vector2 {
-                    x: half_x,
-                    y: third_y * 2.0,
-                },
-            )?)?;
-            self.mine_count_shapes
-                .insert(8, container_shape.try_into()?);
         }
 
         Ok(())

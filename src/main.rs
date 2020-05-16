@@ -11,6 +11,7 @@ winrt::import!(
         "windows.system"
 );
 
+mod comp_assets;
 mod interop;
 mod minesweeper;
 mod numerics;
