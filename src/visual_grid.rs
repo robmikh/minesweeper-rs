@@ -1,4 +1,5 @@
 use crate::numerics::FromVector2;
+use crate::minesweeper::IndexHelper;
 use crate::windows::{
     foundation::numerics::{Vector2, Vector3},
     graphics::SizeInt32,
@@ -20,6 +21,7 @@ pub struct VisualGrid {
 
     tiles: Vec<SpriteVisual>,
     selection_visual: SpriteVisual,
+    index_helper: IndexHelper,
 
     grid_width_in_tiles: i32,
     grid_height_in_tiles: i32,
@@ -56,6 +58,7 @@ impl VisualGrid {
 
             tiles: Vec::new(),
             selection_visual,
+            index_helper: IndexHelper::new(grid_size_in_tiles.width, grid_size_in_tiles.height),
 
             grid_width_in_tiles: grid_size_in_tiles.width,
             grid_height_in_tiles: grid_size_in_tiles.height,
@@ -74,6 +77,8 @@ impl VisualGrid {
         let children = self.root.children()?;
         children.remove_all()?;
         self.tiles.clear();
+
+        self.index_helper = IndexHelper::new(grid_size_in_tiles.width, grid_size_in_tiles.height);
 
         self.grid_width_in_tiles = grid_size_in_tiles.width;
         self.grid_height_in_tiles = grid_size_in_tiles.height;
@@ -130,7 +135,7 @@ impl VisualGrid {
         let x = (point.x / (self.tile_size.x + self.margin.x)) as i32;
         let y = (point.y / (self.tile_size.y + self.margin.y)) as i32;
 
-        if self.is_in_bounds(x, y) {
+        if self.index_helper.is_in_bounds(x, y) {
             Some(TileCoordinate { x, y })
         } else {
             None
@@ -138,8 +143,8 @@ impl VisualGrid {
     }
 
     pub fn get_tile(&self, x: i32, y: i32) -> Option<&SpriteVisual> {
-        if self.is_in_bounds(x, y) {
-            Some(&self.tiles[self.compute_index(x, y)])
+        if self.index_helper.is_in_bounds(x, y) {
+            Some(&self.tiles[self.index_helper.compute_index(x, y)])
         } else {
             None
         }
@@ -148,7 +153,7 @@ impl VisualGrid {
     pub fn select_tile(&mut self, tile_coordinate: Option<TileCoordinate>) -> winrt::Result<()> {
         self.current_selection = tile_coordinate;
         if let Some(tile_coordinate) = tile_coordinate {
-            let visual = &self.tiles[self.compute_index(tile_coordinate.x, tile_coordinate.y)];
+            let visual = &self.tiles[self.index_helper.compute_index(tile_coordinate.x, tile_coordinate.y)];
             self.selection_visual.set_parent_for_transform(visual)?;
             self.selection_visual.set_is_visible(true)?;
         } else {
@@ -160,13 +165,5 @@ impl VisualGrid {
 
     pub fn current_selected_tile(&self) -> Option<TileCoordinate> {
         self.current_selection
-    }
-
-    fn compute_index(&self, x: i32, y: i32) -> usize {
-        (x * self.grid_height_in_tiles + y) as usize
-    }
-
-    fn is_in_bounds(&self, x: i32, y: i32) -> bool {
-        (x >= 0 && x < self.grid_width_in_tiles) && (y >= 0 && y < self.grid_height_in_tiles)
     }
 }
