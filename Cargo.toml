@@ -9,3 +9,6 @@ winit = "0.22.0"
 raw-window-handle = "0.3.3"
 winrt = { git = "https://github.com/microsoft/winrt-rs" }
 rand = "0.7.3"
+
+[features]
+show-mines = []

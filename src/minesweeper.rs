@@ -313,7 +313,7 @@ impl Minesweeper {
                 // -1 means a mine
                 self.neighbor_counts.push(-1);
                 // DEBUG
-                if cfg!(debug_assertions) {
+                if cfg!(feature = "show-mines") {
                     self.ui
                         .update_tile_with_state(&TileCoordinate { x, y }, MineState::Question)
                         .unwrap();
