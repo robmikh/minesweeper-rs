@@ -216,10 +216,11 @@ impl CompUI {
         let window_ratio = window_size.x / window_size.y;
         let board_ratio = board_size.x / board_size.y;
 
-        let mut scale_factor = window_size.x / board_size.x;
-        if window_ratio > board_ratio {
-            scale_factor = window_size.y / board_size.y;
-        }
+        let scale_factor = if window_ratio > board_ratio {
+            window_size.y / board_size.y
+        } else {
+            window_size.x / board_size.x
+        };
 
         Ok(scale_factor)
     }
