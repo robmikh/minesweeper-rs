@@ -1,5 +1,5 @@
-use crate::numerics::FromVector2;
 use crate::minesweeper::IndexHelper;
+use crate::numerics::FromVector2;
 use crate::windows::{
     foundation::numerics::{Vector2, Vector3},
     graphics::SizeInt32,
@@ -153,7 +153,9 @@ impl VisualGrid {
     pub fn select_tile(&mut self, tile_coordinate: Option<TileCoordinate>) -> winrt::Result<()> {
         self.current_selection = tile_coordinate;
         if let Some(tile_coordinate) = tile_coordinate {
-            let visual = &self.tiles[self.index_helper.compute_index(tile_coordinate.x, tile_coordinate.y)];
+            let visual = &self.tiles[self
+                .index_helper
+                .compute_index(tile_coordinate.x, tile_coordinate.y)];
             self.selection_visual.set_parent_for_transform(visual)?;
             self.selection_visual.set_is_visible(true)?;
         } else {
