@@ -17,8 +17,15 @@ pub struct abi_ICompositorDesktopInterop {
 
 unsafe impl winrt::ComInterface for CompositorDesktopInterop {
     type VTable = abi_ICompositorDesktopInterop;
-    const IID: winrt::Guid =
-        winrt::Guid::from_values(702976506, 17767, 19914, [179, 25, 208, 242, 7, 235, 104, 7]);
+
+    fn iid() -> winrt::Guid {
+        winrt::Guid::from_values(
+            702976506,
+            17767,
+            19914,
+            [179, 25, 208, 242, 7, 235, 104, 7]
+        )
+    }
 }
 
 #[repr(transparent)]
