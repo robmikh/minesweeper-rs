@@ -3,11 +3,11 @@ winrt::import!(
         os
     types
         windows::foundation::numerics::{Vector2, Vector3}
+        windows::graphics::SizeInt32
+        windows::system::DispatcherQueueController
         windows::ui::Colors
         windows::ui::composition::{Compositor, ContainerVisual}
         windows::ui::composition::desktop::DesktopWindowTarget
-        windows::graphics::SizeInt32
-        windows::system::DispatcherQueueController
 );
 
 mod comp_assets;
