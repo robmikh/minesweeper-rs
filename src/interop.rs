@@ -1,7 +1,6 @@
 use crate::windows::{
     system::DispatcherQueueController, ui::composition::desktop::DesktopWindowTarget,
 };
-use std::ffi::c_void;
 use winrt::RuntimeType;
 
 #[repr(C)]
@@ -9,7 +8,7 @@ pub struct abi_ICompositorDesktopInterop {
     __base: [usize; 3],
     create_desktop_window_target: unsafe extern "system" fn(
         winrt::NonNullRawComPtr<CompositorDesktopInterop>,
-        *mut c_void,
+        winrt::RawPtr,
         bool,
         *mut <DesktopWindowTarget as RuntimeType>::Abi,
     ) -> winrt::ErrorCode,
@@ -32,7 +31,7 @@ pub struct CompositorDesktopInterop {
 impl CompositorDesktopInterop {
     pub fn create_desktop_window_target(
         &self,
-        hwnd: *mut c_void,
+        hwnd: winrt::RawPtr,
         is_topmost: bool,
     ) -> winrt::Result<DesktopWindowTarget> {
         match self.ptr.abi() {
