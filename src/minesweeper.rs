@@ -100,7 +100,11 @@ impl Minesweeper {
             game_over: false,
         };
 
-        result.new_game(game_board_size_in_tiles.width, game_board_size_in_tiles.height, 40)?;
+        result.new_game(
+            game_board_size_in_tiles.width,
+            game_board_size_in_tiles.height,
+            40,
+        )?;
         result.on_parent_size_changed(parent_size)?;
 
         Ok(result)

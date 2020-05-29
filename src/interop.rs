@@ -8,7 +8,7 @@ use winrt::RuntimeType;
 pub struct abi_ICompositorDesktopInterop {
     __base: [usize; 3],
     create_desktop_window_target: extern "system" fn(
-        *const *const abi_ICompositorDesktopInterop,
+        winrt::NonNullRawComPtr<CompositorDesktopInterop>,
         *mut c_void,
         bool,
         *mut <DesktopWindowTarget as RuntimeType>::Abi,
@@ -17,8 +17,10 @@ pub struct abi_ICompositorDesktopInterop {
 
 unsafe impl winrt::ComInterface for CompositorDesktopInterop {
     type VTable = abi_ICompositorDesktopInterop;
-    const IID: winrt::Guid =
-        winrt::Guid::from_values(702976506, 17767, 19914, [179, 25, 208, 242, 7, 235, 104, 7]);
+
+    fn iid() -> winrt::Guid {
+        winrt::Guid::from_values(702976506, 17767, 19914, [179, 25, 208, 242, 7, 235, 104, 7])
+    }
 }
 
 #[repr(transparent)]
@@ -33,16 +35,18 @@ impl CompositorDesktopInterop {
         hwnd: *mut c_void,
         is_topmost: bool,
     ) -> winrt::Result<DesktopWindowTarget> {
-        let this = self.ptr.abi();
-        if this.is_null() {
-            panic!("`this` was null");
-        }
-        unsafe {
-            let mut result: DesktopWindowTarget = std::mem::zeroed();
-
-            ((*(*(this))).create_desktop_window_target)(this, hwnd, is_topmost, result.set_abi())
-                .ok()?;
-            Ok(result)
+        match self.ptr.abi() {
+            None => panic!("The `this` pointer was null when calling method"),
+            Some(this) => unsafe {
+                let mut result: DesktopWindowTarget = std::mem::zeroed();
+                (this.vtable().create_desktop_window_target)(
+                    this,
+                    hwnd,
+                    is_topmost,
+                    result.set_abi(),
+                )
+                .and_then(|| result)
+            },
         }
     }
 }
