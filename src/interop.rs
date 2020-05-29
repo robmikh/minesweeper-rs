@@ -7,7 +7,7 @@ use winrt::RuntimeType;
 #[repr(C)]
 pub struct abi_ICompositorDesktopInterop {
     __base: [usize; 3],
-    create_desktop_window_target: extern "system" fn(
+    create_desktop_window_target: unsafe extern "system" fn(
         winrt::NonNullRawComPtr<CompositorDesktopInterop>,
         *mut c_void,
         bool,
