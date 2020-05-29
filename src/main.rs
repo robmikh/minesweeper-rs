@@ -1,14 +1,13 @@
 winrt::import!(
     dependencies
         os
-    modules
-        "windows.foundation.collections"
-        "windows.foundation.numerics"
-        "windows.ui"
-        "windows.ui.composition"
-        "windows.ui.composition.desktop"
-        "windows.graphics"
-        "windows.system"
+    types
+        windows::foundation::numerics::{Vector2, Vector3}
+        windows::ui::Colors
+        windows::ui::composition::{Compositor, ContainerVisual}
+        windows::ui::composition::desktop::DesktopWindowTarget
+        windows::graphics::SizeInt32
+        windows::system::DispatcherQueueController
 );
 
 mod comp_assets;
