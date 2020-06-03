@@ -1,7 +1,7 @@
 use crate::windows::{
     system::DispatcherQueueController, ui::composition::desktop::DesktopWindowTarget,
 };
-use winrt::RuntimeType;
+use winrt::AbiTransferable;
 
 #[repr(C)]
 pub struct abi_ICompositorDesktopInterop {
@@ -10,7 +10,7 @@ pub struct abi_ICompositorDesktopInterop {
         winrt::NonNullRawComPtr<CompositorDesktopInterop>,
         winrt::RawPtr,
         bool,
-        *mut <DesktopWindowTarget as RuntimeType>::Abi,
+        *mut <DesktopWindowTarget as AbiTransferable>::Abi,
     ) -> winrt::ErrorCode,
 }
 
@@ -19,6 +19,18 @@ unsafe impl winrt::ComInterface for CompositorDesktopInterop {
 
     fn iid() -> winrt::Guid {
         winrt::Guid::from_values(702976506, 17767, 19914, [179, 25, 208, 242, 7, 235, 104, 7])
+    }
+}
+
+unsafe impl AbiTransferable for CompositorDesktopInterop {
+    type Abi = winrt::RawComPtr<Self>;
+
+    fn get_abi(&self) -> Self::Abi {
+        self.ptr.get_abi()
+    }
+
+    fn set_abi(&mut self) -> *mut Self::Abi {
+        self.ptr.set_abi()
     }
 }
 
@@ -34,7 +46,7 @@ impl CompositorDesktopInterop {
         hwnd: winrt::RawPtr,
         is_topmost: bool,
     ) -> winrt::Result<DesktopWindowTarget> {
-        match self.ptr.abi() {
+        match self.get_abi() {
             None => panic!("The `this` pointer was null when calling method"),
             Some(this) => unsafe {
                 let mut result: DesktopWindowTarget = std::mem::zeroed();
@@ -70,7 +82,7 @@ pub fn ro_initialize(init_type: RoInitType) -> winrt::Result<()> {
 extern "stdcall" {
     fn CreateDispatcherQueueController(
         options: DispatcherQueueOptions,
-        dispatcherQueueController: *mut <DispatcherQueueController as RuntimeType>::Abi,
+        dispatcherQueueController: *mut <DispatcherQueueController as AbiTransferable>::Abi,
     ) -> winrt::ErrorCode;
 }
 
