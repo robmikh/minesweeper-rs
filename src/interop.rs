@@ -1,4 +1,4 @@
-use crate::windows::{
+use bindings::windows::{
     system::DispatcherQueueController, ui::composition::desktop::DesktopWindowTarget,
 };
 use winrt::AbiTransferable;

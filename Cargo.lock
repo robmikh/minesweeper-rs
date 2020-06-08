@@ -36,6 +36,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f8aac770f1885fd7e387acedd76065302551364496e46b3dd00860b2f8359b9d"
 
 [[package]]
+name = "bindings"
+version = "0.1.0"
+dependencies = [
+ "winrt",
+]
+
+[[package]]
 name = "bitflags"
 version = "1.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -335,6 +342,7 @@ dependencies = [
 name = "minesweeper-rs"
 version = "0.1.0"
 dependencies = [
+ "bindings",
  "rand",
  "raw-window-handle",
  "winit",

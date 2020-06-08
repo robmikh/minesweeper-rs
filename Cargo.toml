@@ -9,9 +9,7 @@ winit = "0.22.0"
 raw-window-handle = "0.3.3"
 winrt = "0.7.0"
 rand = "0.7.3"
-
-[build-dependencies]
-winrt = "0.7.0"
+bindings = { path = "bindings" }
 
 [features]
 show-mines = []

@@ -1,11 +1,8 @@
-include!(concat!(env!("OUT_DIR"), "/winrt.rs"));
-
 mod comp_assets;
 mod comp_ui;
 mod interop;
 mod minesweeper;
 mod numerics;
-mod time_span;
 mod visual_grid;
 mod window_target;
 
@@ -18,7 +15,7 @@ use winit::{
     window::WindowBuilder,
 };
 
-use windows::{foundation::numerics::Vector2, ui::composition::Compositor};
+use bindings::windows::{foundation::numerics::Vector2, ui::composition::Compositor};
 
 fn run() -> winrt::Result<()> {
     ro_initialize(RoInitType::MultiThreaded)?;

@@ -1,7 +1,7 @@
 use crate::comp_assets::CompAssets;
 use crate::minesweeper::{IndexHelper, MineState};
 use crate::visual_grid::{TileCoordinate, VisualGrid};
-use crate::windows::{
+use bindings::windows::{
     foundation::{
         numerics::{Vector2, Vector3},
         TimeSpan,
