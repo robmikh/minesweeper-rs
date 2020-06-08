@@ -1,14 +1,4 @@
-winrt::import!(
-    dependencies
-        os
-    types
-        windows::foundation::numerics::{Vector2, Vector3}
-        windows::graphics::SizeInt32
-        windows::system::DispatcherQueueController
-        windows::ui::Colors
-        windows::ui::composition::{Compositor, ContainerVisual}
-        windows::ui::composition::desktop::DesktopWindowTarget
-);
+include!(concat!(env!("OUT_DIR"), "/winrt.rs"));
 
 mod comp_assets;
 mod comp_ui;
