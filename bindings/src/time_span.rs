@@ -1,3 +1,5 @@
+// TODO: Remove this file once winrt-rs officially implements this conversion.
+
 use crate::windows::foundation::TimeSpan;
 use std::convert::{From, TryInto};
 use std::time::Duration;

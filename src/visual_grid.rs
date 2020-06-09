@@ -1,6 +1,6 @@
 use crate::minesweeper::IndexHelper;
 use crate::numerics::FromVector2;
-use crate::windows::{
+use bindings::windows::{
     foundation::numerics::{Vector2, Vector3},
     graphics::SizeInt32,
     ui::{

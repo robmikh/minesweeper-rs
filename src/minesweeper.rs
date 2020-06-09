@@ -1,6 +1,6 @@
 use crate::comp_ui::CompUI;
 use crate::visual_grid::TileCoordinate;
-use crate::windows::{
+use bindings::windows::{
     foundation::numerics::Vector2, graphics::SizeInt32, ui::composition::ContainerVisual,
 };
 use rand::distributions::{Distribution, Uniform};

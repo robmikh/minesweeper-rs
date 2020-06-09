@@ -1,5 +1,5 @@
 use crate::minesweeper::MineState;
-use crate::windows::{
+use bindings::windows::{
     foundation::numerics::Vector2,
     ui::{
         composition::{

@@ -1,21 +1,8 @@
-winrt::import!(
-    dependencies
-        os
-    types
-        windows::foundation::numerics::{Vector2, Vector3}
-        windows::graphics::SizeInt32
-        windows::system::DispatcherQueueController
-        windows::ui::Colors
-        windows::ui::composition::{Compositor, ContainerVisual}
-        windows::ui::composition::desktop::DesktopWindowTarget
-);
-
 mod comp_assets;
 mod comp_ui;
 mod interop;
 mod minesweeper;
 mod numerics;
-mod time_span;
 mod visual_grid;
 mod window_target;
 
@@ -28,7 +15,7 @@ use winit::{
     window::WindowBuilder,
 };
 
-use windows::{foundation::numerics::Vector2, ui::composition::Compositor};
+use bindings::windows::{foundation::numerics::Vector2, ui::composition::Compositor};
 
 fn run() -> winrt::Result<()> {
     ro_initialize(RoInitType::MultiThreaded)?;
