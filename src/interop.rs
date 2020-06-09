@@ -46,18 +46,13 @@ impl CompositorDesktopInterop {
         hwnd: winrt::RawPtr,
         is_topmost: bool,
     ) -> winrt::Result<DesktopWindowTarget> {
-        match self.get_abi() {
-            None => panic!("The `this` pointer was null when calling method"),
-            Some(this) => unsafe {
-                let mut result: DesktopWindowTarget = std::mem::zeroed();
-                (this.vtable().create_desktop_window_target)(
-                    this,
-                    hwnd,
-                    is_topmost,
-                    result.set_abi(),
-                )
+        let this = self
+            .get_abi()
+            .expect("The `this` pointer was null when calling method");
+        unsafe {
+            let mut result: DesktopWindowTarget = std::mem::zeroed();
+            (this.vtable().create_desktop_window_target)(this, hwnd, is_topmost, result.set_abi())
                 .and_then(|| result)
-            },
         }
     }
 }
