@@ -30,6 +30,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "array2d"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "224b2db9d3e7dd068c8b07b186076ee668ce38810d0ba12c80dacbcbb7cfc9e8"
+
+[[package]]
 name = "autocfg"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -342,6 +348,7 @@ dependencies = [
 name = "minesweeper-rs"
 version = "0.1.0"
 dependencies = [
+ "array2d",
  "bindings",
  "rand",
  "raw-window-handle",

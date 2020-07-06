@@ -6,6 +6,8 @@ use bindings::windows::{
 use rand::distributions::{Distribution, Uniform};
 use std::collections::VecDeque;
 
+use array2d::Array2D;
+
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
 pub enum MineState {
     Empty,
@@ -121,7 +123,7 @@ impl Minesweeper {
             {
                 Some(tile)
             } else {
-                None
+                Some(tile)
             }
         } else {
             None
@@ -139,6 +141,7 @@ impl Minesweeper {
     pub fn on_pointer_pressed(
         &mut self,
         is_right_button: bool,
+        is_left_button: bool,
         is_eraser: bool,
     ) -> winrt::Result<()> {
         // TODO: Switch the condition back once we can subscribe to events.
@@ -157,6 +160,8 @@ impl Minesweeper {
                 .index_helper
                 .compute_index(current_selection.x, current_selection.y);
 
+            let mut boom = false;
+
             if self.mine_states[index] != MineState::Revealed {
                 if is_right_button || is_eraser {
                     let state = self.mine_states[index].cycle();
@@ -164,22 +169,65 @@ impl Minesweeper {
                     self.ui.update_tile_with_state(&current_selection, state)?;
                 } else if self.mine_states[index] == MineState::Empty {
                     if self.sweep(current_selection.x, current_selection.y)? {
-                        // We hit a mine! Setup and play an animation while locking any input.
-                        let hit_x = current_selection.x;
-                        let hit_y = current_selection.y;
-
-                        // First, hide the selection visual and reset the selection
-                        self.ui.select_tile(None)?;
-
-                        self.play_animation_on_all_mines(hit_x, hit_y)?;
-
-                        self.game_over = true;
+                        boom = true;
                     } else if self.check_if_won() {
                         self.ui.select_tile(None)?;
                         // TODO: Play a win animation
                         self.game_over = true;
                     }
                 }
+            } else if self.mine_states[index] == MineState::Revealed {
+                if is_left_button
+                    && self.neighbor_counts[index]
+                        == self.get_surrounding_flag_count(current_selection.x, current_selection.y)
+                {
+                    let rows = vec![
+                        vec![-1, -1],
+                        vec![0, -1],
+                        vec![1, -1],
+                        vec![1, 0],
+                        vec![1, 1],
+                        vec![0, 1],
+                        vec![-1, 1],
+                        vec![-1, 0],
+                    ];
+                    let array = Array2D::from_rows(&rows);
+
+                    for mut row_iter in array.rows_iter() {
+                        let x = row_iter.next().unwrap();
+                        let y = row_iter.next().unwrap();
+                        if self
+                            .index_helper
+                            .is_in_bounds(current_selection.x + x, current_selection.y + y)
+                        {
+                            let index = self
+                                .index_helper
+                                .compute_index(current_selection.x + x, current_selection.y + y);
+                            if self.mine_states[index] == MineState::Empty {
+                                if self.sweep(current_selection.x + x, current_selection.y + y)? {
+                                    boom = true;
+                                } else if self.check_if_won() {
+                                    self.ui.select_tile(None)?;
+                                    // TODO: Play a win animation
+                                    self.game_over = true;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+            if boom {
+                // We hit a mine! Setup and play an animation while locking any input.
+                let hit_x = current_selection.x;
+                let hit_y = current_selection.y;
+
+                // First, hide the selection visual and reset the selection
+                self.ui.select_tile(None)?;
+
+                self.play_animation_on_all_mines(hit_x, hit_y)?;
+
+                self.game_over = true;
             }
         }
         Ok(())
@@ -333,6 +381,11 @@ impl Minesweeper {
         self.index_helper.is_in_bounds(x, y) && self.mines[self.index_helper.compute_index(x, y)]
     }
 
+    fn test_flag(&self, x: i32, y: i32) -> bool {
+        self.index_helper.is_in_bounds(x, y)
+            && self.mine_states[self.index_helper.compute_index(x, y)] == MineState::Flag
+    }
+
     fn get_surrounding_mine_count(&self, x: i32, y: i32) -> i32 {
         let mut count = 0;
 
@@ -366,6 +419,44 @@ impl Minesweeper {
 
         if self.test_spot(x + 1, y - 1) {
             count += 1;
+        }
+
+        count
+    }
+
+    fn get_surrounding_flag_count(&self, x: i32, y: i32) -> i32 {
+        let mut count = 0;
+
+        if self.test_flag(x + 1, y) {
+            count = count + 1;
+        }
+
+        if self.test_flag(x - 1, y) {
+            count = count + 1;
+        }
+
+        if self.test_flag(x, y + 1) {
+            count = count + 1;
+        }
+
+        if self.test_flag(x, y - 1) {
+            count = count + 1;
+        }
+
+        if self.test_flag(x + 1, y + 1) {
+            count = count + 1;
+        }
+
+        if self.test_flag(x - 1, y - 1) {
+            count = count + 1;
+        }
+
+        if self.test_flag(x - 1, y + 1) {
+            count = count + 1;
+        }
+
+        if self.test_flag(x + 1, y - 1) {
+            count = count + 1;
         }
 
         count

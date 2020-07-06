@@ -10,6 +10,7 @@ raw-window-handle = "0.3.3"
 winrt = "0.7.0"
 rand = "0.7.3"
 bindings = { path = "bindings" }
+array2d = "0.2.1"
 
 [features]
 show-mines = []
