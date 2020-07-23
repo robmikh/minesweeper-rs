@@ -17,9 +17,22 @@ use winit::{
 
 use bindings::windows::{foundation::numerics::Vector2, ui::composition::Compositor};
 
+// TODO: Validate that this works
+#[cfg(target_vendor = "uwp")]
+fn test() {
+    println!("UWP!");
+}
+
+#[cfg(target_vendor = "pc")]
+fn test() {
+    println!("Win32!")
+}
+
 fn run() -> winrt::Result<()> {
     ro_initialize(RoInitType::MultiThreaded)?;
     let _controller = create_dispatcher_queue_controller_for_current_thread()?;
+
+    test();
 
     let event_loop = EventLoop::new();
     let window = WindowBuilder::new().build(&event_loop).unwrap();
