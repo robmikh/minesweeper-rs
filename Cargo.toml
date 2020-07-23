@@ -5,11 +5,13 @@ authors = ["Robert Mikhayelyan <rob.mikh@outlook.com>"]
 edition = "2018"
 
 [dependencies]
-winit = "0.22.0"
-raw-window-handle = "0.3.3"
-winrt = "0.7.0"
+winrt = "0.7.1"
 rand = "0.7.3"
 bindings = { path = "bindings" }
+
+[target.'cfg(target_vendor = "pc")'.dependencies]
+winit = "0.22.2"
+raw-window-handle = "0.3.3"
 
 [features]
 show-mines = []

@@ -1,4 +1,4 @@
-use crate::interop::CompositorDesktopInterop;
+use crate::desktop::interop::CompositorDesktopInterop;
 use bindings::windows::ui::composition::{desktop::DesktopWindowTarget, Compositor};
 use raw_window_handle::HasRawWindowHandle;
 use winrt::TryInto;
