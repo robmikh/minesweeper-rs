@@ -1,0 +1,8 @@
+[package]
+name = "winrt_guid"
+version = "0.1.0"
+authors = ["Robert Mikhayelyan <rob.mikh@outlook.com>"]
+edition = "2018"
+
+[lib]
+proc-macro = true

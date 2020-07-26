@@ -347,6 +347,7 @@ dependencies = [
  "raw-window-handle",
  "winit",
  "winrt",
+ "winrt_guid",
 ]
 
 [[package]]
@@ -963,6 +964,10 @@ dependencies = [
  "quote 1.0.7",
  "syn",
 ]
+
+[[package]]
+name = "winrt_guid"
+version = "0.1.0"
 
 [[package]]
 name = "winrt_macros"

@@ -2,6 +2,7 @@ use bindings::windows::{
     system::DispatcherQueueController, ui::composition::desktop::DesktopWindowTarget,
 };
 use winrt::AbiTransferable;
+use winrt_guid::winrt_guid;
 
 #[repr(C)]
 pub struct abi_ICompositorDesktopInterop {
@@ -18,7 +19,8 @@ unsafe impl winrt::ComInterface for CompositorDesktopInterop {
     type VTable = abi_ICompositorDesktopInterop;
 
     fn iid() -> winrt::Guid {
-        winrt::Guid::from_values(702976506, 17767, 19914, [179, 25, 208, 242, 7, 235, 104, 7])
+        winrt_guid!(29E691FA-4567-4DCA-B319-D0F207EB6807)
+        //winrt::Guid::from_values(702976506, 17767, 19914, [179, 25, 208, 242, 7, 235, 104, 7])
     }
 }
 

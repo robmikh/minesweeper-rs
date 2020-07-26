@@ -31,3 +31,18 @@ fn main() {
         error.code().unwrap();
     }
 }
+
+/*
+#[no_mangle]
+extern "system" fn wWinMain(
+    _h_instance: *const i32,
+    _h_prev_instance: *const i32,
+    _cmd_line: *const u16,
+    _n_cmd_show: i32,
+) -> i32 {
+    match run() {
+        Ok(()) => 0,
+        Err(e) => e.code().0 as i32,
+    }
+}
+*/
