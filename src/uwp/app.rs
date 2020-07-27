@@ -162,6 +162,8 @@ impl AppInner {
         // TODO: Hook events
 
         let window = CoreWindow::get_for_current_thread()?;
+        window.activate()?;
+
         let dispatcher = window.dispatcher()?;
         dispatcher.process_events(CoreProcessEventsOption::ProcessUntilQuit)?;
 

@@ -1,3 +1,5 @@
+#![windows_subsystem = "windows"]
+
 mod comp_assets;
 mod comp_ui;
 mod minesweeper;
@@ -32,7 +34,7 @@ fn main() {
     }
 }
 
-/*
+
 #[no_mangle]
 extern "system" fn wWinMain(
     _h_instance: *const i32,
@@ -45,4 +47,3 @@ extern "system" fn wWinMain(
         Err(e) => e.code().0 as i32,
     }
 }
-*/
