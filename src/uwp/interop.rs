@@ -10,6 +10,7 @@ pub enum RoInitType {
     SingleThreaded = 1,
 }
 
+#[allow(dead_code)]
 pub fn ro_initialize(init_type: RoInitType) -> winrt::Result<()> {
     unsafe { RoInitialize(init_type).ok() }
 }

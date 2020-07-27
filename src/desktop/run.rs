@@ -1,7 +1,7 @@
 use crate::desktop::interop::create_dispatcher_queue_controller_for_current_thread;
-use crate::uwp::interop::{ro_initialize, RoInitType};
-use crate::minesweeper::Minesweeper;
 use crate::desktop::window_target::CompositionDesktopWindowTargetSource;
+use crate::minesweeper::Minesweeper;
+use crate::uwp::interop::{ro_initialize, RoInitType};
 use winit::{
     event::{ElementState, Event, MouseButton, WindowEvent},
     event_loop::{ControlFlow, EventLoop},

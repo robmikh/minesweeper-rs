@@ -1,35 +1,24 @@
-use bindings::{
-    windows::{
-        application_model::core::{
-            CoreApplication, CoreApplicationView, IFrameworkViewSource, IFrameworkView,
-            abi_IFrameworkViewSource, abi_IFrameworkView,
-        },
-        foundation::TypedEventHandler,
-        foundation::numerics::Vector2,
-        ui::Colors,
-        ui::core::{
-            CoreDispatcher, CoreWindow, CoreProcessEventsOption, WindowSizeChangedEventArgs, 
-            PointerEventArgs
-        },
-        ui::composition::{
-            Compositor, CompositionTarget
-        }
-    }
+use crate::minesweeper::Minesweeper;
+use crate::uwp::app_adapter::UwpApp;
+use bindings::windows::{
+    application_model::core::CoreApplicationView,
+    foundation::numerics::Vector2,
+    foundation::TypedEventHandler,
+    ui::composition::{CompositionTarget, Compositor},
+    ui::core::{CoreProcessEventsOption, CoreWindow, PointerEventArgs, WindowSizeChangedEventArgs},
 };
 use std::sync::{Arc, Mutex};
-use crate::uwp::app_adapter::UwpApp;
-use crate::minesweeper::Minesweeper;
 
 struct AppState {
-    window: CoreWindow,
-    compositor: Compositor,
-    target: CompositionTarget,
+    _window: CoreWindow,
+    _compositor: Compositor,
+    _target: CompositionTarget,
 
     game: Minesweeper,
 }
 
 pub struct MinesweeperApp {
-    state: Arc<Mutex<Option<AppState>>>
+    state: Arc<Mutex<Option<AppState>>>,
 }
 
 impl MinesweeperApp {
@@ -41,15 +30,15 @@ impl MinesweeperApp {
 }
 
 impl UwpApp for MinesweeperApp {
-    fn initialize(&mut self, window: &CoreApplicationView) -> winrt::Result<()> {
+    fn initialize(&mut self, _window: &CoreApplicationView) -> winrt::Result<()> {
         Ok(())
     }
 
-    fn set_window(&mut self, window: &CoreWindow) -> winrt::Result<()> {
+    fn set_window(&mut self, _window: &CoreWindow) -> winrt::Result<()> {
         Ok(())
     }
 
-    fn load(&mut self, entry_point: &winrt::HString) -> winrt::Result<()> {
+    fn load(&mut self, _entry_point: &winrt::HString) -> winrt::Result<()> {
         Ok(())
     }
 
@@ -59,7 +48,7 @@ impl UwpApp for MinesweeperApp {
         // Init Composition
         let compositor = Compositor::new()?;
         let root = compositor.create_container_visual()?;
-        root.set_relative_size_adjustment(Vector2 { x:1.0, y:1.0 })?;
+        root.set_relative_size_adjustment(Vector2 { x: 1.0, y: 1.0 })?;
         let target = compositor.create_target_for_current_view()?;
         target.set_root(&root)?;
 
@@ -69,9 +58,9 @@ impl UwpApp for MinesweeperApp {
 
         // Initialize our internal state
         let state = AppState {
-            window: window.clone(),
-            compositor,
-            target,
+            _window: window.clone(),
+            _compositor: compositor,
+            _target: target,
 
             game,
         };
@@ -83,10 +72,13 @@ impl UwpApp for MinesweeperApp {
         type PointerPressedHandler = TypedEventHandler<CoreWindow, PointerEventArgs>;
 
         let size_changed_handler = SizeChangedHandler::new({
-            let mut state = self.state.clone(); 
-            move |sender, args| {
+            let state = self.state.clone();
+            move |_sender, args| {
                 let size = args.size()?;
-                let size = Vector2{ x: size.width as f32, y: size.height as f32 };
+                let size = Vector2 {
+                    x: size.width as f32,
+                    y: size.height as f32,
+                };
                 let mut state = state.lock().unwrap();
                 let state = state.as_mut().unwrap();
                 let game = &mut state.game;
@@ -95,10 +87,13 @@ impl UwpApp for MinesweeperApp {
             }
         });
         let pointer_moved_handler = PointerMovedHandler::new({
-            let mut state = self.state.clone(); 
-            move |sender, args| {
+            let state = self.state.clone();
+            move |_sender, args| {
                 let point = args.current_point()?.position()?;
-                let point = Vector2{ x: point.x as f32, y: point.y as f32 };
+                let point = Vector2 {
+                    x: point.x as f32,
+                    y: point.y as f32,
+                };
                 let mut state = state.lock().unwrap();
                 let state = state.as_mut().unwrap();
                 let game = &mut state.game;
@@ -107,8 +102,8 @@ impl UwpApp for MinesweeperApp {
             }
         });
         let pointer_pressed_handler = PointerPressedHandler::new({
-            let mut state = self.state.clone(); 
-            move |sender, args| {
+            let state = self.state.clone();
+            move |_sender, args| {
                 let properties = args.current_point()?.properties()?;
                 let is_right = properties.is_right_button_pressed()?;
                 let is_eraser = properties.is_eraser()?;
