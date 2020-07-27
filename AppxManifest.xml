@@ -5,7 +5,7 @@
   <Properties>
     <DisplayName>Minesweeper-rs</DisplayName>
     <PublisherDisplayName>robmi</PublisherDisplayName>
-    <Logo>Assets\StoreLogo.png</Logo>
+    <Logo>assets\StoreLogo.png</Logo>
   </Properties>
   <Dependencies>
     <TargetDeviceFamily Name="Windows.Universal" MinVersion="10.0.15063.0" MaxVersionTested="10.0.18362.0" />
@@ -16,9 +16,9 @@
   </Resources>
   <Applications>
     <Application Id="App" Executable="target\x86_64-uwp-windows-msvc\debug\minesweeper-rs.exe" EntryPoint="Minesweeper.App">
-      <uap:VisualElements DisplayName="Minesweeper-rs" Description="Minesweeper-rs" Square44x44Logo="Assets\Square44x44Logo.png" Square150x150Logo="Assets\Square150x150Logo.png" BackgroundColor="transparent">
-        <uap:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png"></uap:DefaultTile>
-        <uap:SplashScreen Image="Assets\SplashScreen.png" />
+      <uap:VisualElements DisplayName="Minesweeper-rs" Description="Minesweeper-rs" Square44x44Logo="assets\Square44x44Logo.png" Square150x150Logo="assets\Square150x150Logo.png" BackgroundColor="transparent">
+        <uap:DefaultTile Wide310x150Logo="assets\Wide310x150Logo.png"></uap:DefaultTile>
+        <uap:SplashScreen Image="assets\SplashScreen.png" />
       </uap:VisualElements>
     </Application>
   </Applications>
