@@ -3,7 +3,10 @@ winrt::build!(
         os
     types
         windows::application_model::core::{
-            CoreApplication, CoreApplicationView, IFrameworkViewSource, IFrameworkView,
+            CoreApplication, 
+            CoreApplicationView, 
+            IFrameworkViewSource, 
+            IFrameworkView,
         }
         windows::foundation::numerics::{Vector2, Vector3}
         windows::foundation::TimeSpan
@@ -25,8 +28,11 @@ winrt::build!(
         windows::ui::composition::desktop::DesktopWindowTarget
         windows::ui::Colors
         windows::ui::core::{
-            CoreDispatcher, CoreWindow, CoreProcessEventsOption, WindowSizeChangedEventArgs, 
-            PointerEventArgs
+            CoreDispatcher, 
+            CoreWindow, 
+            CoreProcessEventsOption, 
+            WindowSizeChangedEventArgs, 
+            PointerEventArgs,
         }
 );
 
