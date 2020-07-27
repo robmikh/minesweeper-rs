@@ -13,12 +13,13 @@ cargo run --release
 
 ### UWP
 
-Running Minesweeper as a UWP application can be done by building for a `*-uwp-windows-msvc` target and then registering the app. Because the `*-uwp-windows-msvc` targets are currently tier 3, you'll need to compile a toolchain yourself. More information can be found [here](UWP.md). *NOTE: AppManifest.xml currently assumes the `x86_64-uwp-windows-msvc` target but can be updated.*
+Running Minesweeper as a UWP application can be done by building for a `*-uwp-windows-msvc` target and then registering the app. Because the `*-uwp-windows-msvc` targets are currently tier 3, you'll need to compile a toolchain yourself. More information can be found [here](UWP.md). 
 
 ```
 cargo +local build --target x86_64-uwp-windows-msvc
 (powershell.exe) Add-AppxPackage -Register AppxManifest.xml
 ```
+*NOTE: AppManifest.xml currently assumes the `x86_64-uwp-windows-msvc` target but can be updated.*
 
 Then launch minesweeper-rs from the Start Menu.
 
