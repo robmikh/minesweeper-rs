@@ -10,10 +10,11 @@ use bindings::{
     }
 };
 use winrt::TryInto;
-use crate::uwp::app::App;
+use crate::uwp::app::MinesweeperApp;
+use crate::uwp::app_adapter::App;
 
 pub fn run() -> winrt::Result<()> {
-    let app = App::new()?;
+    let app = App::new(Box::new(MinesweeperApp::new()))?;
     let view_source: IFrameworkViewSource = app.try_into()?;
     CoreApplication::run(&view_source)?;
     Ok(())
