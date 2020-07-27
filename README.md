@@ -11,6 +11,8 @@ cargo run --release
 ```
 
 ### UWP
+**The current IFrameworkView/IFrameworkViewSource implementation is incredibly hacky. It probably leaks. The current state is for research only.**
+
 Running the sample as a UWP application can be done by building for a `*-uwp-windows-msvc` target and then registering the app. NOTE: AppManifest.xml currently assumes `x86_64-uwp-windows-msvc` but can be updated.
 ```
 cargo +local build --target x86_64-uwp-windows-msvc
