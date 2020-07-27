@@ -2,12 +2,15 @@
 
 mod comp_assets;
 mod comp_ui;
-#[cfg(target_vendor = "pc")]
-mod desktop;
+mod interop;
 mod minesweeper;
 mod numerics;
-mod uwp;
 mod visual_grid;
+
+#[cfg(target_vendor = "pc")]
+mod desktop;
+#[cfg(target_vendor = "uwp")]
+mod uwp;
 
 #[cfg(target_vendor = "pc")]
 use desktop::run;
