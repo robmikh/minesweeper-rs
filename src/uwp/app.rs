@@ -17,6 +17,7 @@ struct AppState {
     game: Minesweeper,
 }
 
+// TOOD: A way to do this without the arc/mutex?
 pub struct MinesweeperApp {
     state: Arc<Mutex<Option<AppState>>>,
 }
