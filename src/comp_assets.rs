@@ -10,7 +10,7 @@ use bindings::windows::{
     },
 };
 use std::collections::HashMap;
-use winrt::TryInto;
+use winrt::Interface;
 
 fn get_dot_shape(
     compositor: &Compositor,
@@ -126,7 +126,7 @@ impl CompAssets {
         self.mine_count_shapes.clear();
         let circle_geometry = compositor.create_ellipse_geometry()?;
         circle_geometry.set_radius(tile_size / 12.0)?;
-        let circle_geometry: CompositionGeometry = circle_geometry.try_into()?;
+        let circle_geometry: CompositionGeometry = circle_geometry.cast()?;
         let dot_brush = compositor.create_color_brush_with_color(Colors::black()?)?;
 
         // 1
@@ -139,8 +139,7 @@ impl CompAssets {
                 &dot_brush,
                 tile_size / 2.0,
             )?)?;
-            self.mine_count_shapes
-                .insert(1, container_shape.try_into()?);
+            self.mine_count_shapes.insert(1, container_shape.cast()?);
         }
         // 2
         {
@@ -166,8 +165,7 @@ impl CompAssets {
                     y: half_y,
                 },
             )?)?;
-            self.mine_count_shapes
-                .insert(2, container_shape.try_into()?);
+            self.mine_count_shapes.insert(2, container_shape.cast()?);
         }
         // 3
         {
@@ -199,8 +197,7 @@ impl CompAssets {
                     y: fourth_y,
                 },
             )?)?;
-            self.mine_count_shapes
-                .insert(3, container_shape.try_into()?);
+            self.mine_count_shapes.insert(3, container_shape.cast()?);
         }
         // 4
         {
@@ -244,8 +241,7 @@ impl CompAssets {
                     y: third_y * 2.0,
                 },
             )?)?;
-            self.mine_count_shapes
-                .insert(4, container_shape.try_into()?);
+            self.mine_count_shapes.insert(4, container_shape.cast()?);
         }
         // 5
         {
@@ -295,8 +291,7 @@ impl CompAssets {
                     y: fourth_y * 3.0,
                 },
             )?)?;
-            self.mine_count_shapes
-                .insert(5, container_shape.try_into()?);
+            self.mine_count_shapes.insert(5, container_shape.cast()?);
         }
         // 6
         {
@@ -358,8 +353,7 @@ impl CompAssets {
                     y: fourth_y * 2.0,
                 },
             )?)?;
-            self.mine_count_shapes
-                .insert(6, container_shape.try_into()?);
+            self.mine_count_shapes.insert(6, container_shape.cast()?);
         }
         // 7
         {
@@ -427,8 +421,7 @@ impl CompAssets {
                 &dot_brush,
                 tile_size / 2.0,
             )?)?;
-            self.mine_count_shapes
-                .insert(7, container_shape.try_into()?);
+            self.mine_count_shapes.insert(7, container_shape.cast()?);
         }
         // 8
         {
@@ -510,8 +503,7 @@ impl CompAssets {
                     y: third_y * 2.0,
                 },
             )?)?;
-            self.mine_count_shapes
-                .insert(8, container_shape.try_into()?);
+            self.mine_count_shapes.insert(8, container_shape.cast()?);
         }
 
         Ok(())

@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-winrt = "0.7.0"
+winrt = { path = "../../winrt-rs" }
 
 [build-dependencies]
-winrt = "0.7.0"
+winrt = { path = "../../winrt-rs" }
