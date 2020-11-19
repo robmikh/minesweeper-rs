@@ -4,7 +4,10 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-winrt = "0.7.0"
+winrt = { git = "https://github.com/microsoft/winrt-rs" }
 
 [build-dependencies]
-winrt = "0.7.0"
+winrt = { git = "https://github.com/microsoft/winrt-rs" }
+
+[package.metadata.winrt.dependencies]
+"Microsoft.Windows.SDK.Contracts" = "10.0.19041.1"

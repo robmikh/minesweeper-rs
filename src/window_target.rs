@@ -1,7 +1,7 @@
-use crate::interop::CompositorDesktopInterop;
+use crate::interop::ICompositorDesktopInterop;
 use bindings::windows::ui::composition::{desktop::DesktopWindowTarget, Compositor};
 use raw_window_handle::HasRawWindowHandle;
-use winrt::TryInto;
+use winrt::Interface;
 
 pub trait CompositionDesktopWindowTargetSource {
     fn create_window_target(
@@ -27,8 +27,7 @@ where
             _ => panic!("Unsupported platform!"),
         };
 
-        let compositor_desktop: CompositorDesktopInterop = compositor.try_into()?;
-        let target = compositor_desktop.create_desktop_window_target(window_handle, is_topmost)?;
-        Ok(target)
+        let compositor_desktop: ICompositorDesktopInterop = compositor.cast()?;
+        compositor_desktop.create_desktop_window_target(window_handle, is_topmost)
     }
 }
