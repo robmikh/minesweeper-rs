@@ -1,59 +1,43 @@
 use bindings::windows::{
     system::DispatcherQueueController, ui::composition::desktop::DesktopWindowTarget,
 };
-use winrt::AbiTransferable;
+
+// Note: This COM ABI code will be generated for you when this issue is completed:
+// https://github.com/microsoft/winrt-rs/issues/81
 
 #[repr(C)]
-pub struct abi_ICompositorDesktopInterop {
-    __base: [usize; 3],
-    create_desktop_window_target: unsafe extern "system" fn(
-        winrt::NonNullRawComPtr<CompositorDesktopInterop>,
+pub struct ICompositorDesktopInterop_vtable(
+    usize,
+    usize,
+    usize,
+    extern "system" fn(
+        winrt::RawPtr,
         winrt::RawPtr,
         bool,
-        *mut <DesktopWindowTarget as AbiTransferable>::Abi,
+        &mut Option<DesktopWindowTarget>,
     ) -> winrt::ErrorCode,
-}
+);
 
-unsafe impl winrt::ComInterface for CompositorDesktopInterop {
-    type VTable = abi_ICompositorDesktopInterop;
+unsafe impl winrt::Interface for ICompositorDesktopInterop {
+    type Vtable = ICompositorDesktopInterop_vtable;
 
-    fn iid() -> winrt::Guid {
-        winrt::Guid::from_values(702976506, 17767, 19914, [179, 25, 208, 242, 7, 235, 104, 7])
-    }
-}
-
-unsafe impl AbiTransferable for CompositorDesktopInterop {
-    type Abi = winrt::RawComPtr<Self>;
-
-    fn get_abi(&self) -> Self::Abi {
-        self.ptr.get_abi()
-    }
-
-    fn set_abi(&mut self) -> *mut Self::Abi {
-        self.ptr.set_abi()
-    }
+    const IID: winrt::Guid =
+        winrt::Guid::from_values(702976506, 17767, 19914, [179, 25, 208, 242, 7, 235, 104, 7]);
 }
 
 #[repr(transparent)]
-#[derive(Default, Clone)]
-pub struct CompositorDesktopInterop {
-    ptr: winrt::ComPtr<CompositorDesktopInterop>,
-}
+#[derive(Clone, PartialEq)]
+pub struct ICompositorDesktopInterop(winrt::IUnknown);
 
-impl CompositorDesktopInterop {
+impl ICompositorDesktopInterop {
     pub fn create_desktop_window_target(
         &self,
         hwnd: winrt::RawPtr,
         is_topmost: bool,
     ) -> winrt::Result<DesktopWindowTarget> {
-        let this = self
-            .get_abi()
-            .expect("The `this` pointer was null when calling method");
-        unsafe {
-            let mut result: DesktopWindowTarget = std::mem::zeroed();
-            (this.vtable().create_desktop_window_target)(this, hwnd, is_topmost, result.set_abi())
-                .and_then(|| result)
-        }
+        use winrt::{Abi, Interface};
+        let mut result = None;
+        unsafe { (self.vtable().3)(self.abi(), hwnd, is_topmost, &mut result).and_some(result) }
     }
 }
 
@@ -61,7 +45,7 @@ impl CompositorDesktopInterop {
 extern "stdcall" {
     fn CreateDispatcherQueueController(
         options: DispatcherQueueOptions,
-        dispatcherQueueController: *mut <DispatcherQueueController as AbiTransferable>::Abi,
+        dispatcherQueueController: &mut Option<DispatcherQueueController>,
     ) -> winrt::ErrorCode;
 }
 
@@ -97,9 +81,8 @@ pub fn create_dispatcher_queue_controller(
         apartment_type,
     };
     unsafe {
-        let mut result: DispatcherQueueController = std::mem::zeroed();
-        CreateDispatcherQueueController(options, result.set_abi()).ok()?;
-        Ok(result)
+        let mut result = None;
+        CreateDispatcherQueueController(options, &mut result).and_some(result)
     }
 }
 
