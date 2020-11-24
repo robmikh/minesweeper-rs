@@ -1,9 +1,11 @@
-use crate::uwp::app::MinesweeperApp;
-use crate::uwp::app_adapter::AppView;
-use bindings::windows::application_model::core::CoreApplication;
+use crate::uwp::app::MinesweeperAppSource;
+use bindings::windows::{
+    application_model::core::{CoreApplication, IFrameworkViewSource},
+};
 
 pub fn run() -> winrt::Result<()> {
-    let view_source = AppView::create_view_source(Box::new(MinesweeperApp::new()))?;
+    let app_source = MinesweeperAppSource {};
+    let view_source: IFrameworkViewSource = app_source.into();
     CoreApplication::run(&view_source)?;
     Ok(())
 }

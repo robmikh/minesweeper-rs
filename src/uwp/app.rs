@@ -1,7 +1,7 @@
 use crate::minesweeper::Minesweeper;
-use crate::uwp::app_adapter::UwpApp;
+use bindings::*;
 use bindings::windows::{
-    application_model::core::CoreApplicationView,
+    application_model::core::{CoreApplicationView, IFrameworkView},
     foundation::numerics::Vector2,
     foundation::TypedEventHandler,
     ui::composition::{CompositionTarget, Compositor},
@@ -17,25 +17,31 @@ struct AppState {
     game: Minesweeper,
 }
 
+#[winrt::implement(windows::application_model::core::IFrameworkViewSource)]
+pub struct MinesweeperAppSource {}
+
+impl MinesweeperAppSource {
+    fn create_view(&mut self) -> winrt::Result<IFrameworkView> {
+        let app = MinesweeperApp {
+            state: Arc::new(Mutex::new(None)),
+        };
+        let view: IFrameworkView = app.into();
+        Ok(view)
+    }
+}
+
 // TOOD: A way to do this without the arc/mutex?
+#[winrt::implement(windows::application_model::core::IFrameworkView)]
 pub struct MinesweeperApp {
     state: Arc<Mutex<Option<AppState>>>,
 }
 
 impl MinesweeperApp {
-    pub fn new() -> Self {
-        Self {
-            state: Arc::new(Mutex::new(None)),
-        }
-    }
-}
-
-impl UwpApp for MinesweeperApp {
-    fn initialize(&mut self, _window: &CoreApplicationView) -> winrt::Result<()> {
+    fn initialize(&mut self, _window: &Option<CoreApplicationView>) -> winrt::Result<()> {
         Ok(())
     }
 
-    fn set_window(&mut self, _window: &CoreWindow) -> winrt::Result<()> {
+    fn set_window(&mut self, _window: &Option<CoreWindow>) -> winrt::Result<()> {
         Ok(())
     }
 
@@ -75,6 +81,7 @@ impl UwpApp for MinesweeperApp {
         let size_changed_handler = SizeChangedHandler::new({
             let state = self.state.clone();
             move |_sender, args| {
+                let args = args.as_ref().unwrap();
                 let size = args.size()?;
                 let size = Vector2 {
                     x: size.width as f32,
@@ -90,6 +97,7 @@ impl UwpApp for MinesweeperApp {
         let pointer_moved_handler = PointerMovedHandler::new({
             let state = self.state.clone();
             move |_sender, args| {
+                let args = args.as_ref().unwrap();
                 let point = args.current_point()?.position()?;
                 let point = Vector2 {
                     x: point.x as f32,
@@ -105,6 +113,7 @@ impl UwpApp for MinesweeperApp {
         let pointer_pressed_handler = PointerPressedHandler::new({
             let state = self.state.clone();
             move |_sender, args| {
+                let args = args.as_ref().unwrap();
                 let properties = args.current_point()?.properties()?;
                 let is_right = properties.is_right_button_pressed()?;
                 let is_eraser = properties.is_eraser()?;
@@ -125,7 +134,7 @@ impl UwpApp for MinesweeperApp {
 
         let dispatcher = window.dispatcher()?;
         dispatcher.process_events(CoreProcessEventsOption::ProcessUntilQuit)?;
-
+        
         Ok(())
     }
 
