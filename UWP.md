@@ -1,31 +1,26 @@
-# Building the `*-uwp-windows-msvc` toolchain
-Clone the [rust](https://github.com/rust-lang/rust) repo. You'll need to setup a `config.toml` file by copying the existing `config.toml.example` file and editing it:
+# Building for `*-uwp-windows-msvc` targets
+
+## Required tools
+First, you'll need to install the nightly toolchain:
 
 ```
-# In addition to all host triples, other triples to produce the standard library
-# for. Each host triple will be used to produce a copy of the standard library
-# for each target triple.
-#
-# Defaults to just the build triple
-target = ["x86_64-uwp-windows-msvc"]
+rustup toolchain install nightly
+rustup component add rust-src
 ```
 
-Then follow the instructions in the [README](https://github.com/rust-lang/rust/blob/master/README.md#msvc) to build the toolchain. Afterwards you can link your newly built toolchain to rustup for easier use.
+I'm using version `1.50.0-nightly (1c389ffef 2020-11-24)`. If you already have a nightly toolchain installed and you're seeing an error about `SetThreadStackGuarantee`, update your nightly toolchain.
+
+## Building Minesweeper
+From the appropriate VS command prompt (e.g. "x64 Native Tools Command Prompt for VS 2019" when building for x86_64), run cargo but target a uwp target:
 
 ```
-python x.py build
-rustup toolchain link local build\x86_64-pc-windows-msvc\stage2
+cargo +nightly build -Z build-std=std,panic_abort --target x86_64-uwp-windows-msvc
 ```
 
-There's one last step. You'll need put a copy of `rustfmt.exe` into the `bin` directory for your toolchain. For example, I placed mine in `build\x86_64-pc-windows-msvc\stage2\bin`.
-
-Once you have everything in place, you'll be able to build using you're new toolchain:
+After that, you should be able to register your application:
 
 ```
-cargo +local build --target x86_64-uwp-windows-msvc
 (powershell.exe) Add-AppxPackage -Register AppxManifest.xml
 ```
 
-## Troubleshooting
-
-In the event you're getting errors when compiling llvm, make sure you use a **non-preview** version of Visual Studio 2019. I believe there's a fix, but it wasn't present in the snapshot I built from (stable - [5c1f21c3b82](https://github.com/rust-lang/rust/tree/5c1f21c3b82297671ad3ae1e8c942d2ca92e84f2)). 
+Special thanks to [bdbai](https://github.com/bdbai) for the [firstuwp-rs](https://github.com/bdbai/firstuwp-rs) project. Without that, I wouldn't have known about the [build-std](https://doc.rust-lang.org/cargo/reference/unstable.html#build-std) cargo feature.
