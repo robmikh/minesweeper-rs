@@ -1,7 +1,5 @@
 use crate::uwp::app::MinesweeperAppSource;
-use bindings::windows::{
-    application_model::core::{CoreApplication, IFrameworkViewSource},
-};
+use bindings::windows::application_model::core::{CoreApplication, IFrameworkViewSource};
 
 pub fn run() -> winrt::Result<()> {
     let app_source = MinesweeperAppSource {};

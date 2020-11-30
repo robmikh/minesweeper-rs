@@ -2,9 +2,9 @@ fn main() {
     winrt::build!(
         types
             windows::application_model::core::{
-                CoreApplication, 
-                CoreApplicationView, 
-                IFrameworkViewSource, 
+                CoreApplication,
+                CoreApplicationView,
+                IFrameworkViewSource,
                 IFrameworkView,
             }
             windows::foundation::numerics::{Vector2, Vector3}
@@ -26,10 +26,10 @@ fn main() {
             windows::ui::composition::desktop::DesktopWindowTarget
             windows::ui::Colors
             windows::ui::core::{
-                CoreDispatcher, 
-                CoreWindow, 
-                CoreProcessEventsOption, 
-                WindowSizeChangedEventArgs, 
+                CoreDispatcher,
+                CoreWindow,
+                CoreProcessEventsOption,
+                WindowSizeChangedEventArgs,
                 PointerEventArgs,
             }
     );

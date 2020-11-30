@@ -1,5 +1,4 @@
 use crate::minesweeper::Minesweeper;
-use bindings::*;
 use bindings::windows::{
     application_model::core::{CoreApplicationView, IFrameworkView},
     foundation::numerics::Vector2,
@@ -7,6 +6,7 @@ use bindings::windows::{
     ui::composition::{CompositionTarget, Compositor},
     ui::core::{CoreProcessEventsOption, CoreWindow, PointerEventArgs, WindowSizeChangedEventArgs},
 };
+use bindings::*;
 use std::sync::{Arc, Mutex};
 
 struct AppState {
@@ -134,7 +134,7 @@ impl MinesweeperApp {
 
         let dispatcher = window.dispatcher()?;
         dispatcher.process_events(CoreProcessEventsOption::ProcessUntilQuit)?;
-        
+
         Ok(())
     }
 
