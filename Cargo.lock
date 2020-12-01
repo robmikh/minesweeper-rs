@@ -21,12 +21,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b8052e2d8aabbb8d556d6abbcce2a22b9590996c5f849b9c7ce4544a2e3b984e"
 
 [[package]]
-name = "anyhow"
-version = "1.0.34"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bf8dcb5b4bbaa28653b647d8c77bd4ed40183b48882e130c1f1ffb73de069fd7"
-
-[[package]]
 name = "approx"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -75,17 +69,6 @@ dependencies = [
  "mio",
  "mio-extras",
  "nix",
-]
-
-[[package]]
-name = "cargo_toml"
-version = "0.8.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "513d17226888c7b8283ac02a1c1b0d8a9d4cbf6db65dfadb79f598f5d7966fe9"
-dependencies = [
- "serde",
- "serde_derive",
- "toml",
 ]
 
 [[package]]
@@ -830,6 +813,9 @@ name = "serde"
 version = "1.0.117"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b88fa983de7720629c9387e9f517353ed404164b1e482c970a90c1a4aaf7dc1a"
+dependencies = [
+ "serde_derive",
+]
 
 [[package]]
 name = "serde_derive"
@@ -911,26 +897,6 @@ dependencies = [
  "proc-macro2 1.0.24",
  "quote 1.0.7",
  "unicode-xid 0.2.1",
-]
-
-[[package]]
-name = "thiserror"
-version = "1.0.22"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0e9ae34b84616eedaaf1e9dd6026dbe00dcafa92aa0c8077cb69df1fcfe5e53e"
-dependencies = [
- "thiserror-impl",
-]
-
-[[package]]
-name = "thiserror-impl"
-version = "1.0.22"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9ba20f23e85b10754cd195504aebf6a27e2e6cbe28c17778a0c930724628dd56"
-dependencies = [
- "proc-macro2 1.0.24",
- "quote 1.0.7",
- "syn",
 ]
 
 [[package]]
@@ -1134,32 +1100,22 @@ dependencies = [
 [[package]]
 name = "winrt"
 version = "0.8.0"
-source = "git+https://github.com/microsoft/winrt-rs#83669a4f1ad7b41cffb11d2243d824b2fbdba718"
 dependencies = [
  "const-sha1",
  "winmd",
+ "winrt-gen",
  "winrt-macros",
-]
-
-[[package]]
-name = "winrt-deps"
-version = "0.1.0"
-source = "git+https://github.com/microsoft/winrt-rs#83669a4f1ad7b41cffb11d2243d824b2fbdba718"
-dependencies = [
- "anyhow",
- "cargo_toml",
- "serde_json",
- "thiserror",
 ]
 
 [[package]]
 name = "winrt-gen"
 version = "0.8.0"
-source = "git+https://github.com/microsoft/winrt-rs#83669a4f1ad7b41cffb11d2243d824b2fbdba718"
 dependencies = [
  "proc-macro2 1.0.24",
  "quote 1.0.7",
  "rayon",
+ "serde",
+ "serde_json",
  "sha1",
  "squote",
  "syn",
@@ -1170,7 +1126,6 @@ dependencies = [
 [[package]]
 name = "winrt-gen-macros"
 version = "0.8.0"
-source = "git+https://github.com/microsoft/winrt-rs#83669a4f1ad7b41cffb11d2243d824b2fbdba718"
 dependencies = [
  "proc-macro2 1.0.24",
  "quote 1.0.7",
@@ -1180,17 +1135,13 @@ dependencies = [
 [[package]]
 name = "winrt-macros"
 version = "0.8.0"
-source = "git+https://github.com/microsoft/winrt-rs#83669a4f1ad7b41cffb11d2243d824b2fbdba718"
 dependencies = [
- "cargo_toml",
  "proc-macro2 1.0.24",
  "quote 1.0.7",
  "rayon",
- "serde_json",
  "squote",
  "syn",
  "winmd",
- "winrt-deps",
  "winrt-gen",
 ]
 
