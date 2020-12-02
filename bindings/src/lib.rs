@@ -1,1 +1,1 @@
-include!(concat!(env!("OUT_DIR"), "/winrt.rs"));
+winrt::include_bindings!();
