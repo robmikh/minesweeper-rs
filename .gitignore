@@ -1,1 +1,5 @@
 /target
+*.user
+bin/
+obj/
+.vs/
