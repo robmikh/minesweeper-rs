@@ -1,4 +1,4 @@
-use crate::interop::ICompositorDesktopInterop;
+use bindings::windows::win32::winrt::ICompositorDesktopInterop;
 use bindings::windows::ui::composition::{desktop::DesktopWindowTarget, Compositor};
 use raw_window_handle::HasRawWindowHandle;
 use winrt::Interface;
@@ -28,6 +28,9 @@ where
         };
 
         let compositor_desktop: ICompositorDesktopInterop = compositor.cast()?;
-        compositor_desktop.create_desktop_window_target(window_handle, is_topmost)
+        let mut result = None;
+        let hr = compositor_desktop.CreateDesktopWindowTarget(window_handle as isize, is_topmost as i32, &mut result);
+        winrt::ErrorCode(hr as u32).ok()?;
+        Ok(result.unwrap())
     }
 }
