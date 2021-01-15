@@ -1,6 +1,4 @@
-use bindings::windows::{
-    system::DispatcherQueueController,
-};
+use bindings::windows::system::DispatcherQueueController;
 
 // Note: This COM ABI code will be generated for you when this issue is completed:
 // https://github.com/microsoft/winrt-rs/issues/81

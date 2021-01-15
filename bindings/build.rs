@@ -19,7 +19,7 @@ fn main() {
         windows::ui::composition::desktop::DesktopWindowTarget
         windows::ui::Colors
         windows::win32::winrt::{
-            ICompositorDesktopInterop
+            ICompositorDesktopInterop,
         }
     );
 }

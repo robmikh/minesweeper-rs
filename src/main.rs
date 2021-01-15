@@ -6,7 +6,7 @@ mod numerics;
 mod visual_grid;
 mod window_target;
 
-use interop::{create_dispatcher_queue_controller_for_current_thread};
+use interop::create_dispatcher_queue_controller_for_current_thread;
 use minesweeper::Minesweeper;
 use window_target::CompositionDesktopWindowTargetSource;
 use winit::{
