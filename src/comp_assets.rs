@@ -10,14 +10,14 @@ use bindings::windows::{
     },
 };
 use std::collections::HashMap;
-use winrt::Interface;
+use windows::Interface;
 
 fn get_dot_shape(
     compositor: &Compositor,
     geometry: &CompositionGeometry,
     brush: &CompositionColorBrush,
     offset: Vector2,
-) -> winrt::Result<CompositionSpriteShape> {
+) -> windows::Result<CompositionSpriteShape> {
     let shape = compositor.create_sprite_shape_with_geometry(geometry)?;
     shape.set_fill_brush(brush)?;
     shape.set_offset(offset)?;
@@ -32,7 +32,7 @@ pub struct CompAssets {
 }
 
 impl CompAssets {
-    pub fn new(compositor: &Compositor, tile_size: &Vector2) -> winrt::Result<Self> {
+    pub fn new(compositor: &Compositor, tile_size: &Vector2) -> windows::Result<Self> {
         let mine_brush = compositor.create_color_brush_with_color(Colors::red()?)?;
 
         let mut result = Self {
@@ -70,7 +70,7 @@ impl CompAssets {
         &mut self,
         compositor: &Compositor,
         tile_size: &Vector2,
-    ) -> winrt::Result<()> {
+    ) -> windows::Result<()> {
         self.mine_state_brushes.clear();
         self.mine_state_brushes.insert(
             MineState::Empty,

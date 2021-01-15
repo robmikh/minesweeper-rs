@@ -37,7 +37,7 @@ impl VisualGrid {
         grid_size_in_tiles: &SizeInt32,
         tile_size: &Vector2,
         margin: &Vector2,
-    ) -> winrt::Result<Self> {
+    ) -> windows::Result<Self> {
         let compositor = compositor.clone();
         let root = compositor.create_container_visual()?;
 
@@ -73,7 +73,7 @@ impl VisualGrid {
         Ok(result)
     }
 
-    pub fn reset(&mut self, grid_size_in_tiles: &SizeInt32) -> winrt::Result<()> {
+    pub fn reset(&mut self, grid_size_in_tiles: &SizeInt32) -> windows::Result<()> {
         let children = self.root.children()?;
         children.remove_all()?;
         self.tiles.clear();
@@ -127,7 +127,7 @@ impl VisualGrid {
         &self.selection_visual
     }
 
-    pub fn size(&self) -> winrt::Result<Vector2> {
+    pub fn size(&self) -> windows::Result<Vector2> {
         self.root.size()
     }
 
@@ -150,7 +150,7 @@ impl VisualGrid {
         }
     }
 
-    pub fn select_tile(&mut self, tile_coordinate: Option<TileCoordinate>) -> winrt::Result<()> {
+    pub fn select_tile(&mut self, tile_coordinate: Option<TileCoordinate>) -> windows::Result<()> {
         self.current_selection = tile_coordinate;
         if let Some(tile_coordinate) = tile_coordinate {
             let visual = &self.tiles[self

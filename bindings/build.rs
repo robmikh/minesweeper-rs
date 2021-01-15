@@ -1,5 +1,5 @@
 fn main() {
-    winrt::build!(
+    windows::build!(
         windows::foundation::numerics::{Vector2, Vector3}
         windows::foundation::TimeSpan
         windows::graphics::SizeInt32

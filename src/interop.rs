@@ -10,7 +10,7 @@ extern "stdcall" {
     fn CreateDispatcherQueueController(
         options: DispatcherQueueOptions,
         dispatcherQueueController: &mut Option<DispatcherQueueController>,
-    ) -> winrt::ErrorCode;
+    ) -> windows::ErrorCode;
 }
 
 #[repr(C)]
@@ -38,7 +38,7 @@ pub enum DispatcherQueueThreadApartmentType {
 pub fn create_dispatcher_queue_controller(
     thread_type: DispatcherQueueThreadType,
     apartment_type: DispatcherQueueThreadApartmentType,
-) -> winrt::Result<DispatcherQueueController> {
+) -> windows::Result<DispatcherQueueController> {
     let options = DispatcherQueueOptions {
         size: std::mem::size_of::<DispatcherQueueOptions>() as u32,
         thread_type,
@@ -51,7 +51,7 @@ pub fn create_dispatcher_queue_controller(
 }
 
 pub fn create_dispatcher_queue_controller_for_current_thread(
-) -> winrt::Result<DispatcherQueueController> {
+) -> windows::Result<DispatcherQueueController> {
     create_dispatcher_queue_controller(
         DispatcherQueueThreadType::Current,
         DispatcherQueueThreadApartmentType::None,

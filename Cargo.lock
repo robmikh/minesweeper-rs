@@ -39,7 +39,7 @@ checksum = "cdb031dd78e28731d87d56cc8ffef4a8f36ca26c38fe2de700543e627f8a464a"
 name = "bindings"
 version = "0.1.0"
 dependencies = [
- "winrt",
+ "windows",
 ]
 
 [[package]]
@@ -361,9 +361,9 @@ checksum = "89203f3fba0a3795506acaad8ebce3c80c0af93f994d5a1d7a0b1eeb23271929"
 
 [[package]]
 name = "libloading"
-version = "0.6.6"
+version = "0.6.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e9367bdfa836b7e3cf895867f7a570283444da90562980ec2263d6e1569b16bc"
+checksum = "351a32417a12d5f7e82c368a66781e307834dae04c6ce0cd4456d52989229883"
 dependencies = [
  "cfg-if 1.0.0",
  "winapi 0.3.9",
@@ -437,8 +437,8 @@ dependencies = [
  "bindings",
  "rand",
  "raw-window-handle",
+ "windows",
  "winit",
- "winrt",
 ]
 
 [[package]]
@@ -1046,6 +1046,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
 
 [[package]]
+name = "windows"
+version = "0.8.0"
+dependencies = [
+ "const-sha1",
+ "winmd",
+ "winrt-gen",
+ "winrt-macros",
+]
+
+[[package]]
 name = "winit"
 version = "0.22.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1092,16 +1102,6 @@ dependencies = [
  "proc-macro2 1.0.24",
  "quote 1.0.8",
  "syn",
-]
-
-[[package]]
-name = "winrt"
-version = "0.8.0"
-dependencies = [
- "const-sha1",
- "winmd",
- "winrt-gen",
- "winrt-macros",
 ]
 
 [[package]]

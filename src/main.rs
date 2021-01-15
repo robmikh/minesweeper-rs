@@ -17,7 +17,7 @@ use winit::{
 
 use bindings::windows::{foundation::numerics::Vector2, ui::composition::Compositor};
 
-fn run() -> winrt::Result<()> {
+fn run() -> windows::Result<()> {
     let _controller = create_dispatcher_queue_controller_for_current_thread()?;
 
     let event_loop = EventLoop::new();
