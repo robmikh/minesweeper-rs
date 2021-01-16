@@ -1047,12 +1047,66 @@ checksum = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
 
 [[package]]
 name = "windows"
-version = "0.8.0"
+version = "0.1.4"
 dependencies = [
  "const-sha1",
- "winmd",
- "winrt-gen",
- "winrt-macros",
+ "windows_gen",
+ "windows_macros",
+ "windows_winmd",
+]
+
+[[package]]
+name = "windows_gen"
+version = "0.1.4"
+dependencies = [
+ "proc-macro2 1.0.24",
+ "quote 1.0.8",
+ "rayon",
+ "sha1",
+ "squote",
+ "syn",
+ "windows_gen_macros",
+ "windows_winmd",
+]
+
+[[package]]
+name = "windows_gen_macros"
+version = "0.1.4"
+dependencies = [
+ "proc-macro2 1.0.24",
+ "quote 1.0.8",
+ "syn",
+]
+
+[[package]]
+name = "windows_macros"
+version = "0.1.4"
+dependencies = [
+ "proc-macro2 1.0.24",
+ "quote 1.0.8",
+ "rayon",
+ "squote",
+ "syn",
+ "windows_gen",
+ "windows_winmd",
+]
+
+[[package]]
+name = "windows_winmd"
+version = "0.1.4"
+dependencies = [
+ "serde",
+ "serde_json",
+ "windows_winmd_macros",
+]
+
+[[package]]
+name = "windows_winmd_macros"
+version = "0.1.4"
+dependencies = [
+ "proc-macro2 1.0.24",
+ "quote 1.0.8",
+ "syn",
 ]
 
 [[package]]
@@ -1084,60 +1138,6 @@ dependencies = [
  "wayland-client",
  "winapi 0.3.9",
  "x11-dl",
-]
-
-[[package]]
-name = "winmd"
-version = "0.8.0"
-dependencies = [
- "serde",
- "serde_json",
- "winmd-macros",
-]
-
-[[package]]
-name = "winmd-macros"
-version = "0.8.0"
-dependencies = [
- "proc-macro2 1.0.24",
- "quote 1.0.8",
- "syn",
-]
-
-[[package]]
-name = "winrt-gen"
-version = "0.8.0"
-dependencies = [
- "proc-macro2 1.0.24",
- "quote 1.0.8",
- "rayon",
- "sha1",
- "squote",
- "syn",
- "winmd",
- "winrt-gen-macros",
-]
-
-[[package]]
-name = "winrt-gen-macros"
-version = "0.8.0"
-dependencies = [
- "proc-macro2 1.0.24",
- "quote 1.0.8",
- "syn",
-]
-
-[[package]]
-name = "winrt-macros"
-version = "0.8.0"
-dependencies = [
- "proc-macro2 1.0.24",
- "quote 1.0.8",
- "rayon",
- "squote",
- "syn",
- "winmd",
- "winrt-gen",
 ]
 
 [[package]]

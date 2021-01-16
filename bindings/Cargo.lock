@@ -246,35 +246,17 @@ checksum = "f7fe0bb3479651439c9112f72b6c505038574c9fbb575ed1bf3b797fa39dd564"
 
 [[package]]
 name = "windows"
-version = "0.8.0"
+version = "0.1.4"
 dependencies = [
  "const-sha1",
- "winmd",
- "winrt-gen",
- "winrt-macros",
+ "windows_gen",
+ "windows_macros",
+ "windows_winmd",
 ]
 
 [[package]]
-name = "winmd"
-version = "0.8.0"
-dependencies = [
- "serde",
- "serde_json",
- "winmd-macros",
-]
-
-[[package]]
-name = "winmd-macros"
-version = "0.8.0"
-dependencies = [
- "proc-macro2",
- "quote",
- "syn",
-]
-
-[[package]]
-name = "winrt-gen"
-version = "0.8.0"
+name = "windows_gen"
+version = "0.1.4"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -282,13 +264,13 @@ dependencies = [
  "sha1",
  "squote",
  "syn",
- "winmd",
- "winrt-gen-macros",
+ "windows_gen_macros",
+ "windows_winmd",
 ]
 
 [[package]]
-name = "winrt-gen-macros"
-version = "0.8.0"
+name = "windows_gen_macros"
+version = "0.1.4"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -296,14 +278,32 @@ dependencies = [
 ]
 
 [[package]]
-name = "winrt-macros"
-version = "0.8.0"
+name = "windows_macros"
+version = "0.1.4"
 dependencies = [
  "proc-macro2",
  "quote",
  "rayon",
  "squote",
  "syn",
- "winmd",
- "winrt-gen",
+ "windows_gen",
+ "windows_winmd",
+]
+
+[[package]]
+name = "windows_winmd"
+version = "0.1.4"
+dependencies = [
+ "serde",
+ "serde_json",
+ "windows_winmd_macros",
+]
+
+[[package]]
+name = "windows_winmd_macros"
+version = "0.1.4"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
 ]
