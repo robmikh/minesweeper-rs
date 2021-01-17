@@ -74,7 +74,7 @@ pub struct Minesweeper {
 }
 
 impl Minesweeper {
-    pub fn new(parent_visual: &ContainerVisual, parent_size: &Vector2) -> winrt::Result<Self> {
+    pub fn new(parent_visual: &ContainerVisual, parent_size: &Vector2) -> windows::Result<Self> {
         let game_board_size_in_tiles = SizeInt32 {
             width: 16,
             height: 16,
@@ -110,7 +110,7 @@ impl Minesweeper {
         Ok(result)
     }
 
-    pub fn on_pointer_moved(&mut self, point: &Vector2) -> winrt::Result<()> {
+    pub fn on_pointer_moved(&mut self, point: &Vector2) -> windows::Result<()> {
         if self.game_over || self.ui.is_animation_playing() {
             return Ok(());
         }
@@ -131,7 +131,7 @@ impl Minesweeper {
         Ok(())
     }
 
-    pub fn on_parent_size_changed(&mut self, new_size: &Vector2) -> winrt::Result<()> {
+    pub fn on_parent_size_changed(&mut self, new_size: &Vector2) -> windows::Result<()> {
         self.ui.resize(new_size)?;
         Ok(())
     }
@@ -140,7 +140,7 @@ impl Minesweeper {
         &mut self,
         is_right_button: bool,
         is_eraser: bool,
-    ) -> winrt::Result<()> {
+    ) -> windows::Result<()> {
         // TODO: Switch the condition back once we can subscribe to events.
         //if self.game_over && !self.ui.is_animation_playing() {
         if self.game_over {
@@ -185,7 +185,7 @@ impl Minesweeper {
         Ok(())
     }
 
-    fn new_game(&mut self, board_width: i32, board_height: i32, mines: i32) -> winrt::Result<()> {
+    fn new_game(&mut self, board_width: i32, board_height: i32, mines: i32) -> windows::Result<()> {
         self.game_board_width = board_width;
         self.game_board_height = board_height;
         self.index_helper = IndexHelper::new(board_width, board_height);
@@ -207,7 +207,7 @@ impl Minesweeper {
         Ok(())
     }
 
-    fn sweep(&mut self, x: i32, y: i32) -> winrt::Result<bool> {
+    fn sweep(&mut self, x: i32, y: i32) -> windows::Result<bool> {
         if self.mine_generation_state == MineGenerationState::Deferred {
             // We don't want the first thing that the user clicks to be a mine.
             // Generate mines but avoid putting it where the user clicked.
@@ -248,7 +248,7 @@ impl Minesweeper {
         Ok(hit_mine)
     }
 
-    fn reveal(&mut self, index: usize) -> winrt::Result<()> {
+    fn reveal(&mut self, index: usize) -> windows::Result<()> {
         let tile_coordinate = TileCoordinate {
             x: self.index_helper.compute_x_from_index(index),
             y: self.index_helper.compute_y_from_index(index),
@@ -276,7 +276,7 @@ impl Minesweeper {
         sweeps: &mut VecDeque<usize>,
         x: i32,
         y: i32,
-    ) -> winrt::Result<()> {
+    ) -> windows::Result<()> {
         if self.is_in_bounds_and_unmarked(x, y) {
             let index = self.index_helper.compute_index(x, y);
             self.reveal(index)?;
@@ -389,7 +389,7 @@ impl Minesweeper {
         }
     }
 
-    fn play_animation_on_all_mines(&mut self, center_x: i32, center_y: i32) -> winrt::Result<()> {
+    fn play_animation_on_all_mines(&mut self, center_x: i32, center_y: i32) -> windows::Result<()> {
         // Build a queue that contains the indices of the mines in a spiral starting from the clicked mine.
         let mut mine_indices: VecDeque<usize> = VecDeque::new();
         let mut mines_per_ring: VecDeque<i32> = VecDeque::new();
