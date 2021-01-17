@@ -15,11 +15,13 @@ use winit::{
     window::WindowBuilder,
 };
 
-use bindings::windows::{foundation::numerics::Vector2, ui::composition::Compositor};
 use bindings::windows::win32::winrt::{RoInitialize, RO_INIT_TYPE};
+use bindings::windows::{foundation::numerics::Vector2, ui::composition::Compositor};
 
 fn run() -> windows::Result<()> {
-    unsafe { RoInitialize(RO_INIT_TYPE::RO_INIT_MULTITHREADED).ok()?; }
+    unsafe {
+        RoInitialize(RO_INIT_TYPE::RO_INIT_SINGLETHREADED).ok()?;
+    }
     let _controller = create_dispatcher_queue_controller_for_current_thread()?;
 
     let event_loop = EventLoop::new();
