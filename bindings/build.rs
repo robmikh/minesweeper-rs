@@ -18,7 +18,7 @@ fn main() {
         }
         windows::ui::composition::desktop::DesktopWindowTarget
         windows::ui::Colors
-        windows::win32::base::CreateDispatcherQueueController
+        windows::win32::system_services::CreateDispatcherQueueController
         windows::win32::winrt::{ICompositorDesktopInterop, RoInitialize}
     );
 }
