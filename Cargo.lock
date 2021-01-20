@@ -294,9 +294,9 @@ dependencies = [
 
 [[package]]
 name = "hermit-abi"
-version = "0.1.17"
+version = "0.1.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5aca5565f760fb5b220e499d72710ed156fdb74e631659e99377d9ebfbd13ae8"
+checksum = "322f4de77956e22ed0e5032c359a0f1273f1f7f0d79bfa3b8ffbc730d7fbcc5c"
 dependencies = [
  "libc",
 ]
@@ -809,18 +809,18 @@ checksum = "d29ab0c6d3fc0ee92fe66e2d99f700eab17a8d57d1c1d3b748380fb20baa78cd"
 
 [[package]]
 name = "serde"
-version = "1.0.119"
+version = "1.0.120"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9bdd36f49e35b61d49efd8aa7fc068fd295961fd2286d0b2ee9a4c7a14e99cc3"
+checksum = "166b2349061381baf54a58e4b13c89369feb0ef2eaa57198899e2312aac30aab"
 dependencies = [
  "serde_derive",
 ]
 
 [[package]]
 name = "serde_derive"
-version = "1.0.119"
+version = "1.0.120"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "552954ce79a059ddd5fd68c271592374bd15cab2274970380c000118aeffe1cd"
+checksum = "0ca2a8cb5805ce9e3b95435e3765b7b553cecc762d938d409434338386cb5775"
 dependencies = [
  "proc-macro2 1.0.24",
  "quote 1.0.8",
@@ -1048,7 +1048,7 @@ checksum = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
 [[package]]
 name = "windows"
 version = "0.1.4"
-source = "git+https://github.com/microsoft/windows-rs#0227a507d5c5c8d2c07576a73efd0cf6ce6392cd"
+source = "git+https://github.com/microsoft/windows-rs#031b473662d3b1de28a511a14ade6b72d216ecea"
 dependencies = [
  "const-sha1",
  "windows_gen",
@@ -1059,7 +1059,7 @@ dependencies = [
 [[package]]
 name = "windows_gen"
 version = "0.1.4"
-source = "git+https://github.com/microsoft/windows-rs#0227a507d5c5c8d2c07576a73efd0cf6ce6392cd"
+source = "git+https://github.com/microsoft/windows-rs#031b473662d3b1de28a511a14ade6b72d216ecea"
 dependencies = [
  "proc-macro2 1.0.24",
  "quote 1.0.8",
@@ -1074,7 +1074,7 @@ dependencies = [
 [[package]]
 name = "windows_gen_macros"
 version = "0.1.4"
-source = "git+https://github.com/microsoft/windows-rs#0227a507d5c5c8d2c07576a73efd0cf6ce6392cd"
+source = "git+https://github.com/microsoft/windows-rs#031b473662d3b1de28a511a14ade6b72d216ecea"
 dependencies = [
  "proc-macro2 1.0.24",
  "quote 1.0.8",
@@ -1084,7 +1084,7 @@ dependencies = [
 [[package]]
 name = "windows_macros"
 version = "0.1.4"
-source = "git+https://github.com/microsoft/windows-rs#0227a507d5c5c8d2c07576a73efd0cf6ce6392cd"
+source = "git+https://github.com/microsoft/windows-rs#031b473662d3b1de28a511a14ade6b72d216ecea"
 dependencies = [
  "proc-macro2 1.0.24",
  "quote 1.0.8",
@@ -1098,7 +1098,7 @@ dependencies = [
 [[package]]
 name = "windows_winmd"
 version = "0.1.4"
-source = "git+https://github.com/microsoft/windows-rs#0227a507d5c5c8d2c07576a73efd0cf6ce6392cd"
+source = "git+https://github.com/microsoft/windows-rs#031b473662d3b1de28a511a14ade6b72d216ecea"
 dependencies = [
  "serde",
  "serde_json",
@@ -1108,7 +1108,7 @@ dependencies = [
 [[package]]
 name = "windows_winmd_macros"
 version = "0.1.4"
-source = "git+https://github.com/microsoft/windows-rs#0227a507d5c5c8d2c07576a73efd0cf6ce6392cd"
+source = "git+https://github.com/microsoft/windows-rs#031b473662d3b1de28a511a14ade6b72d216ecea"
 dependencies = [
  "proc-macro2 1.0.24",
  "quote 1.0.8",
