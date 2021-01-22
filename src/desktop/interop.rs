@@ -1,82 +1,15 @@
-use bindings::windows::{
-    system::DispatcherQueueController, ui::composition::desktop::DesktopWindowTarget,
+use bindings::windows::system::DispatcherQueueController;
+use bindings::windows::win32::system_services::{
+    CreateDispatcherQueueController, DispatcherQueueOptions, DISPATCHERQUEUE_THREAD_APARTMENTTYPE,
+    DISPATCHERQUEUE_THREAD_TYPE,
 };
 
-// Note: This COM ABI code will be generated for you when this issue is completed:
-// https://github.com/microsoft/winrt-rs/issues/81
-
-#[repr(C)]
-pub struct ICompositorDesktopInterop_vtable(
-    usize,
-    usize,
-    usize,
-    extern "system" fn(
-        winrt::RawPtr,
-        winrt::RawPtr,
-        bool,
-        &mut Option<DesktopWindowTarget>,
-    ) -> winrt::ErrorCode,
-);
-
-unsafe impl winrt::Interface for ICompositorDesktopInterop {
-    type Vtable = ICompositorDesktopInterop_vtable;
-
-    const IID: winrt::Guid =
-        winrt::Guid::from_values(702976506, 17767, 19914, [179, 25, 208, 242, 7, 235, 104, 7]);
-}
-
-#[repr(transparent)]
-#[derive(Clone, PartialEq)]
-pub struct ICompositorDesktopInterop(winrt::IUnknown);
-
-impl ICompositorDesktopInterop {
-    pub fn create_desktop_window_target(
-        &self,
-        hwnd: winrt::RawPtr,
-        is_topmost: bool,
-    ) -> winrt::Result<DesktopWindowTarget> {
-        use winrt::{Abi, Interface};
-        let mut result = None;
-        unsafe { (self.vtable().3)(self.abi(), hwnd, is_topmost, &mut result).and_some(result) }
-    }
-}
-
-#[link(name = "coremessaging")]
-extern "stdcall" {
-    fn CreateDispatcherQueueController(
-        options: DispatcherQueueOptions,
-        dispatcherQueueController: &mut Option<DispatcherQueueController>,
-    ) -> winrt::ErrorCode;
-}
-
-#[repr(C)]
-struct DispatcherQueueOptions {
-    size: u32,
-    thread_type: DispatcherQueueThreadType,
-    apartment_type: DispatcherQueueThreadApartmentType,
-}
-
-#[allow(dead_code)]
-#[repr(i32)]
-pub enum DispatcherQueueThreadType {
-    Dedicated = 1,
-    Current = 2,
-}
-
-#[allow(dead_code)]
-#[repr(i32)]
-pub enum DispatcherQueueThreadApartmentType {
-    None = 0,
-    ASTA = 1,
-    STA = 2,
-}
-
 pub fn create_dispatcher_queue_controller(
-    thread_type: DispatcherQueueThreadType,
-    apartment_type: DispatcherQueueThreadApartmentType,
-) -> winrt::Result<DispatcherQueueController> {
+    thread_type: DISPATCHERQUEUE_THREAD_TYPE,
+    apartment_type: DISPATCHERQUEUE_THREAD_APARTMENTTYPE,
+) -> windows::Result<DispatcherQueueController> {
     let options = DispatcherQueueOptions {
-        size: std::mem::size_of::<DispatcherQueueOptions>() as u32,
+        dw_size: std::mem::size_of::<DispatcherQueueOptions>() as u32,
         thread_type,
         apartment_type,
     };
@@ -87,9 +20,9 @@ pub fn create_dispatcher_queue_controller(
 }
 
 pub fn create_dispatcher_queue_controller_for_current_thread(
-) -> winrt::Result<DispatcherQueueController> {
+) -> windows::Result<DispatcherQueueController> {
     create_dispatcher_queue_controller(
-        DispatcherQueueThreadType::Current,
-        DispatcherQueueThreadApartmentType::None,
+        DISPATCHERQUEUE_THREAD_TYPE::DQTYPE_THREAD_CURRENT,
+        DISPATCHERQUEUE_THREAD_APARTMENTTYPE::DQTAT_COM_NONE,
     )
 }

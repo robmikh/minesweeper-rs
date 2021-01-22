@@ -1,6 +1,5 @@
 use crate::desktop::interop::create_dispatcher_queue_controller_for_current_thread;
 use crate::desktop::window_target::CompositionDesktopWindowTargetSource;
-use crate::interop::{ro_initialize, RoInitType};
 use crate::minesweeper::Minesweeper;
 use winit::{
     event::{ElementState, Event, MouseButton, WindowEvent},
@@ -8,10 +7,13 @@ use winit::{
     window::WindowBuilder,
 };
 
+use bindings::windows::win32::winrt::{RoInitialize, RO_INIT_TYPE};
 use bindings::windows::{foundation::numerics::Vector2, ui::composition::Compositor};
 
 pub fn run() -> winrt::Result<()> {
-    ro_initialize(RoInitType::MultiThreaded)?;
+    unsafe {
+        RoInitialize(RO_INIT_TYPE::RO_INIT_SINGLETHREADED).ok()?;
+    }
     let _controller = create_dispatcher_queue_controller_for_current_thread()?;
 
     let event_loop = EventLoop::new();

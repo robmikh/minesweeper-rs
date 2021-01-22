@@ -36,7 +36,7 @@ impl CompUI {
         parent_visual: &ContainerVisual,
         parent_size: &Vector2,
         grid_size_in_tiles: &SizeInt32,
-    ) -> winrt::Result<Self> {
+    ) -> windows::Result<Self> {
         let compositor = parent_visual.compositor()?;
         let root = compositor.create_sprite_visual()?;
 
@@ -81,7 +81,7 @@ impl CompUI {
         })
     }
 
-    pub fn hit_test(&self, point: &Vector2) -> winrt::Result<Option<TileCoordinate>> {
+    pub fn hit_test(&self, point: &Vector2) -> windows::Result<Option<TileCoordinate>> {
         let window_size = &self.parent_size;
         let scale = self.compute_scale_factor()?;
         let real_board_size = self.game_board.size()? * scale;
@@ -91,13 +91,13 @@ impl CompUI {
         Ok(self.game_board.hit_test(&point))
     }
 
-    pub fn resize(&mut self, new_size: &Vector2) -> winrt::Result<()> {
+    pub fn resize(&mut self, new_size: &Vector2) -> windows::Result<()> {
         self.parent_size = new_size.clone();
         self.update_board_scale(new_size)?;
         Ok(())
     }
 
-    pub fn select_tile(&mut self, tile_coordinate: Option<TileCoordinate>) -> winrt::Result<()> {
+    pub fn select_tile(&mut self, tile_coordinate: Option<TileCoordinate>) -> windows::Result<()> {
         self.game_board.select_tile(tile_coordinate)
     }
 
@@ -109,7 +109,7 @@ impl CompUI {
         &self,
         tile_coordinate: &TileCoordinate,
         mine_state: MineState,
-    ) -> winrt::Result<()> {
+    ) -> windows::Result<()> {
         let visual = self
             .game_board
             .get_tile(tile_coordinate.x, tile_coordinate.y)
@@ -119,7 +119,7 @@ impl CompUI {
         Ok(())
     }
 
-    pub fn reset(&mut self, grid_size_in_tiles: &SizeInt32) -> winrt::Result<()> {
+    pub fn reset(&mut self, grid_size_in_tiles: &SizeInt32) -> windows::Result<()> {
         self.game_board.reset(grid_size_in_tiles)?;
         self.index_helper = IndexHelper::new(grid_size_in_tiles.width, grid_size_in_tiles.height);
 
@@ -136,7 +136,7 @@ impl CompUI {
         Ok(())
     }
 
-    pub fn update_tile_as_mine(&self, tile_coordinate: &TileCoordinate) -> winrt::Result<()> {
+    pub fn update_tile_as_mine(&self, tile_coordinate: &TileCoordinate) -> windows::Result<()> {
         let visual = self
             .game_board
             .get_tile(tile_coordinate.x, tile_coordinate.y)
@@ -150,7 +150,7 @@ impl CompUI {
         &self,
         tile_coordinate: &TileCoordinate,
         num_mines: i32,
-    ) -> winrt::Result<()> {
+    ) -> windows::Result<()> {
         let visual = self
             .game_board
             .get_tile(tile_coordinate.x, tile_coordinate.y)
@@ -173,7 +173,7 @@ impl CompUI {
         &mut self,
         mut mine_indices: VecDeque<usize>,
         mut mines_per_ring: VecDeque<i32>,
-    ) -> winrt::Result<()> {
+    ) -> windows::Result<()> {
         // Create an animation batch so that we can know when the animations complete
         let batch = self
             .compositor
@@ -209,7 +209,7 @@ impl CompUI {
         self.mine_animation_playing
     }
 
-    fn compute_scale_factor_from_size(&self, window_size: &Vector2) -> winrt::Result<f32> {
+    fn compute_scale_factor_from_size(&self, window_size: &Vector2) -> windows::Result<f32> {
         let board_size = self.game_board.size()?;
         let board_size = board_size + &self.game_board_margin;
 
@@ -225,11 +225,11 @@ impl CompUI {
         Ok(scale_factor)
     }
 
-    fn compute_scale_factor(&self) -> winrt::Result<f32> {
+    fn compute_scale_factor(&self) -> windows::Result<f32> {
         self.compute_scale_factor_from_size(&self.parent_size)
     }
 
-    fn update_board_scale(&mut self, window_size: &Vector2) -> winrt::Result<()> {
+    fn update_board_scale(&mut self, window_size: &Vector2) -> windows::Result<()> {
         let scale_factor = self.compute_scale_factor_from_size(window_size)?;
         self.game_board.root().set_scale(Vector3 {
             x: scale_factor,
@@ -239,7 +239,7 @@ impl CompUI {
         Ok(())
     }
 
-    fn play_mine_animation(&self, index: usize, delay: &TimeSpan) -> winrt::Result<()> {
+    fn play_mine_animation(&self, index: usize, delay: &TimeSpan) -> windows::Result<()> {
         let visual = self
             .game_board
             .get_tile(

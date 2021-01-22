@@ -1,5 +1,5 @@
 fn main() {
-    winrt::build!(
+    windows::build!(
         windows::application_model::core::{
             CoreApplication,
             CoreApplicationView,
@@ -31,5 +31,7 @@ fn main() {
             WindowSizeChangedEventArgs,
             PointerEventArgs,
         }
+        windows::win32::system_services::CreateDispatcherQueueController
+        windows::win32::winrt::{ICompositorDesktopInterop, RoInitialize}
     );
 }
