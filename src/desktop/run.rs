@@ -10,7 +10,7 @@ use winit::{
 use bindings::windows::win32::winrt::{RoInitialize, RO_INIT_TYPE};
 use bindings::windows::{foundation::numerics::Vector2, ui::composition::Compositor};
 
-pub fn run() -> winrt::Result<()> {
+pub fn run() -> windows::Result<()> {
     unsafe {
         RoInitialize(RO_INIT_TYPE::RO_INIT_SINGLETHREADED).ok()?;
     }

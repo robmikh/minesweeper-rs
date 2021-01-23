@@ -21,7 +21,7 @@ struct AppState {
 pub struct MinesweeperAppSource {}
 
 impl MinesweeperAppSource {
-    fn create_view(&mut self) -> winrt::Result<IFrameworkView> {
+    fn create_view(&mut self) -> windows::Result<IFrameworkView> {
         let app = MinesweeperApp {
             state: Arc::new(Mutex::new(None)),
         };
@@ -37,19 +37,19 @@ pub struct MinesweeperApp {
 }
 
 impl MinesweeperApp {
-    fn initialize(&mut self, _window: &Option<CoreApplicationView>) -> winrt::Result<()> {
+    fn initialize(&mut self, _window: &Option<CoreApplicationView>) -> windows::Result<()> {
         Ok(())
     }
 
-    fn set_window(&mut self, _window: &Option<CoreWindow>) -> winrt::Result<()> {
+    fn set_window(&mut self, _window: &Option<CoreWindow>) -> windows::Result<()> {
         Ok(())
     }
 
-    fn load(&mut self, _entry_point: &winrt::HString) -> winrt::Result<()> {
+    fn load(&mut self, _entry_point: &winrt::HString) -> windows::Result<()> {
         Ok(())
     }
 
-    fn run(&mut self) -> winrt::Result<()> {
+    fn run(&mut self) -> windows::Result<()> {
         let window = CoreWindow::get_for_current_thread()?;
 
         // Init Composition
@@ -138,12 +138,12 @@ impl MinesweeperApp {
         Ok(())
     }
 
-    fn uninitialize(&mut self) -> winrt::Result<()> {
+    fn uninitialize(&mut self) -> windows::Result<()> {
         Ok(())
     }
 }
 
-fn get_window_size(window: &CoreWindow) -> winrt::Result<Vector2> {
+fn get_window_size(window: &CoreWindow) -> windows::Result<Vector2> {
     let bounds = window.bounds()?;
     Ok(Vector2 {
         x: bounds.width as f32,
