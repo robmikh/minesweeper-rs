@@ -17,7 +17,7 @@ struct AppState {
     game: Minesweeper,
 }
 
-#[winrt::implement(windows::application_model::core::IFrameworkViewSource)]
+#[::windows::implement(windows::application_model::core::IFrameworkViewSource)]
 pub struct MinesweeperAppSource {}
 
 impl MinesweeperAppSource {
@@ -31,7 +31,7 @@ impl MinesweeperAppSource {
 }
 
 // TOOD: A way to do this without the arc/mutex?
-#[winrt::implement(windows::application_model::core::IFrameworkView)]
+#[::windows::implement(windows::application_model::core::IFrameworkView)]
 pub struct MinesweeperApp {
     state: Arc<Mutex<Option<AppState>>>,
 }
@@ -45,7 +45,7 @@ impl MinesweeperApp {
         Ok(())
     }
 
-    fn load(&mut self, _entry_point: &winrt::HString) -> windows::Result<()> {
+    fn load(&mut self, _entry_point: &windows::HString) -> windows::Result<()> {
         Ok(())
     }
 
