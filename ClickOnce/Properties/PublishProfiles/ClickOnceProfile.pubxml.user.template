@@ -1,0 +1,6 @@
+﻿<Project>
+    <PropertyGroup>
+        <InstallUrl>https://ctaggart.github.io/minesweeper-rs/</InstallUrl>
+        <ManifestCertificateThumbprint>1A92BF20220B301077205787F406B1BCEE6DA97E</ManifestCertificateThumbprint>
+    </PropertyGroup>
+</Project>

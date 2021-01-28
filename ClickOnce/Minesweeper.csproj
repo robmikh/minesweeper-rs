@@ -1,0 +1,15 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>WinExe</OutputType>
+        <TargetFramework>net5.0-windows</TargetFramework>
+        <UseWindowsForms>true</UseWindowsForms>
+        <Configuration>Release</Configuration>
+        <PublishProfile>ClickOnceProfile</PublishProfile>
+        <ApplicationIcon>Square44x44Logo.ico</ApplicationIcon>
+    </PropertyGroup>
+    <ItemGroup>
+        <Content Include="..\target\release\minesweeper-rs.exe">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+</Project>
