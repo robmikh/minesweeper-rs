@@ -33,11 +33,7 @@ where
 
         unsafe {
             compositor_desktop
-                .CreateDesktopWindowTarget(
-                    HWND(window_handle as isize),
-                    is_topmost.into(),
-                    &mut result,
-                )
+                .CreateDesktopWindowTarget(HWND(window_handle as isize), is_topmost, &mut result)
                 .and_some(result)
         }
     }
