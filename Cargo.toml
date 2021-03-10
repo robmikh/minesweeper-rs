@@ -5,7 +5,7 @@ authors = ["Robert Mikhayelyan <rob.mikh@outlook.com>"]
 edition = "2018"
 
 [dependencies]
-windows = { git = "https://github.com/microsoft/windows-rs" }
+windows = { path = "/git/windows-rs" }
 bindings = { path = "bindings" }
 winit = "0.22.0"
 raw-window-handle = "0.3.3"

@@ -896,7 +896,6 @@ checksum = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
 [[package]]
 name = "windows"
 version = "0.4.0"
-source = "git+https://github.com/microsoft/windows-rs#0d9f9c359bc985d0ed2325f061f1a59c421d1aa9"
 dependencies = [
  "const-sha1",
  "windows_gen",
@@ -906,7 +905,6 @@ dependencies = [
 [[package]]
 name = "windows_gen"
 version = "0.4.0"
-source = "git+https://github.com/microsoft/windows-rs#0d9f9c359bc985d0ed2325f061f1a59c421d1aa9"
 dependencies = [
  "proc-macro2 1.0.24",
  "quote 1.0.9",
@@ -918,7 +916,6 @@ dependencies = [
 [[package]]
 name = "windows_gen_macros"
 version = "0.4.0"
-source = "git+https://github.com/microsoft/windows-rs#0d9f9c359bc985d0ed2325f061f1a59c421d1aa9"
 dependencies = [
  "proc-macro2 1.0.24",
  "quote 1.0.9",
@@ -928,7 +925,6 @@ dependencies = [
 [[package]]
 name = "windows_macros"
 version = "0.4.0"
-source = "git+https://github.com/microsoft/windows-rs#0d9f9c359bc985d0ed2325f061f1a59c421d1aa9"
 dependencies = [
  "proc-macro2 1.0.24",
  "quote 1.0.9",
