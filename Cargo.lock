@@ -58,9 +58,9 @@ checksum = "0d8c1fef690941d3e7788d328517591fecc684c084084702d6ff1641e993699a"
 
 [[package]]
 name = "byteorder"
-version = "1.4.2"
+version = "1.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ae44d1a3d5a19df61dd0c8beb138458ac2a53a7ac09eba97d55592540004306b"
+checksum = "14c189c53d098945499cdfa7ecc63567cf3886b3332b312a5b4585d8d3a6a610"
 
 [[package]]
 name = "calloop"
@@ -896,6 +896,7 @@ checksum = "712e227841d057c1ee1cd2fb22fa7e5a5461ae8e48fa2ca79ec42cfc1931183f"
 [[package]]
 name = "windows"
 version = "0.4.0"
+source = "git+https://github.com/microsoft/windows-rs#c7253cb08e4a8da89689f8a1158e359889c79096"
 dependencies = [
  "const-sha1",
  "windows_gen",
@@ -905,6 +906,7 @@ dependencies = [
 [[package]]
 name = "windows_gen"
 version = "0.4.0"
+source = "git+https://github.com/microsoft/windows-rs#c7253cb08e4a8da89689f8a1158e359889c79096"
 dependencies = [
  "proc-macro2 1.0.24",
  "quote 1.0.9",
@@ -916,6 +918,7 @@ dependencies = [
 [[package]]
 name = "windows_gen_macros"
 version = "0.4.0"
+source = "git+https://github.com/microsoft/windows-rs#c7253cb08e4a8da89689f8a1158e359889c79096"
 dependencies = [
  "proc-macro2 1.0.24",
  "quote 1.0.9",
@@ -925,6 +928,7 @@ dependencies = [
 [[package]]
 name = "windows_macros"
 version = "0.4.0"
+source = "git+https://github.com/microsoft/windows-rs#c7253cb08e4a8da89689f8a1158e359889c79096"
 dependencies = [
  "proc-macro2 1.0.24",
  "quote 1.0.9",

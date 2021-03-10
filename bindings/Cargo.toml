@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-windows = { path = "/git/windows-rs" }
+windows = { git = "https://github.com/microsoft/windows-rs" }
 
 [build-dependencies]
-windows = { path = "/git/windows-rs" }
+windows = { git = "https://github.com/microsoft/windows-rs" }
