@@ -1,5 +1,5 @@
-use bindings::windows::system::DispatcherQueueController;
-use bindings::windows::win32::system_services::{
+use bindings::Windows::System::DispatcherQueueController;
+use bindings::Windows::Win32::SystemServices::{
     CreateDispatcherQueueController, DispatcherQueueOptions, DISPATCHERQUEUE_THREAD_APARTMENTTYPE,
     DISPATCHERQUEUE_THREAD_TYPE,
 };
@@ -9,9 +9,9 @@ pub fn create_dispatcher_queue_controller(
     apartment_type: DISPATCHERQUEUE_THREAD_APARTMENTTYPE,
 ) -> windows::Result<DispatcherQueueController> {
     let options = DispatcherQueueOptions {
-        dw_size: std::mem::size_of::<DispatcherQueueOptions>() as u32,
-        thread_type,
-        apartment_type,
+        dwSize: std::mem::size_of::<DispatcherQueueOptions>() as u32,
+        threadType: thread_type,
+        apartmentType: apartment_type,
     };
     unsafe {
         let mut result = None;

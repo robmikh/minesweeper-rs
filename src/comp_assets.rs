@@ -1,12 +1,12 @@
 use crate::minesweeper::MineState;
-use bindings::windows::{
-    foundation::numerics::Vector2,
-    ui::{
-        composition::{
+use bindings::Windows::{
+    Foundation::Numerics::Vector2,
+    UI::{
+        Colors,
+        Composition::{
             CompositionColorBrush, CompositionGeometry, CompositionShape, CompositionSpriteShape,
             Compositor,
         },
-        Colors,
     },
 };
 use std::collections::HashMap;
@@ -18,9 +18,9 @@ fn get_dot_shape(
     brush: &CompositionColorBrush,
     offset: Vector2,
 ) -> windows::Result<CompositionSpriteShape> {
-    let shape = compositor.create_sprite_shape_with_geometry(geometry)?;
-    shape.set_fill_brush(brush)?;
-    shape.set_offset(offset)?;
+    let shape = compositor.CreateSpriteShapeWithGeometry(geometry)?;
+    shape.SetFillBrush(brush)?;
+    shape.SetOffset(offset)?;
     Ok(shape)
 }
 
@@ -33,7 +33,7 @@ pub struct CompAssets {
 
 impl CompAssets {
     pub fn new(compositor: &Compositor, tile_size: &Vector2) -> windows::Result<Self> {
-        let mine_brush = compositor.create_color_brush_with_color(Colors::red()?)?;
+        let mine_brush = compositor.CreateColorBrushWithColor(Colors::Red()?)?;
 
         let mut result = Self {
             mine_brush,
@@ -74,66 +74,64 @@ impl CompAssets {
         self.mine_state_brushes.clear();
         self.mine_state_brushes.insert(
             MineState::Empty,
-            compositor.create_color_brush_with_color(Colors::blue()?)?,
+            compositor.CreateColorBrushWithColor(Colors::Blue()?)?,
         );
         self.mine_state_brushes.insert(
             MineState::Flag,
-            compositor.create_color_brush_with_color(Colors::orange()?)?,
+            compositor.CreateColorBrushWithColor(Colors::Orange()?)?,
         );
         self.mine_state_brushes.insert(
             MineState::Question,
-            compositor.create_color_brush_with_color(Colors::lime_green()?)?,
+            compositor.CreateColorBrushWithColor(Colors::LimeGreen()?)?,
         );
 
         self.mine_count_background_brushes.clear();
         self.mine_count_background_brushes.insert(
             1,
-            compositor.create_color_brush_with_color(Colors::light_blue()?)?,
+            compositor.CreateColorBrushWithColor(Colors::LightBlue()?)?,
         );
         self.mine_count_background_brushes.insert(
             2,
-            compositor.create_color_brush_with_color(Colors::light_green()?)?,
+            compositor.CreateColorBrushWithColor(Colors::LightGreen()?)?,
         );
         self.mine_count_background_brushes.insert(
             3,
-            compositor.create_color_brush_with_color(Colors::light_salmon()?)?,
+            compositor.CreateColorBrushWithColor(Colors::LightSalmon()?)?,
         );
         self.mine_count_background_brushes.insert(
             4,
-            compositor.create_color_brush_with_color(Colors::light_steel_blue()?)?,
+            compositor.CreateColorBrushWithColor(Colors::LightSteelBlue()?)?,
         );
         self.mine_count_background_brushes.insert(
             5,
-            compositor.create_color_brush_with_color(Colors::medium_purple()?)?,
+            compositor.CreateColorBrushWithColor(Colors::MediumPurple()?)?,
         );
         self.mine_count_background_brushes.insert(
             6,
-            compositor.create_color_brush_with_color(Colors::light_cyan()?)?,
+            compositor.CreateColorBrushWithColor(Colors::LightCyan()?)?,
         );
-        self.mine_count_background_brushes.insert(
-            7,
-            compositor.create_color_brush_with_color(Colors::maroon()?)?,
-        );
+        self.mine_count_background_brushes
+            .insert(7, compositor.CreateColorBrushWithColor(Colors::Maroon()?)?);
         self.mine_count_background_brushes.insert(
             8,
-            compositor.create_color_brush_with_color(Colors::dark_sea_green()?)?,
+            compositor.CreateColorBrushWithColor(Colors::DarkSeaGreen()?)?,
         );
         self.mine_count_background_brushes.insert(
             0,
-            compositor.create_color_brush_with_color(Colors::white_smoke()?)?,
+            compositor.CreateColorBrushWithColor(Colors::WhiteSmoke()?)?,
         );
 
         self.mine_count_shapes.clear();
-        let circle_geometry = compositor.create_ellipse_geometry()?;
-        circle_geometry.set_radius(tile_size / 12.0)?;
+        let circle_geometry = compositor.CreateEllipseGeometry()?;
+        circle_geometry.SetRadius(tile_size / 12.0)?;
         let circle_geometry: CompositionGeometry = circle_geometry.cast()?;
-        let dot_brush = compositor.create_color_brush_with_color(Colors::black()?)?;
+        let dot_brush = compositor.CreateColorBrushWithColor(Colors::Black()?)?;
 
         // 1
         {
-            let container_shape = compositor.create_container_shape()?;
-            let shapes = container_shape.shapes()?;
-            shapes.append(get_dot_shape(
+            let container_shape = compositor.CreateContainerShape()?;
+            let shapes = container_shape.Shapes()?;
+            shapes.Append(get_dot_shape(
                 compositor,
                 &circle_geometry,
                 &dot_brush,
@@ -143,279 +141,207 @@ impl CompAssets {
         }
         // 2
         {
-            let container_shape = compositor.create_container_shape()?;
-            let shapes = container_shape.shapes()?;
-            let third_x = tile_size.x / 3.0;
-            let half_y = tile_size.y / 2.0;
-            shapes.append(get_dot_shape(
+            let container_shape = compositor.CreateContainerShape()?;
+            let shapes = container_shape.Shapes()?;
+            let third_x = tile_size.X / 3.0;
+            let half_y = tile_size.Y / 2.0;
+            shapes.Append(get_dot_shape(
                 compositor,
                 &circle_geometry,
                 &dot_brush,
-                Vector2 {
-                    x: third_x,
-                    y: half_y,
-                },
+                Vector2::new(third_x, half_y),
             )?)?;
-            shapes.append(get_dot_shape(
+            shapes.Append(get_dot_shape(
                 compositor,
                 &circle_geometry,
                 &dot_brush,
-                Vector2 {
-                    x: third_x * 2.0,
-                    y: half_y,
-                },
+                Vector2::new(third_x * 2.0, half_y),
             )?)?;
             self.mine_count_shapes.insert(2, container_shape.cast()?);
         }
         // 3
         {
-            let container_shape = compositor.create_container_shape()?;
-            let shapes = container_shape.shapes()?;
-            let fourth_x = tile_size.x / 4.0;
-            let fourth_y = tile_size.y / 4.0;
-            shapes.append(get_dot_shape(
+            let container_shape = compositor.CreateContainerShape()?;
+            let shapes = container_shape.Shapes()?;
+            let fourth_x = tile_size.X / 4.0;
+            let fourth_y = tile_size.Y / 4.0;
+            shapes.Append(get_dot_shape(
                 compositor,
                 &circle_geometry,
                 &dot_brush,
                 tile_size / 2.0,
             )?)?;
-            shapes.append(get_dot_shape(
+            shapes.Append(get_dot_shape(
                 compositor,
                 &circle_geometry,
                 &dot_brush,
-                Vector2 {
-                    x: fourth_x,
-                    y: fourth_y * 3.0,
-                },
+                Vector2::new(fourth_x, fourth_y * 3.0),
             )?)?;
-            shapes.append(get_dot_shape(
+            shapes.Append(get_dot_shape(
                 compositor,
                 &circle_geometry,
                 &dot_brush,
-                Vector2 {
-                    x: fourth_x * 3.0,
-                    y: fourth_y,
-                },
+                Vector2::new(fourth_x * 3.0, fourth_y),
             )?)?;
             self.mine_count_shapes.insert(3, container_shape.cast()?);
         }
         // 4
         {
-            let container_shape = compositor.create_container_shape()?;
-            let shapes = container_shape.shapes()?;
-            let third_x = tile_size.x / 3.0;
-            let third_y = tile_size.y / 3.0;
-            shapes.append(get_dot_shape(
+            let container_shape = compositor.CreateContainerShape()?;
+            let shapes = container_shape.Shapes()?;
+            let third_x = tile_size.X / 3.0;
+            let third_y = tile_size.Y / 3.0;
+            shapes.Append(get_dot_shape(
                 compositor,
                 &circle_geometry,
                 &dot_brush,
-                Vector2 {
-                    x: third_x,
-                    y: third_y,
-                },
+                Vector2::new(third_x, third_y),
             )?)?;
-            shapes.append(get_dot_shape(
+            shapes.Append(get_dot_shape(
                 compositor,
                 &circle_geometry,
                 &dot_brush,
-                Vector2 {
-                    x: third_x * 2.0,
-                    y: third_y,
-                },
+                Vector2::new(third_x * 2.0, third_y),
             )?)?;
-            shapes.append(get_dot_shape(
+            shapes.Append(get_dot_shape(
                 compositor,
                 &circle_geometry,
                 &dot_brush,
-                Vector2 {
-                    x: third_x,
-                    y: third_y * 2.0,
-                },
+                Vector2::new(third_x, third_y * 2.0),
             )?)?;
-            shapes.append(get_dot_shape(
+            shapes.Append(get_dot_shape(
                 compositor,
                 &circle_geometry,
                 &dot_brush,
-                Vector2 {
-                    x: third_x * 2.0,
-                    y: third_y * 2.0,
-                },
+                Vector2::new(third_x * 2.0, third_y * 2.0),
             )?)?;
             self.mine_count_shapes.insert(4, container_shape.cast()?);
         }
         // 5
         {
-            let container_shape = compositor.create_container_shape()?;
-            let shapes = container_shape.shapes()?;
-            let fourth_x = tile_size.x / 4.0;
-            let fourth_y = tile_size.y / 4.0;
-            shapes.append(get_dot_shape(
+            let container_shape = compositor.CreateContainerShape()?;
+            let shapes = container_shape.Shapes()?;
+            let fourth_x = tile_size.X / 4.0;
+            let fourth_y = tile_size.Y / 4.0;
+            shapes.Append(get_dot_shape(
                 compositor,
                 &circle_geometry,
                 &dot_brush,
                 tile_size / 2.0,
             )?)?;
-            shapes.append(get_dot_shape(
+            shapes.Append(get_dot_shape(
                 compositor,
                 &circle_geometry,
                 &dot_brush,
-                Vector2 {
-                    x: fourth_x,
-                    y: fourth_y * 3.0,
-                },
+                Vector2::new(fourth_x, fourth_y * 3.0),
             )?)?;
-            shapes.append(get_dot_shape(
+            shapes.Append(get_dot_shape(
                 compositor,
                 &circle_geometry,
                 &dot_brush,
-                Vector2 {
-                    x: fourth_x * 3.0,
-                    y: fourth_y,
-                },
+                Vector2::new(fourth_x * 3.0, fourth_y),
             )?)?;
-            shapes.append(get_dot_shape(
+            shapes.Append(get_dot_shape(
                 compositor,
                 &circle_geometry,
                 &dot_brush,
-                Vector2 {
-                    x: fourth_x,
-                    y: fourth_y,
-                },
+                Vector2::new(fourth_x, fourth_y),
             )?)?;
-            shapes.append(get_dot_shape(
+            shapes.Append(get_dot_shape(
                 compositor,
                 &circle_geometry,
                 &dot_brush,
-                Vector2 {
-                    x: fourth_x * 3.0,
-                    y: fourth_y * 3.0,
-                },
+                Vector2::new(fourth_x * 3.0, fourth_y * 3.0),
             )?)?;
             self.mine_count_shapes.insert(5, container_shape.cast()?);
         }
         // 6
         {
-            let container_shape = compositor.create_container_shape()?;
-            let shapes = container_shape.shapes()?;
-            let fourth_x = tile_size.x / 4.0;
-            let fourth_y = tile_size.y / 4.0;
-            shapes.append(get_dot_shape(
+            let container_shape = compositor.CreateContainerShape()?;
+            let shapes = container_shape.Shapes()?;
+            let fourth_x = tile_size.X / 4.0;
+            let fourth_y = tile_size.Y / 4.0;
+            shapes.Append(get_dot_shape(
                 compositor,
                 &circle_geometry,
                 &dot_brush,
-                Vector2 {
-                    x: fourth_x,
-                    y: fourth_y * 2.0,
-                },
+                Vector2::new(fourth_x, fourth_y * 2.0),
             )?)?;
-            shapes.append(get_dot_shape(
+            shapes.Append(get_dot_shape(
                 compositor,
                 &circle_geometry,
                 &dot_brush,
-                Vector2 {
-                    x: fourth_x,
-                    y: fourth_y * 3.0,
-                },
+                Vector2::new(fourth_x, fourth_y * 3.0),
             )?)?;
-            shapes.append(get_dot_shape(
+            shapes.Append(get_dot_shape(
                 compositor,
                 &circle_geometry,
                 &dot_brush,
-                Vector2 {
-                    x: fourth_x * 3.0,
-                    y: fourth_y,
-                },
+                Vector2::new(fourth_x * 3.0, fourth_y),
             )?)?;
-            shapes.append(get_dot_shape(
+            shapes.Append(get_dot_shape(
                 compositor,
                 &circle_geometry,
                 &dot_brush,
-                Vector2 {
-                    x: fourth_x,
-                    y: fourth_y,
-                },
+                Vector2::new(fourth_x, fourth_y),
             )?)?;
-            shapes.append(get_dot_shape(
+            shapes.Append(get_dot_shape(
                 compositor,
                 &circle_geometry,
                 &dot_brush,
-                Vector2 {
-                    x: fourth_x * 3.0,
-                    y: fourth_y * 3.0,
-                },
+                Vector2::new(fourth_x * 3.0, fourth_y * 3.0),
             )?)?;
-            shapes.append(get_dot_shape(
+            shapes.Append(get_dot_shape(
                 compositor,
                 &circle_geometry,
                 &dot_brush,
-                Vector2 {
-                    x: fourth_x * 3.0,
-                    y: fourth_y * 2.0,
-                },
+                Vector2::new(fourth_x * 3.0, fourth_y * 2.0),
             )?)?;
             self.mine_count_shapes.insert(6, container_shape.cast()?);
         }
         // 7
         {
-            let container_shape = compositor.create_container_shape()?;
-            let shapes = container_shape.shapes()?;
-            let fourth_x = tile_size.x / 4.0;
-            let fourth_y = tile_size.y / 4.0;
-            shapes.append(get_dot_shape(
+            let container_shape = compositor.CreateContainerShape()?;
+            let shapes = container_shape.Shapes()?;
+            let fourth_x = tile_size.X / 4.0;
+            let fourth_y = tile_size.Y / 4.0;
+            shapes.Append(get_dot_shape(
                 compositor,
                 &circle_geometry,
                 &dot_brush,
-                Vector2 {
-                    x: fourth_x,
-                    y: fourth_y * 2.0,
-                },
+                Vector2::new(fourth_x, fourth_y * 2.0),
             )?)?;
-            shapes.append(get_dot_shape(
+            shapes.Append(get_dot_shape(
                 compositor,
                 &circle_geometry,
                 &dot_brush,
-                Vector2 {
-                    x: fourth_x,
-                    y: fourth_y * 3.0,
-                },
+                Vector2::new(fourth_x, fourth_y * 3.0),
             )?)?;
-            shapes.append(get_dot_shape(
+            shapes.Append(get_dot_shape(
                 compositor,
                 &circle_geometry,
                 &dot_brush,
-                Vector2 {
-                    x: fourth_x * 3.0,
-                    y: fourth_y,
-                },
+                Vector2::new(fourth_x * 3.0, fourth_y),
             )?)?;
-            shapes.append(get_dot_shape(
+            shapes.Append(get_dot_shape(
                 compositor,
                 &circle_geometry,
                 &dot_brush,
-                Vector2 {
-                    x: fourth_x,
-                    y: fourth_y,
-                },
+                Vector2::new(fourth_x, fourth_y),
             )?)?;
-            shapes.append(get_dot_shape(
+            shapes.Append(get_dot_shape(
                 compositor,
                 &circle_geometry,
                 &dot_brush,
-                Vector2 {
-                    x: fourth_x * 3.0,
-                    y: fourth_y * 3.0,
-                },
+                Vector2::new(fourth_x * 3.0, fourth_y * 3.0),
             )?)?;
-            shapes.append(get_dot_shape(
+            shapes.Append(get_dot_shape(
                 compositor,
                 &circle_geometry,
                 &dot_brush,
-                Vector2 {
-                    x: fourth_x * 3.0,
-                    y: fourth_y * 2.0,
-                },
+                Vector2::new(fourth_x * 3.0, fourth_y * 2.0),
             )?)?;
-            shapes.append(get_dot_shape(
+            shapes.Append(get_dot_shape(
                 compositor,
                 &circle_geometry,
                 &dot_brush,
@@ -425,83 +351,59 @@ impl CompAssets {
         }
         // 8
         {
-            let container_shape = compositor.create_container_shape()?;
-            let shapes = container_shape.shapes()?;
-            let fourth_x = tile_size.x / 4.0;
-            let fourth_y = tile_size.y / 4.0;
-            let half_x = tile_size.x / 2.0;
-            let third_y = tile_size.y / 3.0;
-            shapes.append(get_dot_shape(
+            let container_shape = compositor.CreateContainerShape()?;
+            let shapes = container_shape.Shapes()?;
+            let fourth_x = tile_size.X / 4.0;
+            let fourth_y = tile_size.Y / 4.0;
+            let half_x = tile_size.X / 2.0;
+            let third_y = tile_size.Y / 3.0;
+            shapes.Append(get_dot_shape(
                 compositor,
                 &circle_geometry,
                 &dot_brush,
-                Vector2 {
-                    x: fourth_x,
-                    y: fourth_y * 2.0,
-                },
+                Vector2::new(fourth_x, fourth_y * 2.0),
             )?)?;
-            shapes.append(get_dot_shape(
+            shapes.Append(get_dot_shape(
                 compositor,
                 &circle_geometry,
                 &dot_brush,
-                Vector2 {
-                    x: fourth_x,
-                    y: fourth_y * 3.0,
-                },
+                Vector2::new(fourth_x, fourth_y * 3.0),
             )?)?;
-            shapes.append(get_dot_shape(
+            shapes.Append(get_dot_shape(
                 compositor,
                 &circle_geometry,
                 &dot_brush,
-                Vector2 {
-                    x: fourth_x * 3.0,
-                    y: fourth_y,
-                },
+                Vector2::new(fourth_x * 3.0, fourth_y),
             )?)?;
-            shapes.append(get_dot_shape(
+            shapes.Append(get_dot_shape(
                 compositor,
                 &circle_geometry,
                 &dot_brush,
-                Vector2 {
-                    x: fourth_x,
-                    y: fourth_y,
-                },
+                Vector2::new(fourth_x, fourth_y),
             )?)?;
-            shapes.append(get_dot_shape(
+            shapes.Append(get_dot_shape(
                 compositor,
                 &circle_geometry,
                 &dot_brush,
-                Vector2 {
-                    x: fourth_x * 3.0,
-                    y: fourth_y * 3.0,
-                },
+                Vector2::new(fourth_x * 3.0, fourth_y * 3.0),
             )?)?;
-            shapes.append(get_dot_shape(
+            shapes.Append(get_dot_shape(
                 compositor,
                 &circle_geometry,
                 &dot_brush,
-                Vector2 {
-                    x: fourth_x * 3.0,
-                    y: fourth_y * 2.0,
-                },
+                Vector2::new(fourth_x * 3.0, fourth_y * 2.0),
             )?)?;
-            shapes.append(get_dot_shape(
+            shapes.Append(get_dot_shape(
                 compositor,
                 &circle_geometry,
                 &dot_brush,
-                Vector2 {
-                    x: half_x,
-                    y: third_y,
-                },
+                Vector2::new(half_x, third_y),
             )?)?;
-            shapes.append(get_dot_shape(
+            shapes.Append(get_dot_shape(
                 compositor,
                 &circle_geometry,
                 &dot_brush,
-                Vector2 {
-                    x: half_x,
-                    y: third_y * 2.0,
-                },
+                Vector2::new(half_x, third_y * 2.0),
             )?)?;
             self.mine_count_shapes.insert(8, container_shape.cast()?);
         }
