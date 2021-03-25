@@ -1,7 +1,7 @@
 use crate::comp_ui::CompUI;
 use crate::visual_grid::TileCoordinate;
-use bindings::windows::{
-    foundation::numerics::Vector2, graphics::SizeInt32, ui::composition::ContainerVisual,
+use bindings::Windows::{
+    Foundation::Numerics::Vector2, Graphics::SizeInt32, UI::Composition::ContainerVisual,
 };
 use rand::distributions::{Distribution, Uniform};
 use std::collections::VecDeque;
@@ -76,19 +76,19 @@ pub struct Minesweeper {
 impl Minesweeper {
     pub fn new(parent_visual: &ContainerVisual, parent_size: &Vector2) -> windows::Result<Self> {
         let game_board_size_in_tiles = SizeInt32 {
-            width: 16,
-            height: 16,
+            Width: 16,
+            Height: 16,
         };
         let ui = CompUI::new(parent_visual, parent_size, &game_board_size_in_tiles)?;
 
         let mut result = Self {
             ui,
 
-            game_board_width: game_board_size_in_tiles.width,
-            game_board_height: game_board_size_in_tiles.height,
+            game_board_width: game_board_size_in_tiles.Width,
+            game_board_height: game_board_size_in_tiles.Height,
             index_helper: IndexHelper::new(
-                game_board_size_in_tiles.width,
-                game_board_size_in_tiles.height,
+                game_board_size_in_tiles.Width,
+                game_board_size_in_tiles.Height,
             ),
 
             mine_states: Vec::new(),
@@ -101,8 +101,8 @@ impl Minesweeper {
         };
 
         result.new_game(
-            game_board_size_in_tiles.width,
-            game_board_size_in_tiles.height,
+            game_board_size_in_tiles.Width,
+            game_board_size_in_tiles.Height,
             40,
         )?;
         result.on_parent_size_changed(parent_size)?;
@@ -191,8 +191,8 @@ impl Minesweeper {
         self.index_helper = IndexHelper::new(board_width, board_height);
 
         self.ui.reset(&SizeInt32 {
-            width: board_width,
-            height: board_height,
+            Width: board_width,
+            Height: board_height,
         })?;
         self.mine_states.clear();
 
