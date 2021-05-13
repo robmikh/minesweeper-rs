@@ -1,7 +1,7 @@
 use bindings::Windows::System::DispatcherQueueController;
-use bindings::Windows::Win32::SystemServices::{
+use bindings::Windows::Win32::System::SystemServices::{
     CreateDispatcherQueueController, DispatcherQueueOptions, DISPATCHERQUEUE_THREAD_APARTMENTTYPE,
-    DISPATCHERQUEUE_THREAD_TYPE,
+    DISPATCHERQUEUE_THREAD_TYPE, DQTYPE_THREAD_CURRENT, DQTAT_COM_NONE,
 };
 
 pub fn create_dispatcher_queue_controller(
@@ -22,7 +22,7 @@ pub fn create_dispatcher_queue_controller(
 pub fn create_dispatcher_queue_controller_for_current_thread(
 ) -> windows::Result<DispatcherQueueController> {
     create_dispatcher_queue_controller(
-        DISPATCHERQUEUE_THREAD_TYPE::DQTYPE_THREAD_CURRENT,
-        DISPATCHERQUEUE_THREAD_APARTMENTTYPE::DQTAT_COM_NONE,
+        DQTYPE_THREAD_CURRENT,
+        DQTAT_COM_NONE,
     )
 }

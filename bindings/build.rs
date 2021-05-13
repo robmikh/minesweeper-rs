@@ -14,8 +14,10 @@ fn main() {
             Vector3KeyFrameAnimation, VisualCollection,
         },
         Windows::UI::{Color, Colors},
-        Windows::Win32::SystemServices::{CreateDispatcherQueueController, BOOL},
-        Windows::Win32::WindowsAndMessaging::HWND,
-        Windows::Win32::WinRT::ICompositorDesktopInterop,
+        Windows::Win32::System::SystemServices::{
+            CreateDispatcherQueueController, BOOL, DQTYPE_THREAD_CURRENT, DQTAT_COM_NONE,
+        },
+        Windows::Win32::UI::WindowsAndMessaging::HWND,
+        Windows::Win32::System::WinRT::ICompositorDesktopInterop,
     );
 }
