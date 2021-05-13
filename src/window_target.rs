@@ -1,5 +1,5 @@
-use bindings::Windows::Win32::WinRT::ICompositorDesktopInterop;
-use bindings::Windows::Win32::WindowsAndMessaging::HWND;
+use bindings::Windows::Win32::System::WinRT::ICompositorDesktopInterop;
+use bindings::Windows::Win32::UI::WindowsAndMessaging::HWND;
 use bindings::Windows::UI::Composition::{Compositor, Desktop::DesktopWindowTarget};
 use raw_window_handle::HasRawWindowHandle;
 use windows::Interface;
