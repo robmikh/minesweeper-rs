@@ -19,7 +19,7 @@ impl MineState {
             MineState::Empty => MineState::Flag,
             MineState::Flag => MineState::Question,
             MineState::Question => MineState::Empty,
-            MineState::Revealed => panic!("We shouldn't be cycling a revealed tile!"),
+            MineState::Revealed => unreachable!("We shouldn't be cycling a revealed tile!"),
         }
     }
 }
