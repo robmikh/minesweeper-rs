@@ -466,14 +466,10 @@ impl Minesweeper {
     }
 
     fn check_if_won(&self) -> bool {
-        // Get the number of non-revealed tiles
-        let mut non_revealed_tiles = 0;
-        for state in &self.mine_states {
-            if *state != MineState::Revealed {
-                non_revealed_tiles += 1;
-            }
-        }
-
-        non_revealed_tiles == self.num_mines
+        
+        self.mine_states.iter()
+                        .filter(|state| **state != MineState::Revealed)
+                        .count() == self.num_mines as usize
+        
     }
 }
