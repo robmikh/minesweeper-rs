@@ -288,10 +288,8 @@ impl Minesweeper {
 
     fn generate_mines(&mut self, num_mines: i32, exclude_x: i32, exclude_y: i32) {
         self.mines.clear();
-        for _x in 0..self.game_board_width {
-            for _y in 0..self.game_board_height {
-                self.mines.push(false);
-            }
+        for _ in 0..self.game_board_width * self.game_board_height {
+            self.mines.push(false);
         }
 
         let between = Uniform::from(0..(self.game_board_width * self.game_board_height) as usize);
@@ -466,10 +464,10 @@ impl Minesweeper {
     }
 
     fn check_if_won(&self) -> bool {
-        
-        self.mine_states.iter()
-                        .filter(|state| **state != MineState::Revealed)
-                        .count() == self.num_mines as usize
-        
+        self.mine_states
+            .iter()
+            .filter(|state| **state != MineState::Revealed)
+            .count()
+            == self.num_mines as usize
     }
 }
