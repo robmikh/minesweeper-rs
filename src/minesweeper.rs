@@ -19,7 +19,7 @@ impl MineState {
             MineState::Empty => MineState::Flag,
             MineState::Flag => MineState::Question,
             MineState::Question => MineState::Empty,
-            MineState::Revealed => panic!("We shouldn't be cycling a revealed tile!"),
+            MineState::Revealed => unreachable!("We shouldn't be cycling a revealed tile!"),
         }
     }
 }
@@ -81,6 +81,9 @@ impl Minesweeper {
         };
         let ui = CompUI::new(parent_visual, parent_size, &game_board_size_in_tiles)?;
 
+        let tile_count =
+            (game_board_size_in_tiles.Width * game_board_size_in_tiles.Height) as usize;
+
         let mut result = Self {
             ui,
 
@@ -91,8 +94,8 @@ impl Minesweeper {
                 game_board_size_in_tiles.Height,
             ),
 
-            mine_states: Vec::new(),
-            mines: Vec::new(),
+            mine_states: vec![MineState::Empty; tile_count], // create vec of size tile_count filled with MineState::Empty
+            mines: vec![false; tile_count],
             neighbor_counts: Vec::new(),
             mine_generation_state: MineGenerationState::Deferred,
             num_mines: 0,
@@ -194,10 +197,9 @@ impl Minesweeper {
             Width: board_width,
             Height: board_height,
         })?;
-        self.mine_states.clear();
 
-        for _ in 0..(board_width * board_height) {
-            self.mine_states.push(MineState::Empty);
+        for mine_state in self.mine_states.iter_mut() {
+            *mine_state = MineState::Empty
         }
 
         self.game_over = false;
@@ -287,11 +289,8 @@ impl Minesweeper {
     }
 
     fn generate_mines(&mut self, num_mines: i32, exclude_x: i32, exclude_y: i32) {
-        self.mines.clear();
-        for _x in 0..self.game_board_width {
-            for _y in 0..self.game_board_height {
-                self.mines.push(false);
-            }
+        for mine in self.mines.iter_mut() {
+            *mine = false;
         }
 
         let between = Uniform::from(0..(self.game_board_width * self.game_board_height) as usize);
@@ -466,14 +465,10 @@ impl Minesweeper {
     }
 
     fn check_if_won(&self) -> bool {
-        // Get the number of non-revealed tiles
-        let mut non_revealed_tiles = 0;
-        for state in &self.mine_states {
-            if *state != MineState::Revealed {
-                non_revealed_tiles += 1;
-            }
-        }
-
-        non_revealed_tiles == self.num_mines
+        self.mine_states
+            .iter()
+            .filter(|state| **state != MineState::Revealed)
+            .count()
+            == self.num_mines as usize
     }
 }
