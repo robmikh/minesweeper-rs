@@ -16,7 +16,7 @@ fn main() {
         Windows::UI::{Color, Colors},
         Windows::Win32::Foundation::{BOOL, HWND},
         Windows::Win32::System::WinRT::{
-            ICompositorDesktopInterop, CreateDispatcherQueueController, 
+            ICompositorDesktopInterop, CreateDispatcherQueueController,
             DISPATCHERQUEUE_THREAD_TYPE, DISPATCHERQUEUE_THREAD_APARTMENTTYPE,
         },
     );
