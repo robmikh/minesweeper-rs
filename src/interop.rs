@@ -1,5 +1,5 @@
 use bindings::Windows::System::DispatcherQueueController;
-use bindings::Windows::Win32::System::SystemServices::{
+use bindings::Windows::Win32::System::WinRT::{
     CreateDispatcherQueueController, DispatcherQueueOptions, DISPATCHERQUEUE_THREAD_APARTMENTTYPE,
     DISPATCHERQUEUE_THREAD_TYPE, DQTAT_COM_NONE, DQTYPE_THREAD_CURRENT,
 };
