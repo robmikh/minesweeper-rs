@@ -13,10 +13,7 @@ pub fn create_dispatcher_queue_controller(
         threadType: thread_type,
         apartmentType: apartment_type,
     };
-    unsafe {
-        let mut result = None;
-        CreateDispatcherQueueController(options, &mut result).and_some(result)
-    }
+    unsafe { CreateDispatcherQueueController(options) }
 }
 
 pub fn create_dispatcher_queue_controller_for_current_thread(
