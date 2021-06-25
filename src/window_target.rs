@@ -29,12 +29,9 @@ where
         };
 
         let compositor_desktop: ICompositorDesktopInterop = compositor.cast()?;
-        let mut result = None;
 
         unsafe {
-            compositor_desktop
-                .CreateDesktopWindowTarget(HWND(window_handle as isize), is_topmost, &mut result)
-                .and_some(result)
+            compositor_desktop.CreateDesktopWindowTarget(HWND(window_handle as isize), is_topmost)
         }
     }
 }
