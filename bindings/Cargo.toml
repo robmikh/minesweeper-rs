@@ -4,7 +4,7 @@ version = "0.1.0"
 edition = "2018"
 
 [dependencies]
-windows = "0.13.0"
+windows = "0.17.2"
 
 [build-dependencies]
-windows = "0.13.0"
+windows = "0.17.2"
