@@ -252,7 +252,6 @@ impl Minesweeper {
         }
 
         // OK, go through the query_vec and try and reveal all of them with sweep if they're not flagged
-        let mut hit_mine = false;
         let mut hit_coordinate: Option<TileCoordinate> = None;
         for query_coord in &query_vec {
             let query_index = self
@@ -263,8 +262,7 @@ impl Minesweeper {
                 // Already revealed, so don't click
                 continue;
             }
-            hit_mine = self.sweep(query_coord.0, query_coord.1)?;
-            if hit_mine {
+            if self.sweep(query_coord.0, query_coord.1)? {
                 hit_coordinate = Some(TileCoordinate {
                     x: query_coord.0,
                     y: query_coord.1,
@@ -273,8 +271,7 @@ impl Minesweeper {
             }
         }
 
-        if hit_mine {
-            let cur_coordinate = hit_coordinate.unwrap();
+        if let Some(cur_coordinate) = hit_coordinate {
             // We hit a mine! Setup and play an animation while locking any input.
             let hit_x = cur_coordinate.x;
             let hit_y = cur_coordinate.y;
