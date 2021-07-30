@@ -1,3 +1,5 @@
+#![windows_subsystem = "windows"]
+
 mod comp_assets;
 mod comp_ui;
 mod interop;
