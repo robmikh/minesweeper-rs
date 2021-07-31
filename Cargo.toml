@@ -5,7 +5,7 @@ authors = ["Robert Mikhayelyan <rob.mikh@outlook.com>"]
 edition = "2018"
 
 [dependencies]
-windows = "0.17.2"
+windows = "0.18.0"
 bindings = { path = "bindings" }
 winit = "0.24.0"
 raw-window-handle = "0.3.3"

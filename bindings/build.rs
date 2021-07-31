@@ -2,7 +2,7 @@ fn main() {
     windows::build! {
         Windows::Graphics::SizeInt32,
         Windows::Win32::System::WinRT::{
-            CreateDispatcherQueueController, ICompositorDesktopInterop,
+            CreateDispatcherQueueController, ICompositorDesktopInterop, RoInitialize,
         },
         Windows::UI::Colors,
         Windows::UI::Composition::Desktop::DesktopWindowTarget,
