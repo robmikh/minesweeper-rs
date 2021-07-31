@@ -1,5 +1,8 @@
 fn main() {
     windows::build! {
+        Windows::ApplicationModel::Core::{
+            CoreApplication, CoreApplicationView, IFrameworkViewSource, IFrameworkView,
+        },
         Windows::Graphics::SizeInt32,
         Windows::Win32::System::WinRT::{
             CreateDispatcherQueueController, ICompositorDesktopInterop, RoInitialize,
@@ -11,6 +14,13 @@ fn main() {
             CompositionNineGridBrush, CompositionScopedBatch, CompositionShapeCollection,
             CompositionSpriteShape, Compositor, ShapeVisual, SpriteVisual,
             Vector3KeyFrameAnimation, VisualCollection,
+        },
+        Windows::UI::Core::{
+            CoreDispatcher, CoreWindow, CoreProcessEventsOption, WindowSizeChangedEventArgs,
+            PointerEventArgs,
+        },
+        Windows::UI::Input::{
+            PointerPoint, PointerPointProperties,
         },
     };
 }
