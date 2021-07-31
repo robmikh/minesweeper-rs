@@ -1,13 +1,14 @@
 use crate::minesweeper::Minesweeper;
-use bindings::windows::{
-    application_model::core::{CoreApplicationView, IFrameworkView},
-    foundation::numerics::Vector2,
-    foundation::TypedEventHandler,
-    ui::composition::{CompositionTarget, Compositor},
-    ui::core::{CoreProcessEventsOption, CoreWindow, PointerEventArgs, WindowSizeChangedEventArgs},
+use bindings::Windows::{
+    ApplicationModel::Core::{CoreApplicationView, IFrameworkView},
+    Foundation::Numerics::Vector2,
+    Foundation::TypedEventHandler,
+    UI::Composition::{CompositionTarget, Compositor},
+    UI::Core::{CoreProcessEventsOption, CoreWindow, PointerEventArgs, WindowSizeChangedEventArgs},
 };
 use bindings::*;
 use std::sync::{Arc, Mutex};
+use windows::implement;
 
 struct AppState {
     _window: CoreWindow,
@@ -17,11 +18,12 @@ struct AppState {
     game: Minesweeper,
 }
 
-#[::windows::implement(windows::application_model::core::IFrameworkViewSource)]
+#[implement(Windows::ApplicationModel::Core::IFrameworkViewSource)]
 pub struct MinesweeperAppSource {}
 
+#[allow(non_snake_case)]
 impl MinesweeperAppSource {
-    fn create_view(&mut self) -> windows::Result<IFrameworkView> {
+    fn CreateView(&mut self) -> windows::Result<IFrameworkView> {
         let app = MinesweeperApp {
             state: Arc::new(Mutex::new(None)),
         };
@@ -31,33 +33,34 @@ impl MinesweeperAppSource {
 }
 
 // TOOD: A way to do this without the arc/mutex?
-#[::windows::implement(windows::application_model::core::IFrameworkView)]
+#[implement(Windows::ApplicationModel::Core::IFrameworkView)]
 pub struct MinesweeperApp {
     state: Arc<Mutex<Option<AppState>>>,
 }
 
+#[allow(non_snake_case)]
 impl MinesweeperApp {
-    fn initialize(&mut self, _window: &Option<CoreApplicationView>) -> windows::Result<()> {
+    fn Initialize(&mut self, _window: &Option<CoreApplicationView>) -> windows::Result<()> {
         Ok(())
     }
 
-    fn set_window(&mut self, _window: &Option<CoreWindow>) -> windows::Result<()> {
+    fn SetWindow(&mut self, _window: &Option<CoreWindow>) -> windows::Result<()> {
         Ok(())
     }
 
-    fn load(&mut self, _entry_point: &windows::HString) -> windows::Result<()> {
+    fn Load(&mut self, _entry_point: &windows::HSTRING) -> windows::Result<()> {
         Ok(())
     }
 
-    fn run(&mut self) -> windows::Result<()> {
-        let window = CoreWindow::get_for_current_thread()?;
+    fn Run(&mut self) -> windows::Result<()> {
+        let window = CoreWindow::GetForCurrentThread()?;
 
         // Init Composition
         let compositor = Compositor::new()?;
-        let root = compositor.create_container_visual()?;
-        root.set_relative_size_adjustment(Vector2 { x: 1.0, y: 1.0 })?;
-        let target = compositor.create_target_for_current_view()?;
-        target.set_root(&root)?;
+        let root = compositor.CreateContainerVisual()?;
+        root.SetRelativeSizeAdjustment(Vector2 { X: 1.0, Y: 1.0 })?;
+        let target = compositor.CreateTargetForCurrentView()?;
+        target.SetRoot(&root)?;
 
         // Init minesweeper
         let window_size = get_window_size(&window)?;
@@ -82,10 +85,10 @@ impl MinesweeperApp {
             let state = self.state.clone();
             move |_sender, args| {
                 let args = args.as_ref().unwrap();
-                let size = args.size()?;
+                let size = args.Size()?;
                 let size = Vector2 {
-                    x: size.width as f32,
-                    y: size.height as f32,
+                    X: size.Width as f32,
+                    Y: size.Height as f32,
                 };
                 let mut state = state.lock().unwrap();
                 let state = state.as_mut().unwrap();
@@ -98,10 +101,10 @@ impl MinesweeperApp {
             let state = self.state.clone();
             move |_sender, args| {
                 let args = args.as_ref().unwrap();
-                let point = args.current_point()?.position()?;
+                let point = args.CurrentPoint()?.Position()?;
                 let point = Vector2 {
-                    x: point.x as f32,
-                    y: point.y as f32,
+                    X: point.X as f32,
+                    Y: point.Y as f32,
                 };
                 let mut state = state.lock().unwrap();
                 let state = state.as_mut().unwrap();
@@ -114,9 +117,9 @@ impl MinesweeperApp {
             let state = self.state.clone();
             move |_sender, args| {
                 let args = args.as_ref().unwrap();
-                let properties = args.current_point()?.properties()?;
-                let is_right = properties.is_right_button_pressed()?;
-                let is_eraser = properties.is_eraser()?;
+                let properties = args.CurrentPoint()?.Properties()?;
+                let is_right = properties.IsRightButtonPressed()?;
+                let is_eraser = properties.IsEraser()?;
                 let mut state = state.lock().unwrap();
                 let state = state.as_mut().unwrap();
                 let game = &mut state.game;
@@ -125,28 +128,28 @@ impl MinesweeperApp {
             }
         });
 
-        window.size_changed(size_changed_handler)?;
-        window.pointer_moved(pointer_moved_handler)?;
-        window.pointer_pressed(pointer_pressed_handler)?;
+        window.SizeChanged(size_changed_handler)?;
+        window.PointerMoved(pointer_moved_handler)?;
+        window.PointerPressed(pointer_pressed_handler)?;
 
         // Activate the window and start running the dispatcher
-        window.activate()?;
+        window.Activate()?;
 
-        let dispatcher = window.dispatcher()?;
-        dispatcher.process_events(CoreProcessEventsOption::ProcessUntilQuit)?;
+        let dispatcher = window.Dispatcher()?;
+        dispatcher.ProcessEvents(CoreProcessEventsOption::ProcessUntilQuit)?;
 
         Ok(())
     }
 
-    fn uninitialize(&mut self) -> windows::Result<()> {
+    fn Uninitialize(&mut self) -> windows::Result<()> {
         Ok(())
     }
 }
 
 fn get_window_size(window: &CoreWindow) -> windows::Result<Vector2> {
-    let bounds = window.bounds()?;
+    let bounds = window.Bounds()?;
     Ok(Vector2 {
-        x: bounds.width as f32,
-        y: bounds.height as f32,
+        X: bounds.Width as f32,
+        Y: bounds.Height as f32,
     })
 }

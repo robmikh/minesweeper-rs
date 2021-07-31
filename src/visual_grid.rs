@@ -1,11 +1,11 @@
 use crate::minesweeper::IndexHelper;
 use crate::numerics::FromVector2;
-use bindings::windows::{
-    foundation::numerics::{Vector2, Vector3},
-    graphics::SizeInt32,
-    ui::{
-        composition::{Compositor, ContainerVisual, SpriteVisual},
+use bindings::Windows::{
+    Foundation::Numerics::{Vector2, Vector3},
+    Graphics::SizeInt32,
+    UI::{
         Colors,
+        Composition::{Compositor, ContainerVisual, SpriteVisual},
     },
 };
 
@@ -39,18 +39,18 @@ impl VisualGrid {
         margin: &Vector2,
     ) -> windows::Result<Self> {
         let compositor = compositor.clone();
-        let root = compositor.create_container_visual()?;
+        let root = compositor.CreateContainerVisual()?;
 
-        let selection_visual = compositor.create_sprite_visual()?;
-        let color_brush = compositor.create_color_brush_with_color(Colors::red()?)?;
-        let nine_grid_brush = compositor.create_nine_grid_brush()?;
-        nine_grid_brush.set_insets_with_values(margin.x, margin.y, margin.x, margin.y)?;
-        nine_grid_brush.set_is_center_hollow(true)?;
-        nine_grid_brush.set_source(color_brush)?;
-        selection_visual.set_brush(nine_grid_brush)?;
-        selection_visual.set_offset(Vector3::from_vector2(margin * -1.0, 0.0))?;
-        selection_visual.set_is_visible(false)?;
-        selection_visual.set_size(tile_size + margin * 2.0)?;
+        let selection_visual = compositor.CreateSpriteVisual()?;
+        let color_brush = compositor.CreateColorBrushWithColor(Colors::Red()?)?;
+        let nine_grid_brush = compositor.CreateNineGridBrush()?;
+        nine_grid_brush.SetInsetsWithValues(margin.X, margin.Y, margin.X, margin.Y)?;
+        nine_grid_brush.SetIsCenterHollow(true)?;
+        nine_grid_brush.SetSource(color_brush)?;
+        selection_visual.SetBrush(nine_grid_brush)?;
+        selection_visual.SetOffset(Vector3::from_vector2(margin * -1.0, 0.0))?;
+        selection_visual.SetIsVisible(false)?;
+        selection_visual.SetSize(tile_size + margin * 2.0)?;
 
         let mut result = Self {
             compositor,
@@ -58,10 +58,10 @@ impl VisualGrid {
 
             tiles: Vec::new(),
             selection_visual,
-            index_helper: IndexHelper::new(grid_size_in_tiles.width, grid_size_in_tiles.height),
+            index_helper: IndexHelper::new(grid_size_in_tiles.Width, grid_size_in_tiles.Height),
 
-            grid_width_in_tiles: grid_size_in_tiles.width,
-            grid_height_in_tiles: grid_size_in_tiles.height,
+            grid_width_in_tiles: grid_size_in_tiles.Width,
+            grid_height_in_tiles: grid_size_in_tiles.Height,
             tile_size: tile_size.clone(),
             margin: margin.clone(),
 
@@ -74,40 +74,36 @@ impl VisualGrid {
     }
 
     pub fn reset(&mut self, grid_size_in_tiles: &SizeInt32) -> windows::Result<()> {
-        let children = self.root.children()?;
-        children.remove_all()?;
+        let children = self.root.Children()?;
+        children.RemoveAll()?;
         self.tiles.clear();
 
-        self.index_helper = IndexHelper::new(grid_size_in_tiles.width, grid_size_in_tiles.height);
+        self.index_helper = IndexHelper::new(grid_size_in_tiles.Width, grid_size_in_tiles.Height);
 
-        self.grid_width_in_tiles = grid_size_in_tiles.width;
-        self.grid_height_in_tiles = grid_size_in_tiles.height;
+        self.grid_width_in_tiles = grid_size_in_tiles.Width;
+        self.grid_height_in_tiles = grid_size_in_tiles.Height;
         self.select_tile(None)?;
 
-        self.root.set_size(
+        self.root.SetSize(
             (&self.tile_size + &self.margin)
-                * Vector2 {
-                    x: self.grid_width_in_tiles as f32,
-                    y: self.grid_height_in_tiles as f32,
-                },
+                * Vector2::new(
+                    self.grid_width_in_tiles as f32,
+                    self.grid_height_in_tiles as f32,
+                ),
         )?;
 
         for x in 0..self.grid_width_in_tiles {
             for y in 0..self.grid_height_in_tiles {
-                let visual = self.compositor.create_sprite_visual()?;
-                visual.set_size(&self.tile_size)?;
-                visual.set_center_point(Vector3::from_vector2(&self.tile_size / 2.0, 0.0))?;
-                visual.set_offset(Vector3::from_vector2(
+                let visual = self.compositor.CreateSpriteVisual()?;
+                visual.SetSize(&self.tile_size)?;
+                visual.SetCenterPoint(Vector3::from_vector2(&self.tile_size / 2.0, 0.0))?;
+                visual.SetOffset(Vector3::from_vector2(
                     (&self.margin / 2.0)
-                        + ((&self.tile_size + &self.margin)
-                            * Vector2 {
-                                x: x as f32,
-                                y: y as f32,
-                            }),
+                        + ((&self.tile_size + &self.margin) * Vector2::new(x as f32, y as f32)),
                     0.0,
                 ))?;
 
-                children.insert_at_top(&visual)?;
+                children.InsertAtTop(&visual)?;
                 self.tiles.push(visual);
             }
         }
@@ -128,12 +124,12 @@ impl VisualGrid {
     }
 
     pub fn size(&self) -> windows::Result<Vector2> {
-        self.root.size()
+        self.root.Size()
     }
 
     pub fn hit_test(&self, point: &Vector2) -> Option<TileCoordinate> {
-        let x = (point.x / (self.tile_size.x + self.margin.x)) as i32;
-        let y = (point.y / (self.tile_size.y + self.margin.y)) as i32;
+        let x = (point.X / (self.tile_size.X + self.margin.X)) as i32;
+        let y = (point.Y / (self.tile_size.Y + self.margin.Y)) as i32;
 
         if self.index_helper.is_in_bounds(x, y) {
             Some(TileCoordinate { x, y })
@@ -156,10 +152,10 @@ impl VisualGrid {
             let visual = &self.tiles[self
                 .index_helper
                 .compute_index(tile_coordinate.x, tile_coordinate.y)];
-            self.selection_visual.set_parent_for_transform(visual)?;
-            self.selection_visual.set_is_visible(true)?;
+            self.selection_visual.SetParentForTransform(visual)?;
+            self.selection_visual.SetIsVisible(true)?;
         } else {
-            self.selection_visual.set_is_visible(false)?;
+            self.selection_visual.SetIsVisible(false)?;
         }
 
         Ok(())

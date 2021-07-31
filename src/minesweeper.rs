@@ -1,7 +1,7 @@
 use crate::comp_ui::CompUI;
 use crate::visual_grid::TileCoordinate;
-use bindings::windows::{
-    foundation::numerics::Vector2, graphics::SizeInt32, ui::composition::ContainerVisual,
+use bindings::Windows::{
+    Foundation::Numerics::Vector2, Graphics::SizeInt32, UI::Composition::ContainerVisual,
 };
 use rand::distributions::{Distribution, Uniform};
 use std::collections::VecDeque;
@@ -19,7 +19,7 @@ impl MineState {
             MineState::Empty => MineState::Flag,
             MineState::Flag => MineState::Question,
             MineState::Question => MineState::Empty,
-            MineState::Revealed => panic!("We shouldn't be cycling a revealed tile!"),
+            MineState::Revealed => unreachable!("We shouldn't be cycling a revealed tile!"),
         }
     }
 }
@@ -69,6 +69,7 @@ pub struct Minesweeper {
     neighbor_counts: Vec<i32>,
     mine_generation_state: MineGenerationState,
     num_mines: i32,
+    last_tile: Option<TileCoordinate>,
 
     game_over: bool,
 }
@@ -76,33 +77,37 @@ pub struct Minesweeper {
 impl Minesweeper {
     pub fn new(parent_visual: &ContainerVisual, parent_size: &Vector2) -> windows::Result<Self> {
         let game_board_size_in_tiles = SizeInt32 {
-            width: 16,
-            height: 16,
+            Width: 16,
+            Height: 16,
         };
         let ui = CompUI::new(parent_visual, parent_size, &game_board_size_in_tiles)?;
+
+        let tile_count =
+            (game_board_size_in_tiles.Width * game_board_size_in_tiles.Height) as usize;
 
         let mut result = Self {
             ui,
 
-            game_board_width: game_board_size_in_tiles.width,
-            game_board_height: game_board_size_in_tiles.height,
+            game_board_width: game_board_size_in_tiles.Width,
+            game_board_height: game_board_size_in_tiles.Height,
             index_helper: IndexHelper::new(
-                game_board_size_in_tiles.width,
-                game_board_size_in_tiles.height,
+                game_board_size_in_tiles.Width,
+                game_board_size_in_tiles.Height,
             ),
 
-            mine_states: Vec::new(),
-            mines: Vec::new(),
+            mine_states: vec![MineState::Empty; tile_count], // create vec of size tile_count filled with MineState::Empty
+            mines: vec![false; tile_count],
             neighbor_counts: Vec::new(),
             mine_generation_state: MineGenerationState::Deferred,
             num_mines: 0,
+            last_tile: None,
 
             game_over: false,
         };
 
         result.new_game(
-            game_board_size_in_tiles.width,
-            game_board_size_in_tiles.height,
+            game_board_size_in_tiles.Width,
+            game_board_size_in_tiles.Height,
             40,
         )?;
         result.on_parent_size_changed(parent_size)?;
@@ -116,6 +121,7 @@ impl Minesweeper {
         }
 
         let selected_tile = if let Some(tile) = self.ui.hit_test(&point)? {
+            self.last_tile = Some(tile);
             if self.mine_states[self.index_helper.compute_index(tile.x, tile.y)]
                 != MineState::Revealed
             {
@@ -124,6 +130,7 @@ impl Minesweeper {
                 None
             }
         } else {
+            self.last_tile = None;
             None
         };
         self.ui.select_tile(selected_tile)?;
@@ -181,7 +188,106 @@ impl Minesweeper {
                     }
                 }
             }
+        } else {
+            if is_right_button || is_eraser {
+                // Do nothing on right click or eraser mode
+                return Ok(());
+            }
+            self.check_and_clear_satisfied()?;
         }
+        Ok(())
+    }
+
+    pub fn check_and_clear_satisfied(&mut self) -> windows::Result<()> {
+        // OK, we're outside of the unrevealed/flagged/etc tiles, but we SHOULD be at last_tile
+
+        if let None = self.last_tile {
+            // If OOB, do nothing
+            return Ok(());
+        }
+
+        let cur_tile = self
+            .last_tile
+            .expect("Somehow last tile became None after test");
+
+        // Does the current tile have a number in it?
+        let index = self.index_helper.compute_index(cur_tile.x, cur_tile.y);
+        if self.neighbor_counts[index] < 1 || self.mine_states[index] != MineState::Revealed {
+            // No neighbors, or not revealed, do nothing!
+            return Ok(());
+        }
+
+        // Make a vector of coordinates to query based on current coordinate
+        let base_vec: Vec<(i32, i32)> = vec![
+            (cur_tile.x - 1, cur_tile.y - 1),
+            (cur_tile.x, cur_tile.y - 1),
+            (cur_tile.x + 1, cur_tile.y - 1),
+            (cur_tile.x - 1, cur_tile.y),
+            (cur_tile.x + 1, cur_tile.y),
+            (cur_tile.x - 1, cur_tile.y + 1),
+            (cur_tile.x, cur_tile.y + 1),
+            (cur_tile.x + 1, cur_tile.y + 1),
+        ];
+
+        // Filter out-of-bounds if we're on the edges
+        let width = self.game_board_width;
+        let height = self.game_board_height;
+        let query_vec: Vec<(i32, i32)> = base_vec
+            .into_iter()
+            .filter(|cur| cur.0 >= 0 && cur.0 < width && cur.1 >= 0 && cur.1 < height)
+            .collect();
+        // See if all mines are marked that are in those 8 (or fewer) tiles
+        let mut flag_count = 0;
+        for query_coord in &query_vec {
+            let query_index = self
+                .index_helper
+                .compute_index(query_coord.0, query_coord.1);
+            if self.mine_states[query_index] == MineState::Flag {
+                flag_count += 1;
+            }
+        }
+        if flag_count != self.neighbor_counts[index] {
+            // Too many or not enough flags
+            return Ok(());
+        }
+
+        // OK, go through the query_vec and try and reveal all of them with sweep if they're not flagged
+        let mut hit_coordinate: Option<TileCoordinate> = None;
+        for query_coord in &query_vec {
+            let query_index = self
+                .index_helper
+                .compute_index(query_coord.0, query_coord.1);
+            // Is it unrevealed?  Only click on those spaces
+            if self.mine_states[query_index] != MineState::Empty {
+                // Already revealed, so don't click
+                continue;
+            }
+            if self.sweep(query_coord.0, query_coord.1)? {
+                hit_coordinate = Some(TileCoordinate {
+                    x: query_coord.0,
+                    y: query_coord.1,
+                });
+                break;
+            }
+        }
+
+        if let Some(cur_coordinate) = hit_coordinate {
+            // We hit a mine! Setup and play an animation while locking any input.
+            let hit_x = cur_coordinate.x;
+            let hit_y = cur_coordinate.y;
+
+            // First, hide the selection visual and reset the selection
+            self.ui.select_tile(None)?;
+
+            self.play_animation_on_all_mines(hit_x, hit_y)?;
+
+            self.game_over = true;
+        } else if self.check_if_won() {
+            self.ui.select_tile(None)?;
+            // TODO: Play a win animation
+            self.game_over = true;
+        }
+
         Ok(())
     }
 
@@ -191,18 +297,18 @@ impl Minesweeper {
         self.index_helper = IndexHelper::new(board_width, board_height);
 
         self.ui.reset(&SizeInt32 {
-            width: board_width,
-            height: board_height,
+            Width: board_width,
+            Height: board_height,
         })?;
-        self.mine_states.clear();
 
-        for _ in 0..(board_width * board_height) {
-            self.mine_states.push(MineState::Empty);
+        for mine_state in self.mine_states.iter_mut() {
+            *mine_state = MineState::Empty
         }
 
         self.game_over = false;
         self.mine_generation_state = MineGenerationState::Deferred;
         self.num_mines = mines;
+        self.last_tile = None;
 
         Ok(())
     }
@@ -287,11 +393,8 @@ impl Minesweeper {
     }
 
     fn generate_mines(&mut self, num_mines: i32, exclude_x: i32, exclude_y: i32) {
-        self.mines.clear();
-        for _x in 0..self.game_board_width {
-            for _y in 0..self.game_board_height {
-                self.mines.push(false);
-            }
+        for mine in self.mines.iter_mut() {
+            *mine = false;
         }
 
         let between = Uniform::from(0..(self.game_board_width * self.game_board_height) as usize);
@@ -466,14 +569,10 @@ impl Minesweeper {
     }
 
     fn check_if_won(&self) -> bool {
-        // Get the number of non-revealed tiles
-        let mut non_revealed_tiles = 0;
-        for state in &self.mine_states {
-            if *state != MineState::Revealed {
-                non_revealed_tiles += 1;
-            }
-        }
-
-        non_revealed_tiles == self.num_mines
+        self.mine_states
+            .iter()
+            .filter(|state| **state != MineState::Revealed)
+            .count()
+            == self.num_mines as usize
     }
 }

@@ -1,4 +1,4 @@
-use bindings::windows::foundation::numerics::{Vector2, Vector3};
+use bindings::Windows::Foundation::Numerics::{Vector2, Vector3};
 
 pub trait FromVector2 {
     type Output;
@@ -8,10 +8,6 @@ pub trait FromVector2 {
 impl FromVector2 for Vector3 {
     type Output = Self;
     fn from_vector2(value: Vector2, z: f32) -> Self {
-        Vector3 {
-            x: value.x,
-            y: value.y,
-            z,
-        }
+        Vector3::new(value.X, value.Y, z)
     }
 }

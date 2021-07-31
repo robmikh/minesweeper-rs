@@ -7,12 +7,15 @@ use winit::{
     window::WindowBuilder,
 };
 
-use bindings::windows::win32::winrt::{RoInitialize, RO_INIT_TYPE};
-use bindings::windows::{foundation::numerics::Vector2, ui::composition::Compositor};
+use bindings::Windows::{
+    Foundation::Numerics::Vector2,
+    Win32::System::WinRT::{RoInitialize, RO_INIT_SINGLETHREADED},
+    UI::Composition::Compositor,
+};
 
 pub fn run() -> windows::Result<()> {
     unsafe {
-        RoInitialize(RO_INIT_TYPE::RO_INIT_SINGLETHREADED).ok()?;
+        RoInitialize(RO_INIT_SINGLETHREADED)?;
     }
     let _controller = create_dispatcher_queue_controller_for_current_thread()?;
 
@@ -23,14 +26,14 @@ pub fn run() -> windows::Result<()> {
     let compositor = Compositor::new()?;
     let target = window.create_window_target(&compositor, false)?;
 
-    let root = compositor.create_container_visual()?;
-    root.set_relative_size_adjustment(Vector2 { x: 1.0, y: 1.0 })?;
-    target.set_root(&root)?;
+    let root = compositor.CreateContainerVisual()?;
+    root.SetRelativeSizeAdjustment(Vector2 { X: 1.0, Y: 1.0 })?;
+    target.SetRoot(&root)?;
 
     let window_size = window.inner_size();
     let window_size = Vector2 {
-        x: window_size.width as f32,
-        y: window_size.height as f32,
+        X: window_size.width as f32,
+        Y: window_size.height as f32,
     };
     let mut game = Minesweeper::new(&root, &window_size)?;
 
@@ -46,8 +49,8 @@ pub fn run() -> windows::Result<()> {
                 ..
             } => {
                 let size = Vector2 {
-                    x: size.width as f32,
-                    y: size.height as f32,
+                    X: size.width as f32,
+                    Y: size.height as f32,
                 };
                 game.on_parent_size_changed(&size).unwrap();
             }
@@ -56,8 +59,8 @@ pub fn run() -> windows::Result<()> {
                 ..
             } => {
                 let point = Vector2 {
-                    x: position.x as f32,
-                    y: position.y as f32,
+                    X: position.x as f32,
+                    Y: position.y as f32,
                 };
                 game.on_pointer_moved(&point).unwrap();
             }
