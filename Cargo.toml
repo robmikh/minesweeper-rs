@@ -7,8 +7,6 @@ edition = "2018"
 [dependencies]
 windows = "0.20.0"
 bindings = { path = "bindings" }
-winit = "0.24.0"
-raw-window-handle = "0.3.3"
 rand = "0.8.3"
 
 [features]
