@@ -6,20 +6,20 @@ mod interop;
 mod minesweeper;
 mod numerics;
 mod visual_grid;
-mod window_target;
+mod wide_string;
+mod window;
 
 use interop::create_dispatcher_queue_controller_for_current_thread;
 use minesweeper::Minesweeper;
-use window_target::CompositionDesktopWindowTargetSource;
-use winit::{
-    event::{ElementState, Event, MouseButton, WindowEvent},
-    event_loop::{ControlFlow, EventLoop},
-    window::WindowBuilder,
-};
+use window::Window;
 
 use bindings::Windows::{
     Foundation::Numerics::Vector2,
-    Win32::System::WinRT::{RoInitialize, RO_INIT_SINGLETHREADED},
+    Win32::{
+        Foundation::HWND,
+        System::WinRT::{RoInitialize, RO_INIT_SINGLETHREADED},
+        UI::WindowsAndMessaging::{DispatchMessageW, GetMessageW, TranslateMessage, MSG},
+    },
     UI::Composition::Compositor,
 };
 
@@ -27,54 +27,33 @@ fn run() -> windows::Result<()> {
     unsafe { RoInitialize(RO_INIT_SINGLETHREADED)? };
     let _controller = create_dispatcher_queue_controller_for_current_thread()?;
 
-    let event_loop = EventLoop::new();
-    let window = WindowBuilder::new().build(&event_loop).unwrap();
-    window.set_title("Minesweeper");
+    let window_width = 800;
+    let window_height = 600;
+
+    let window_size = Vector2 {
+        X: window_width as f32,
+        Y: window_height as f32,
+    };
 
     let compositor = Compositor::new()?;
-    let target = window.create_window_target(&compositor, false)?;
-
     let root = compositor.CreateContainerVisual()?;
     root.SetRelativeSizeAdjustment(Vector2::new(1.0, 1.0))?;
+
+    let game = Minesweeper::new(&root, &window_size)?;
+
+    let window = Window::new("Minesweeper", window_width, window_height, game)?;
+    let target = window.create_window_target(&compositor, false)?;
     target.SetRoot(&root)?;
 
-    let window_size = window.inner_size();
-    let window_size = Vector2::new(window_size.width as f32, window_size.height as f32);
-    let mut game = Minesweeper::new(&root, &window_size)?;
-
-    event_loop.run(move |event, _, control_flow| {
-        *control_flow = ControlFlow::Wait;
-        match event {
-            Event::WindowEvent {
-                event: WindowEvent::CloseRequested,
-                window_id,
-            } if window_id == window.id() => *control_flow = ControlFlow::Exit,
-            Event::WindowEvent {
-                event: WindowEvent::Resized(size),
-                ..
-            } => {
-                let size = Vector2::new(size.width as f32, size.height as f32);
-                game.on_parent_size_changed(&size).unwrap();
-            }
-            Event::WindowEvent {
-                event: WindowEvent::CursorMoved { position, .. },
-                ..
-            } => {
-                let point = Vector2::new(position.x as f32, position.y as f32);
-                game.on_pointer_moved(&point).unwrap();
-            }
-            Event::WindowEvent {
-                event: WindowEvent::MouseInput { state, button, .. },
-                ..
-            } => {
-                if state == ElementState::Pressed {
-                    game.on_pointer_pressed(button == MouseButton::Right, false)
-                        .unwrap();
-                }
-            }
-            _ => (),
+    let mut message = MSG::default();
+    unsafe {
+        while GetMessageW(&mut message, HWND(0), 0, 0).into() {
+            TranslateMessage(&mut message);
+            DispatchMessageW(&mut message);
         }
-    });
+    }
+
+    Ok(())
 }
 
 fn main() {
