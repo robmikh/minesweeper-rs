@@ -13,17 +13,18 @@ use interop::create_dispatcher_queue_controller_for_current_thread;
 use minesweeper::Minesweeper;
 use window::Window;
 
-use bindings::Windows::{
+use windows::{
+    runtime::Result,
     Foundation::Numerics::Vector2,
+    UI::Composition::Compositor,
     Win32::{
         Foundation::HWND,
         System::WinRT::{RoInitialize, RO_INIT_SINGLETHREADED},
-        UI::WindowsAndMessaging::{DispatchMessageW, GetMessageW, TranslateMessage, MSG},
-    },
-    UI::Composition::Compositor,
+        UI::WindowsAndMessaging::{DispatchMessageW, GetMessageW, TranslateMessage, MSG}
+    }
 };
 
-fn run() -> windows::Result<()> {
+fn run() -> Result<()> {
     unsafe { RoInitialize(RO_INIT_SINGLETHREADED)? };
     let _controller = create_dispatcher_queue_controller_for_current_thread()?;
 

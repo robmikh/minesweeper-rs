@@ -1,21 +1,28 @@
 use std::sync::Once;
 
-use bindings::Windows::Foundation::Numerics::Vector2;
-use bindings::Windows::Graphics::SizeInt32;
-use bindings::Windows::Win32::Foundation::{HINSTANCE, HWND, LPARAM, LRESULT, PWSTR, RECT, WPARAM};
-use bindings::Windows::Win32::System::LibraryLoader::GetModuleHandleW;
-use bindings::Windows::Win32::System::WinRT::ICompositorDesktopInterop;
-use bindings::Windows::Win32::UI::WindowsAndMessaging::{
-    AdjustWindowRectEx, CreateWindowExW, DefWindowProcW, GetClientRect, LoadCursorW,
-    PostQuitMessage, RegisterClassW, ShowWindow, CREATESTRUCTW, CW_USEDEFAULT, GWLP_USERDATA,
-    HMENU, IDC_ARROW, SW_SHOW, WINDOW_LONG_PTR_INDEX, WM_DESTROY, WM_LBUTTONDOWN, WM_MOUSEMOVE,
-    WM_NCCREATE, WM_RBUTTONDOWN, WM_SIZE, WM_SIZING, WNDCLASSW, WS_EX_NOREDIRECTIONBITMAP,
-    WS_OVERLAPPEDWINDOW,
+use windows::{
+    runtime::{Handle, Interface, Result},
+    Foundation::Numerics::Vector2,
+    Graphics::SizeInt32,
+    Win32::{
+        Foundation::{HINSTANCE, HWND, LPARAM, LRESULT, PWSTR, RECT, WPARAM},
+        System::{
+            LibraryLoader::GetModuleHandleW,
+            WinRT::ICompositorDesktopInterop
+        },
+        UI::WindowsAndMessaging::{
+            AdjustWindowRectEx, CreateWindowExW, DefWindowProcW, GetClientRect, LoadCursorW,
+            PostQuitMessage, RegisterClassW, ShowWindow, CREATESTRUCTW, CW_USEDEFAULT, GWLP_USERDATA,
+            HMENU, IDC_ARROW, SW_SHOW, WINDOW_LONG_PTR_INDEX, WM_DESTROY, WM_LBUTTONDOWN, WM_MOUSEMOVE,
+            WM_NCCREATE, WM_RBUTTONDOWN, WM_SIZE, WM_SIZING, WNDCLASSW, WS_EX_NOREDIRECTIONBITMAP,
+            WS_OVERLAPPEDWINDOW
+        }
+    },
+    UI::Composition::{
+        Compositor,
+        Desktop::DesktopWindowTarget
+    }
 };
-use bindings::Windows::UI::Composition::Compositor;
-use bindings::Windows::UI::Composition::Desktop::DesktopWindowTarget;
-
-use windows::{Handle, Interface};
 
 use crate::minesweeper::Minesweeper;
 use crate::wide_string::ToWide;
@@ -34,7 +41,7 @@ impl Window {
         width: u32,
         height: u32,
         game: Minesweeper,
-    ) -> windows::Result<Box<Self>> {
+    ) -> Result<Box<Self>> {
         let class_name = WINDOW_CLASS_NAME.to_wide();
         let instance = unsafe { GetModuleHandleW(PWSTR(std::ptr::null_mut())).ok()? };
         REGISTER_WINDOW_CLASS.call_once(|| {
@@ -94,7 +101,7 @@ impl Window {
         Ok(result)
     }
 
-    pub fn size(&self) -> windows::Result<SizeInt32> {
+    pub fn size(&self) -> Result<SizeInt32> {
         get_window_size(self.handle)
     }
 
@@ -106,7 +113,7 @@ impl Window {
         &self,
         compositor: &Compositor,
         is_topmost: bool,
-    ) -> windows::Result<DesktopWindowTarget> {
+    ) -> Result<DesktopWindowTarget> {
         let compositor_desktop: ICompositorDesktopInterop = compositor.cast()?;
         unsafe { compositor_desktop.CreateDesktopWindowTarget(self.handle(), is_topmost) }
     }
@@ -167,7 +174,7 @@ impl Window {
     }
 }
 
-fn get_window_size(window_handle: HWND) -> windows::Result<SizeInt32> {
+fn get_window_size(window_handle: HWND) -> Result<SizeInt32> {
     unsafe {
         let mut rect = RECT::default();
         let _ = GetClientRect(window_handle, &mut rect).ok()?;
@@ -189,7 +196,7 @@ fn get_mouse_position(lparam: LPARAM) -> (isize, isize) {
 #[allow(non_snake_case)]
 #[cfg(target_pointer_width = "32")]
 unsafe fn SetWindowLong(window: HWND, index: WINDOW_LONG_PTR_INDEX, value: isize) -> isize {
-    use bindings::Windows::Win32::UI::WindowsAndMessaging::SetWindowLongW;
+    use windows::Win32::UI::WindowsAndMessaging::SetWindowLongW;
 
     SetWindowLongW(window, index, value as _) as _
 }
@@ -197,7 +204,7 @@ unsafe fn SetWindowLong(window: HWND, index: WINDOW_LONG_PTR_INDEX, value: isize
 #[allow(non_snake_case)]
 #[cfg(target_pointer_width = "64")]
 unsafe fn SetWindowLong(window: HWND, index: WINDOW_LONG_PTR_INDEX, value: isize) -> isize {
-    use bindings::Windows::Win32::UI::WindowsAndMessaging::SetWindowLongPtrW;
+    use windows::Win32::UI::WindowsAndMessaging::SetWindowLongPtrW;
 
     SetWindowLongPtrW(window, index, value)
 }
@@ -205,7 +212,7 @@ unsafe fn SetWindowLong(window: HWND, index: WINDOW_LONG_PTR_INDEX, value: isize
 #[allow(non_snake_case)]
 #[cfg(target_pointer_width = "32")]
 unsafe fn GetWindowLong(window: HWND, index: WINDOW_LONG_PTR_INDEX) -> isize {
-    use bindings::Windows::Win32::UI::WindowsAndMessaging::SetWindowLongW;
+    use windows::Win32::UI::WindowsAndMessaging::SetWindowLongW;
 
     GetWindowLongW(window, index) as _
 }
@@ -213,7 +220,7 @@ unsafe fn GetWindowLong(window: HWND, index: WINDOW_LONG_PTR_INDEX) -> isize {
 #[allow(non_snake_case)]
 #[cfg(target_pointer_width = "64")]
 unsafe fn GetWindowLong(window: HWND, index: WINDOW_LONG_PTR_INDEX) -> isize {
-    use bindings::Windows::Win32::UI::WindowsAndMessaging::GetWindowLongPtrW;
+    use windows::Win32::UI::WindowsAndMessaging::GetWindowLongPtrW;
 
     GetWindowLongPtrW(window, index)
 }

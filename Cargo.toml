@@ -5,9 +5,22 @@ authors = ["Robert Mikhayelyan <rob.mikh@outlook.com>"]
 edition = "2018"
 
 [dependencies]
-windows = "0.20.0"
-bindings = { path = "bindings" }
-rand = "0.8.3"
+rand = "0.8.4"
+
+[dependencies.windows]
+git = "https://github.com/microsoft/windows-rs"
+features = [
+    "Foundation_Collections",
+    "Foundation_Numerics",
+    "Graphics",
+    "System",
+    "UI_Composition_Desktop",
+    "Win32_Foundation",
+    "Win32_Graphics_Gdi",
+    "Win32_System_LibraryLoader",
+    "Win32_System_WinRT",
+    "Win32_UI_WindowsAndMessaging",
+]
 
 [features]
 show-mines = []
