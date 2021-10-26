@@ -1,4 +1,4 @@
-use bindings::Windows::Win32::Foundation::PWSTR;
+use windows::Win32::Foundation::PWSTR;
 
 pub struct WideString(pub Vec<u16>);
 

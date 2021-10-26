@@ -1,6 +1,7 @@
 use crate::minesweeper::IndexHelper;
 use crate::numerics::FromVector2;
-use bindings::Windows::{
+use windows::{
+    runtime::Result,
     Foundation::Numerics::{Vector2, Vector3},
     Graphics::SizeInt32,
     UI::{
@@ -37,7 +38,7 @@ impl VisualGrid {
         grid_size_in_tiles: &SizeInt32,
         tile_size: &Vector2,
         margin: &Vector2,
-    ) -> windows::Result<Self> {
+    ) -> Result<Self> {
         let compositor = compositor.clone();
         let root = compositor.CreateContainerVisual()?;
 
@@ -73,7 +74,7 @@ impl VisualGrid {
         Ok(result)
     }
 
-    pub fn reset(&mut self, grid_size_in_tiles: &SizeInt32) -> windows::Result<()> {
+    pub fn reset(&mut self, grid_size_in_tiles: &SizeInt32) -> Result<()> {
         let children = self.root.Children()?;
         children.RemoveAll()?;
         self.tiles.clear();
@@ -123,7 +124,7 @@ impl VisualGrid {
         &self.selection_visual
     }
 
-    pub fn size(&self) -> windows::Result<Vector2> {
+    pub fn size(&self) -> Result<Vector2> {
         self.root.Size()
     }
 
@@ -146,7 +147,7 @@ impl VisualGrid {
         }
     }
 
-    pub fn select_tile(&mut self, tile_coordinate: Option<TileCoordinate>) -> windows::Result<()> {
+    pub fn select_tile(&mut self, tile_coordinate: Option<TileCoordinate>) -> Result<()> {
         self.current_selection = tile_coordinate;
         if let Some(tile_coordinate) = tile_coordinate {
             let visual = &self.tiles[self

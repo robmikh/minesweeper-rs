@@ -1,5 +1,7 @@
 use crate::minesweeper::MineState;
-use bindings::Windows::{
+use std::collections::HashMap;
+use windows::{
+    runtime::{Interface, Result},
     Foundation::Numerics::Vector2,
     UI::{
         Colors,
@@ -9,15 +11,13 @@ use bindings::Windows::{
         },
     },
 };
-use std::collections::HashMap;
-use windows::Interface;
 
 fn get_dot_shape(
     compositor: &Compositor,
     geometry: &CompositionGeometry,
     brush: &CompositionColorBrush,
     offset: Vector2,
-) -> windows::Result<CompositionSpriteShape> {
+) -> Result<CompositionSpriteShape> {
     let shape = compositor.CreateSpriteShapeWithGeometry(geometry)?;
     shape.SetFillBrush(brush)?;
     shape.SetOffset(offset)?;
@@ -32,7 +32,7 @@ pub struct CompAssets {
 }
 
 impl CompAssets {
-    pub fn new(compositor: &Compositor, tile_size: &Vector2) -> windows::Result<Self> {
+    pub fn new(compositor: &Compositor, tile_size: &Vector2) -> Result<Self> {
         let mine_brush = compositor.CreateColorBrushWithColor(Colors::Red()?)?;
 
         let mut result = Self {
@@ -66,11 +66,7 @@ impl CompAssets {
             .clone()
     }
 
-    fn generate_assets(
-        &mut self,
-        compositor: &Compositor,
-        tile_size: &Vector2,
-    ) -> windows::Result<()> {
+    fn generate_assets(&mut self, compositor: &Compositor, tile_size: &Vector2) -> Result<()> {
         self.mine_state_brushes.clear();
         self.mine_state_brushes.insert(
             MineState::Empty,
