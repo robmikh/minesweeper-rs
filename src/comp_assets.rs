@@ -1,16 +1,16 @@
 use crate::minesweeper::MineState;
+use std::collections::HashMap;
 use windows::{
-    runtime::{Result, Interface},
+    runtime::{Interface, Result},
     Foundation::Numerics::Vector2,
     UI::{
         Colors,
         Composition::{
             CompositionColorBrush, CompositionGeometry, CompositionShape, CompositionSpriteShape,
-            Compositor
-        }
-    }
+            Compositor,
+        },
+    },
 };
-use std::collections::HashMap;
 
 fn get_dot_shape(
     compositor: &Compositor,
@@ -66,11 +66,7 @@ impl CompAssets {
             .clone()
     }
 
-    fn generate_assets(
-        &mut self,
-        compositor: &Compositor,
-        tile_size: &Vector2,
-    ) -> Result<()> {
+    fn generate_assets(&mut self, compositor: &Compositor, tile_size: &Vector2) -> Result<()> {
         self.mine_state_brushes.clear();
         self.mine_state_brushes.insert(
             MineState::Empty,

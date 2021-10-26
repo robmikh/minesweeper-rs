@@ -1,23 +1,23 @@
 use crate::comp_assets::CompAssets;
 use crate::minesweeper::{IndexHelper, MineState};
 use crate::visual_grid::{TileCoordinate, VisualGrid};
+use std::collections::VecDeque;
+use std::time::Duration;
 use windows::{
     runtime::Result,
     Foundation::{
         Numerics::{Vector2, Vector3},
-        TimeSpan
+        TimeSpan,
     },
     Graphics::SizeInt32,
     UI::{
         Colors,
         Composition::{
             AnimationIterationBehavior, CompositionBatchTypes, CompositionBorderMode, Compositor,
-            ContainerVisual, SpriteVisual
-        }
+            ContainerVisual, SpriteVisual,
+        },
     },
 };
-use std::collections::VecDeque;
-use std::time::Duration;
 
 pub struct CompUI {
     compositor: Compositor,

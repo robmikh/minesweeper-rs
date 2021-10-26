@@ -6,22 +6,16 @@ use windows::{
     Graphics::SizeInt32,
     Win32::{
         Foundation::{HINSTANCE, HWND, LPARAM, LRESULT, PWSTR, RECT, WPARAM},
-        System::{
-            LibraryLoader::GetModuleHandleW,
-            WinRT::ICompositorDesktopInterop
-        },
+        System::{LibraryLoader::GetModuleHandleW, WinRT::ICompositorDesktopInterop},
         UI::WindowsAndMessaging::{
             AdjustWindowRectEx, CreateWindowExW, DefWindowProcW, GetClientRect, LoadCursorW,
-            PostQuitMessage, RegisterClassW, ShowWindow, CREATESTRUCTW, CW_USEDEFAULT, GWLP_USERDATA,
-            HMENU, IDC_ARROW, SW_SHOW, WINDOW_LONG_PTR_INDEX, WM_DESTROY, WM_LBUTTONDOWN, WM_MOUSEMOVE,
-            WM_NCCREATE, WM_RBUTTONDOWN, WM_SIZE, WM_SIZING, WNDCLASSW, WS_EX_NOREDIRECTIONBITMAP,
-            WS_OVERLAPPEDWINDOW
-        }
+            PostQuitMessage, RegisterClassW, ShowWindow, CREATESTRUCTW, CW_USEDEFAULT,
+            GWLP_USERDATA, HMENU, IDC_ARROW, SW_SHOW, WINDOW_LONG_PTR_INDEX, WM_DESTROY,
+            WM_LBUTTONDOWN, WM_MOUSEMOVE, WM_NCCREATE, WM_RBUTTONDOWN, WM_SIZE, WM_SIZING,
+            WNDCLASSW, WS_EX_NOREDIRECTIONBITMAP, WS_OVERLAPPEDWINDOW,
+        },
     },
-    UI::Composition::{
-        Compositor,
-        Desktop::DesktopWindowTarget
-    }
+    UI::Composition::{Compositor, Desktop::DesktopWindowTarget},
 };
 
 use crate::minesweeper::Minesweeper;
@@ -36,12 +30,7 @@ pub struct Window {
 }
 
 impl Window {
-    pub fn new(
-        title: &str,
-        width: u32,
-        height: u32,
-        game: Minesweeper,
-    ) -> Result<Box<Self>> {
+    pub fn new(title: &str, width: u32, height: u32, game: Minesweeper) -> Result<Box<Self>> {
         let class_name = WINDOW_CLASS_NAME.to_wide();
         let instance = unsafe { GetModuleHandleW(PWSTR(std::ptr::null_mut())).ok()? };
         REGISTER_WINDOW_CLASS.call_once(|| {

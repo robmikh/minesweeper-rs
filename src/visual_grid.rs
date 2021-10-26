@@ -6,8 +6,8 @@ use windows::{
     Graphics::SizeInt32,
     UI::{
         Colors,
-        Composition::{Compositor, ContainerVisual, SpriteVisual}
-    }
+        Composition::{Compositor, ContainerVisual, SpriteVisual},
+    },
 };
 
 #[derive(Copy, Clone, PartialEq, Debug)]

@@ -16,12 +16,12 @@ use window::Window;
 use windows::{
     runtime::Result,
     Foundation::Numerics::Vector2,
-    UI::Composition::Compositor,
     Win32::{
         Foundation::HWND,
         System::WinRT::{RoInitialize, RO_INIT_SINGLETHREADED},
-        UI::WindowsAndMessaging::{DispatchMessageW, GetMessageW, TranslateMessage, MSG}
-    }
+        UI::WindowsAndMessaging::{DispatchMessageW, GetMessageW, TranslateMessage, MSG},
+    },
+    UI::Composition::Compositor,
 };
 
 fn run() -> Result<()> {

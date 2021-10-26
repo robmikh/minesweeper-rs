@@ -1,13 +1,11 @@
 use crate::comp_ui::CompUI;
 use crate::visual_grid::TileCoordinate;
-use windows::{
-    runtime::Result,
-    Foundation::Numerics::Vector2, 
-    Graphics::SizeInt32, 
-    UI::Composition::ContainerVisual
-};
 use rand::distributions::{Distribution, Uniform};
 use std::collections::VecDeque;
+use windows::{
+    runtime::Result, Foundation::Numerics::Vector2, Graphics::SizeInt32,
+    UI::Composition::ContainerVisual,
+};
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
 pub enum MineState {
@@ -146,11 +144,7 @@ impl Minesweeper {
         Ok(())
     }
 
-    pub fn on_pointer_pressed(
-        &mut self,
-        is_right_button: bool,
-        is_eraser: bool,
-    ) -> Result<()> {
+    pub fn on_pointer_pressed(&mut self, is_right_button: bool, is_eraser: bool) -> Result<()> {
         // TODO: Switch the condition back once we can subscribe to events.
         //if self.game_over && !self.ui.is_animation_playing() {
         if self.game_over {
@@ -380,12 +374,7 @@ impl Minesweeper {
         self.index_helper.is_in_bounds(x, y) && self.mine_states[index] == MineState::Empty
     }
 
-    fn push_if_unmarked(
-        &mut self,
-        sweeps: &mut VecDeque<usize>,
-        x: i32,
-        y: i32,
-    ) -> Result<()> {
+    fn push_if_unmarked(&mut self, sweeps: &mut VecDeque<usize>, x: i32, y: i32) -> Result<()> {
         if self.is_in_bounds_and_unmarked(x, y) {
             let index = self.index_helper.compute_index(x, y);
             self.reveal(index)?;
