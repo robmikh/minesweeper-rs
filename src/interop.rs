@@ -1,5 +1,5 @@
 use windows::{
-    runtime::Result,
+    core::Result,
     System::DispatcherQueueController,
     Win32::System::WinRT::{
         CreateDispatcherQueueController, DispatcherQueueOptions,

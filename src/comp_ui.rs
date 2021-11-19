@@ -4,7 +4,7 @@ use crate::visual_grid::{TileCoordinate, VisualGrid};
 use std::collections::VecDeque;
 use std::time::Duration;
 use windows::{
-    runtime::Result,
+    core::Result,
     Foundation::{
         Numerics::{Vector2, Vector3},
         TimeSpan,

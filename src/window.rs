@@ -1,12 +1,12 @@
 use std::sync::Once;
 
 use windows::{
-    runtime::{Handle, Interface, Result},
+    core::{Handle, Interface, Result},
     Foundation::Numerics::Vector2,
     Graphics::SizeInt32,
     Win32::{
         Foundation::{HINSTANCE, HWND, LPARAM, LRESULT, PWSTR, RECT, WPARAM},
-        System::{LibraryLoader::GetModuleHandleW, WinRT::ICompositorDesktopInterop},
+        System::{LibraryLoader::GetModuleHandleW, WinRT::Composition::ICompositorDesktopInterop},
         UI::WindowsAndMessaging::{
             AdjustWindowRectEx, CreateWindowExW, DefWindowProcW, GetClientRect, LoadCursorW,
             PostQuitMessage, RegisterClassW, ShowWindow, CREATESTRUCTW, CW_USEDEFAULT,

@@ -8,8 +8,9 @@ edition = "2018"
 rand = "0.8.4"
 
 [dependencies.windows]
-git = "https://github.com/microsoft/windows-rs"
+version = "0.28.0"
 features = [
+    "alloc",
     "Foundation_Collections",
     "Foundation_Numerics",
     "Graphics",
@@ -19,6 +20,7 @@ features = [
     "Win32_Graphics_Gdi",
     "Win32_System_LibraryLoader",
     "Win32_System_WinRT",
+    "Win32_System_WinRT_Composition",
     "Win32_UI_WindowsAndMessaging",
 ]
 

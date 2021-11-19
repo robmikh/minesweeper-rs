@@ -1,7 +1,7 @@
 use crate::minesweeper::IndexHelper;
 use crate::numerics::FromVector2;
 use windows::{
-    runtime::Result,
+    core::Result,
     Foundation::Numerics::{Vector2, Vector3},
     Graphics::SizeInt32,
     UI::{

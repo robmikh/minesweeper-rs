@@ -14,7 +14,7 @@ use minesweeper::Minesweeper;
 use window::Window;
 
 use windows::{
-    runtime::Result,
+    core::Result,
     Foundation::Numerics::Vector2,
     Win32::{
         Foundation::HWND,

@@ -3,7 +3,7 @@ use crate::visual_grid::TileCoordinate;
 use rand::distributions::{Distribution, Uniform};
 use std::collections::VecDeque;
 use windows::{
-    runtime::Result, Foundation::Numerics::Vector2, Graphics::SizeInt32,
+    core::Result, Foundation::Numerics::Vector2, Graphics::SizeInt32,
     UI::Composition::ContainerVisual,
 };
 
