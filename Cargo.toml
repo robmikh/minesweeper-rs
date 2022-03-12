@@ -2,7 +2,7 @@
 name = "minesweeper-rs"
 version = "0.1.0"
 authors = ["Robert Mikhayelyan <rob.mikh@outlook.com>"]
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 rand = "0.8.5"
