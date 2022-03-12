@@ -1,11 +1,11 @@
 use std::sync::Once;
 
 use windows::{
-    core::{Handle, Interface, Result},
+    core::{Interface, Result},
     Foundation::Numerics::Vector2,
     Graphics::SizeInt32,
     Win32::{
-        Foundation::{HINSTANCE, HWND, LPARAM, LRESULT, PWSTR, RECT, WPARAM},
+        Foundation::{HINSTANCE, HWND, LPARAM, LRESULT, RECT, WPARAM},
         System::{LibraryLoader::GetModuleHandleW, WinRT::Composition::ICompositorDesktopInterop},
         UI::WindowsAndMessaging::{
             AdjustWindowRectEx, CreateWindowExW, DefWindowProcW, GetClientRect, LoadCursorW,
@@ -31,13 +31,13 @@ pub struct Window {
 
 impl Window {
     pub fn new(title: &str, width: u32, height: u32, game: Minesweeper) -> Result<Box<Self>> {
-        let class_name = WINDOW_CLASS_NAME.to_wide();
-        let instance = unsafe { GetModuleHandleW(PWSTR(std::ptr::null_mut())).ok()? };
+        let instance = unsafe { GetModuleHandleW(None).ok()? };
         REGISTER_WINDOW_CLASS.call_once(|| {
+            let class_name = WINDOW_CLASS_NAME.to_wide();
             let class = WNDCLASSW {
                 hCursor: unsafe { LoadCursorW(HINSTANCE(0), IDC_ARROW).ok().unwrap() },
                 hInstance: instance,
-                lpszClassName: class_name.as_pwstr(),
+                lpszClassName: class_name.as_pcwstr(),
                 lpfnWndProc: Some(Self::wnd_proc),
                 ..Default::default()
             };
@@ -67,12 +67,11 @@ impl Window {
             game,
         });
 
-        let title = title.to_wide();
         let window = unsafe {
             CreateWindowExW(
                 window_ex_style,
-                class_name.as_pwstr(),
-                title.as_pwstr(),
+                WINDOW_CLASS_NAME,
+                title,
                 window_style,
                 CW_USEDEFAULT,
                 CW_USEDEFAULT,
