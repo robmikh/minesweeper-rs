@@ -2,6 +2,7 @@
 
 mod comp_assets;
 mod comp_ui;
+mod handle;
 mod interop;
 mod minesweeper;
 mod numerics;

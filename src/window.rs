@@ -18,8 +18,8 @@ use windows::{
     UI::Composition::{Compositor, Desktop::DesktopWindowTarget},
 };
 
-use crate::minesweeper::Minesweeper;
 use crate::wide_string::ToWide;
+use crate::{handle::CheckHandle, minesweeper::Minesweeper};
 
 static REGISTER_WINDOW_CLASS: Once = Once::new();
 static WINDOW_CLASS_NAME: &str = "minesweeper-rs.Window";
@@ -31,7 +31,7 @@ pub struct Window {
 
 impl Window {
     pub fn new(title: &str, width: u32, height: u32, game: Minesweeper) -> Result<Box<Self>> {
-        let instance = unsafe { GetModuleHandleW(None) };
+        let instance = unsafe { GetModuleHandleW(None).ok()? };
         REGISTER_WINDOW_CLASS.call_once(|| {
             let class_name = WINDOW_CLASS_NAME.to_wide();
             let class = WNDCLASSW {
@@ -82,6 +82,7 @@ impl Window {
                 instance,
                 result.as_mut() as *mut _ as _,
             )
+            .ok()?
         };
         unsafe { ShowWindow(&window, SW_SHOW) };
 
