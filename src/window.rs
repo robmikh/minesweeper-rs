@@ -31,7 +31,7 @@ pub struct Window {
 
 impl Window {
     pub fn new(title: &str, width: u32, height: u32, game: Minesweeper) -> Result<Box<Self>> {
-        let instance = unsafe { GetModuleHandleW(None).ok()? };
+        let instance = unsafe { GetModuleHandleW(None)? };
         REGISTER_WINDOW_CLASS.call_once(|| {
             let class_name = WINDOW_CLASS_NAME.to_wide();
             let class = WNDCLASSW {
