@@ -4,7 +4,7 @@ use crate::visual_grid::{TileCoordinate, VisualGrid};
 use std::collections::VecDeque;
 use std::time::Duration;
 use windows::{
-    core::Result,
+    core::{w, Result},
     Foundation::{
         Numerics::{Vector2, Vector3},
         TimeSpan,
@@ -42,7 +42,7 @@ impl CompUI {
         let root = compositor.CreateSpriteVisual()?;
 
         root.SetRelativeSizeAdjustment(Vector2::new(1.0, 1.0))?;
-        root.SetBrush(compositor.CreateColorBrushWithColor(Colors::White()?)?)?;
+        root.SetBrush(&compositor.CreateColorBrushWithColor(Colors::White()?)?)?;
         root.SetBorderMode(CompositionBorderMode::Hard)?;
         parent_visual.Children()?.InsertAtTop(&root)?;
 
@@ -68,7 +68,7 @@ impl CompUI {
         Ok(Self {
             compositor,
             _root: root,
-            parent_size: parent_size.clone(),
+            parent_size: *parent_size,
             game_board_margin,
             index_helper: IndexHelper::new(grid_size_in_tiles.Width, grid_size_in_tiles.Height),
 
@@ -89,7 +89,7 @@ impl CompUI {
     }
 
     pub fn resize(&mut self, new_size: &Vector2) -> Result<()> {
-        self.parent_size = new_size.clone();
+        self.parent_size = *new_size;
         self.update_board_scale(new_size)?;
         Ok(())
     }
@@ -112,7 +112,7 @@ impl CompUI {
             .get_tile(tile_coordinate.x, tile_coordinate.y)
             .unwrap();
 
-        visual.SetBrush(self.assets.get_color_brush_from_mine_state(mine_state))?;
+        visual.SetBrush(&self.assets.get_color_brush_from_mine_state(mine_state))?;
         Ok(())
     }
 
@@ -122,7 +122,8 @@ impl CompUI {
 
         for visual in self.game_board.tiles_iter() {
             visual.SetBrush(
-                self.assets
+                &self
+                    .assets
                     .get_color_brush_from_mine_state(MineState::Empty),
             )?;
         }
@@ -152,15 +153,15 @@ impl CompUI {
             .game_board
             .get_tile(tile_coordinate.x, tile_coordinate.y)
             .unwrap();
-        visual.SetBrush(self.assets.get_color_brush_from_mine_count(num_mines))?;
+        visual.SetBrush(&self.assets.get_color_brush_from_mine_count(num_mines))?;
 
         if num_mines > 0 {
             let shape = self.assets.get_shape_from_mine_count(num_mines);
             let shape_visual = self.compositor.CreateShapeVisual()?;
             shape_visual.SetRelativeSizeAdjustment(Vector2::new(1.0, 1.0))?;
-            shape_visual.Shapes()?.Append(shape)?;
+            shape_visual.Shapes()?.Append(&shape)?;
             shape_visual.SetBorderMode(CompositionBorderMode::Soft)?;
-            visual.Children()?.InsertAtTop(shape_visual)?;
+            visual.Children()?.InsertAtTop(&shape_visual)?;
         }
 
         Ok(())
@@ -208,7 +209,7 @@ impl CompUI {
 
     fn compute_scale_factor_from_size(&self, window_size: &Vector2) -> Result<f32> {
         let board_size = self.game_board.size()?;
-        let board_size = board_size + &self.game_board_margin;
+        let board_size = board_size + self.game_board_margin;
 
         let window_ratio = window_size.X / window_size.Y;
         let board_ratio = board_size.X / board_size.Y;
@@ -254,10 +255,10 @@ impl CompUI {
         animation.InsertKeyFrame(0.7, Vector3::new(2.0, 2.0, 1.0))?;
         animation.InsertKeyFrame(1.0, Vector3::new(1.0, 1.0, 1.0))?;
         animation.SetDuration(TimeSpan::from(Duration::from_millis(600)))?;
-        animation.SetDelayTime(delay)?;
+        animation.SetDelayTime(*delay)?;
         animation.SetIterationBehavior(AnimationIterationBehavior::Count)?;
         animation.SetIterationCount(1)?;
-        visual.StartAnimation("Scale", animation)?;
+        visual.StartAnimation(w!("Scale"), &animation)?;
         Ok(())
     }
 }

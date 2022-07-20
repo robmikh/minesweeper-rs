@@ -121,7 +121,7 @@ impl Minesweeper {
             return Ok(());
         }
 
-        let selected_tile = if let Some(tile) = self.ui.hit_test(&point)? {
+        let selected_tile = if let Some(tile) = self.ui.hit_test(point)? {
             self.last_tile = Some(tile);
             if self.mine_states[self.index_helper.compute_index(tile.x, tile.y)]
                 != MineState::Revealed
@@ -198,7 +198,7 @@ impl Minesweeper {
     pub fn check_and_clear_satisfied(&mut self) -> Result<()> {
         // OK, we're outside of the unrevealed/flagged/etc tiles, but we SHOULD be at last_tile
 
-        if let None = self.last_tile {
+        if self.last_tile.is_none() {
             // If OOB, do nothing
             return Ok(());
         }
