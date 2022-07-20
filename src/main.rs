@@ -7,7 +7,6 @@ mod interop;
 mod minesweeper;
 mod numerics;
 mod visual_grid;
-mod wide_string;
 mod window;
 
 use interop::create_dispatcher_queue_controller_for_current_thread;
@@ -50,8 +49,8 @@ fn run() -> Result<()> {
     let mut message = MSG::default();
     unsafe {
         while GetMessageW(&mut message, HWND(0), 0, 0).into() {
-            TranslateMessage(&mut message);
-            DispatchMessageW(&mut message);
+            TranslateMessage(&message);
+            DispatchMessageW(&message);
         }
     }
 

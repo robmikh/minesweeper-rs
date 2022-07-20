@@ -8,9 +8,8 @@ edition = "2021"
 rand = "0.8.5"
 
 [dependencies.windows]
-version = "0.38.0"
+version = "0.39.0"
 features = [
-    "alloc",
     "Foundation_Collections",
     "Foundation_Numerics",
     "Graphics",

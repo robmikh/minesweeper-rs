@@ -10,7 +10,7 @@ use windows::{
     },
 };
 
-#[derive(Copy, Clone, PartialEq, Debug)]
+#[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct TileCoordinate {
     pub x: i32,
     pub y: i32,
@@ -47,8 +47,8 @@ impl VisualGrid {
         let nine_grid_brush = compositor.CreateNineGridBrush()?;
         nine_grid_brush.SetInsetsWithValues(margin.X, margin.Y, margin.X, margin.Y)?;
         nine_grid_brush.SetIsCenterHollow(true)?;
-        nine_grid_brush.SetSource(color_brush)?;
-        selection_visual.SetBrush(nine_grid_brush)?;
+        nine_grid_brush.SetSource(&color_brush)?;
+        selection_visual.SetBrush(&nine_grid_brush)?;
         selection_visual.SetOffset(Vector3::from_vector2(margin * -1.0, 0.0))?;
         selection_visual.SetIsVisible(false)?;
         selection_visual.SetSize(tile_size + margin * 2.0)?;
@@ -63,8 +63,8 @@ impl VisualGrid {
 
             grid_width_in_tiles: grid_size_in_tiles.Width,
             grid_height_in_tiles: grid_size_in_tiles.Height,
-            tile_size: tile_size.clone(),
-            margin: margin.clone(),
+            tile_size: *tile_size,
+            margin: *margin,
 
             current_selection: None,
         };
@@ -86,7 +86,7 @@ impl VisualGrid {
         self.select_tile(None)?;
 
         self.root.SetSize(
-            (&self.tile_size + &self.margin)
+            (self.tile_size + self.margin)
                 * Vector2::new(
                     self.grid_width_in_tiles as f32,
                     self.grid_height_in_tiles as f32,
@@ -96,11 +96,11 @@ impl VisualGrid {
         for x in 0..self.grid_width_in_tiles {
             for y in 0..self.grid_height_in_tiles {
                 let visual = self.compositor.CreateSpriteVisual()?;
-                visual.SetSize(&self.tile_size)?;
+                visual.SetSize(self.tile_size)?;
                 visual.SetCenterPoint(Vector3::from_vector2(&self.tile_size / 2.0, 0.0))?;
                 visual.SetOffset(Vector3::from_vector2(
                     (&self.margin / 2.0)
-                        + ((&self.tile_size + &self.margin) * Vector2::new(x as f32, y as f32)),
+                        + ((self.tile_size + self.margin) * Vector2::new(x as f32, y as f32)),
                     0.0,
                 ))?;
 

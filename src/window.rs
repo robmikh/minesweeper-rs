@@ -1,7 +1,7 @@
 use std::sync::Once;
 
 use windows::{
-    core::{Interface, Result},
+    core::{w, Interface, Result, HSTRING},
     Foundation::Numerics::Vector2,
     Graphics::SizeInt32,
     Win32::{
@@ -18,11 +18,10 @@ use windows::{
     UI::Composition::{Compositor, Desktop::DesktopWindowTarget},
 };
 
-use crate::wide_string::ToWide;
 use crate::{handle::CheckHandle, minesweeper::Minesweeper};
 
 static REGISTER_WINDOW_CLASS: Once = Once::new();
-static WINDOW_CLASS_NAME: &str = "minesweeper-rs.Window";
+static WINDOW_CLASS_NAME: &HSTRING = w!("minesweeper-rs.Window");
 
 pub struct Window {
     handle: HWND,
@@ -33,11 +32,10 @@ impl Window {
     pub fn new(title: &str, width: u32, height: u32, game: Minesweeper) -> Result<Box<Self>> {
         let instance = unsafe { GetModuleHandleW(None)? };
         REGISTER_WINDOW_CLASS.call_once(|| {
-            let class_name = WINDOW_CLASS_NAME.to_wide();
             let class = WNDCLASSW {
                 hCursor: unsafe { LoadCursorW(HINSTANCE(0), IDC_ARROW).ok().unwrap() },
                 hInstance: instance,
-                lpszClassName: class_name.as_pcwstr(),
+                lpszClassName: WINDOW_CLASS_NAME.into(),
                 lpfnWndProc: Some(Self::wnd_proc),
                 ..Default::default()
             };
@@ -71,7 +69,7 @@ impl Window {
             CreateWindowExW(
                 window_ex_style,
                 WINDOW_CLASS_NAME,
-                title,
+                &HSTRING::from(title),
                 window_style,
                 CW_USEDEFAULT,
                 CW_USEDEFAULT,
@@ -84,7 +82,7 @@ impl Window {
             )
             .ok()?
         };
-        unsafe { ShowWindow(&window, SW_SHOW) };
+        unsafe { ShowWindow(window, SW_SHOW) };
 
         Ok(result)
     }
@@ -165,7 +163,7 @@ impl Window {
 fn get_window_size(window_handle: HWND) -> Result<SizeInt32> {
     unsafe {
         let mut rect = RECT::default();
-        let _ = GetClientRect(window_handle, &mut rect).ok()?;
+        GetClientRect(window_handle, &mut rect).ok()?;
         let width = rect.right - rect.left;
         let height = rect.bottom - rect.top;
         Ok(SizeInt32 {
