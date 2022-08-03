@@ -9,7 +9,10 @@ mod numerics;
 mod visual_grid;
 mod window;
 
-use interop::create_dispatcher_queue_controller_for_current_thread;
+use interop::{
+    create_dispatcher_queue_controller_for_current_thread,
+    shutdown_dispatcher_queue_controller_and_exit,
+};
 use minesweeper::Minesweeper;
 use window::Window;
 
@@ -26,7 +29,7 @@ use windows::{
 
 fn run() -> Result<()> {
     unsafe { RoInitialize(RO_INIT_SINGLETHREADED)? };
-    let _controller = create_dispatcher_queue_controller_for_current_thread()?;
+    let controller = create_dispatcher_queue_controller_for_current_thread()?;
 
     let window_width = 800;
     let window_height = 600;
@@ -53,8 +56,7 @@ fn run() -> Result<()> {
             DispatchMessageW(&message);
         }
     }
-
-    Ok(())
+    shutdown_dispatcher_queue_controller_and_exit(&controller, message.wParam.0 as i32);
 }
 
 fn main() {
