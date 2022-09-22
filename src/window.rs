@@ -8,9 +8,9 @@ use windows::{
         Foundation::{HINSTANCE, HWND, LPARAM, LRESULT, RECT, WPARAM},
         System::{LibraryLoader::GetModuleHandleW, WinRT::Composition::ICompositorDesktopInterop},
         UI::WindowsAndMessaging::{
-            AdjustWindowRectEx, CreateWindowExW, DefWindowProcW, GetClientRect, LoadCursorW,
-            PostQuitMessage, RegisterClassW, ShowWindow, CREATESTRUCTW, CW_USEDEFAULT,
-            GWLP_USERDATA, HMENU, IDC_ARROW, SW_SHOW, WINDOW_LONG_PTR_INDEX, WM_DESTROY,
+            AdjustWindowRectEx, CreateWindowExW, DefWindowProcW, GetClientRect, GetWindowLongPtrW,
+            LoadCursorW, PostQuitMessage, RegisterClassW, SetWindowLongPtrW, ShowWindow,
+            CREATESTRUCTW, CW_USEDEFAULT, GWLP_USERDATA, HMENU, IDC_ARROW, SW_SHOW, WM_DESTROY,
             WM_LBUTTONDOWN, WM_MOUSEMOVE, WM_NCCREATE, WM_RBUTTONDOWN, WM_SIZE, WM_SIZING,
             WNDCLASSW, WS_EX_NOREDIRECTIONBITMAP, WS_OVERLAPPEDWINDOW,
         },
@@ -78,7 +78,7 @@ impl Window {
                 HWND(0),
                 HMENU(0),
                 instance,
-                result.as_mut() as *mut _ as _,
+                Some(result.as_mut() as *mut _ as _),
             )
             .ok()?
         };
@@ -148,9 +148,9 @@ impl Window {
             let this = (*cs).lpCreateParams as *mut Self;
             (*this).handle = window;
 
-            SetWindowLong(window, GWLP_USERDATA, this as _);
+            SetWindowLongPtrW(window, GWLP_USERDATA, this as _);
         } else {
-            let this = GetWindowLong(window, GWLP_USERDATA) as *mut Self;
+            let this = GetWindowLongPtrW(window, GWLP_USERDATA) as *mut Self;
 
             if let Some(this) = this.as_mut() {
                 return this.message_handler(message, wparam, lparam);
@@ -177,36 +177,4 @@ fn get_mouse_position(lparam: LPARAM) -> (isize, isize) {
     let x = lparam.0 & 0xffff;
     let y = (lparam.0 >> 16) & 0xffff;
     (x, y)
-}
-
-#[allow(non_snake_case)]
-#[cfg(target_pointer_width = "32")]
-unsafe fn SetWindowLong(window: HWND, index: WINDOW_LONG_PTR_INDEX, value: isize) -> isize {
-    use windows::Win32::UI::WindowsAndMessaging::SetWindowLongW;
-
-    SetWindowLongW(window, index, value as _) as _
-}
-
-#[allow(non_snake_case)]
-#[cfg(target_pointer_width = "64")]
-unsafe fn SetWindowLong(window: HWND, index: WINDOW_LONG_PTR_INDEX, value: isize) -> isize {
-    use windows::Win32::UI::WindowsAndMessaging::SetWindowLongPtrW;
-
-    SetWindowLongPtrW(window, index, value)
-}
-
-#[allow(non_snake_case)]
-#[cfg(target_pointer_width = "32")]
-unsafe fn GetWindowLong(window: HWND, index: WINDOW_LONG_PTR_INDEX) -> isize {
-    use windows::Win32::UI::WindowsAndMessaging::SetWindowLongW;
-
-    GetWindowLongW(window, index) as _
-}
-
-#[allow(non_snake_case)]
-#[cfg(target_pointer_width = "64")]
-unsafe fn GetWindowLong(window: HWND, index: WINDOW_LONG_PTR_INDEX) -> isize {
-    use windows::Win32::UI::WindowsAndMessaging::GetWindowLongPtrW;
-
-    GetWindowLongPtrW(window, index)
 }
