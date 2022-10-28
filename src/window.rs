@@ -1,7 +1,8 @@
 use std::sync::Once;
 
 use windows::{
-    core::{w, Interface, Result, HSTRING},
+    core::{Interface, Result, HSTRING},
+    h,
     Foundation::Numerics::Vector2,
     Graphics::SizeInt32,
     Win32::{
@@ -21,7 +22,7 @@ use windows::{
 use crate::{handle::CheckHandle, minesweeper::Minesweeper};
 
 static REGISTER_WINDOW_CLASS: Once = Once::new();
-static WINDOW_CLASS_NAME: &HSTRING = w!("minesweeper-rs.Window");
+static WINDOW_CLASS_NAME: &HSTRING = h!("minesweeper-rs.Window");
 
 pub struct Window {
     handle: HWND,

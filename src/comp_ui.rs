@@ -3,8 +3,9 @@ use crate::minesweeper::{IndexHelper, MineState};
 use crate::visual_grid::{TileCoordinate, VisualGrid};
 use std::collections::VecDeque;
 use std::time::Duration;
+use windows::h;
 use windows::{
-    core::{w, Result},
+    core::Result,
     Foundation::{
         Numerics::{Vector2, Vector3},
         TimeSpan,
@@ -258,7 +259,7 @@ impl CompUI {
         animation.SetDelayTime(*delay)?;
         animation.SetIterationBehavior(AnimationIterationBehavior::Count)?;
         animation.SetIterationCount(1)?;
-        visual.StartAnimation(w!("Scale"), &animation)?;
+        visual.StartAnimation(h!("Scale"), &animation)?;
         Ok(())
     }
 }
