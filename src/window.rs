@@ -1,8 +1,7 @@
 use std::sync::Once;
 
 use windows::{
-    core::{Interface, Result, HSTRING, PCWSTR},
-    w,
+    core::{w, ComInterface, Result, HSTRING, PCWSTR},
     Foundation::Numerics::Vector2,
     Graphics::SizeInt32,
     Win32::{
@@ -36,15 +35,13 @@ impl Window {
             let class = WNDCLASSW {
                 hCursor: unsafe { LoadCursorW(HINSTANCE(0), IDC_ARROW).ok().unwrap() },
                 hInstance: instance,
-                lpszClassName: WINDOW_CLASS_NAME.into(),
+                lpszClassName: WINDOW_CLASS_NAME,
                 lpfnWndProc: Some(Self::wnd_proc),
                 ..Default::default()
             };
             assert_ne!(unsafe { RegisterClassW(&class) }, 0);
         });
 
-        let width = width as i32;
-        let height = height as i32;
         let window_ex_style = WS_EX_NOREDIRECTIONBITMAP;
         let window_style = WS_OVERLAPPEDWINDOW;
 
