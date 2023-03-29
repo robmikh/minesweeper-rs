@@ -5,12 +5,12 @@ use windows::{
     Foundation::Numerics::Vector2,
     Graphics::SizeInt32,
     Win32::{
-        Foundation::{HINSTANCE, HWND, LPARAM, LRESULT, RECT, WPARAM},
+        Foundation::{HWND, LPARAM, LRESULT, RECT, WPARAM},
         System::{LibraryLoader::GetModuleHandleW, WinRT::Composition::ICompositorDesktopInterop},
         UI::WindowsAndMessaging::{
             AdjustWindowRectEx, CreateWindowExW, DefWindowProcW, GetClientRect, GetWindowLongPtrW,
             LoadCursorW, PostQuitMessage, RegisterClassW, SetWindowLongPtrW, ShowWindow,
-            CREATESTRUCTW, CW_USEDEFAULT, GWLP_USERDATA, HMENU, IDC_ARROW, SW_SHOW, WM_DESTROY,
+            CREATESTRUCTW, CW_USEDEFAULT, GWLP_USERDATA, IDC_ARROW, SW_SHOW, WM_DESTROY,
             WM_LBUTTONDOWN, WM_MOUSEMOVE, WM_NCCREATE, WM_RBUTTONDOWN, WM_SIZE, WM_SIZING,
             WNDCLASSW, WS_EX_NOREDIRECTIONBITMAP, WS_OVERLAPPEDWINDOW,
         },
@@ -33,7 +33,7 @@ impl Window {
         let instance = unsafe { GetModuleHandleW(None)? };
         REGISTER_WINDOW_CLASS.call_once(|| {
             let class = WNDCLASSW {
-                hCursor: unsafe { LoadCursorW(HINSTANCE(0), IDC_ARROW).ok().unwrap() },
+                hCursor: unsafe { LoadCursorW(None, IDC_ARROW).ok().unwrap() },
                 hInstance: instance,
                 lpszClassName: WINDOW_CLASS_NAME,
                 lpfnWndProc: Some(Self::wnd_proc),
@@ -73,8 +73,8 @@ impl Window {
                 CW_USEDEFAULT,
                 adjusted_width,
                 adjusted_height,
-                HWND(0),
-                HMENU(0),
+                None,
+                None,
                 instance,
                 Some(result.as_mut() as *mut _ as _),
             )
