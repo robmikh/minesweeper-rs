@@ -3,7 +3,6 @@ use windows::{
     Foundation::AsyncActionCompletedHandler,
     System::DispatcherQueueController,
     Win32::{
-        Foundation::HWND,
         System::WinRT::{
             CreateDispatcherQueueController, DispatcherQueueOptions,
             DISPATCHERQUEUE_THREAD_APARTMENTTYPE, DISPATCHERQUEUE_THREAD_TYPE, DQTAT_COM_NONE,
@@ -46,7 +45,7 @@ pub fn shutdown_dispatcher_queue_controller_and_wait(
 
     let mut message = MSG::default();
     unsafe {
-        while GetMessageW(&mut message, HWND(0), 0, 0).into() {
+        while GetMessageW(&mut message, None, 0, 0).into() {
             TranslateMessage(&message);
             DispatchMessageW(&message);
         }

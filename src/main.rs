@@ -20,7 +20,6 @@ use windows::{
     core::Result,
     Foundation::Numerics::Vector2,
     Win32::{
-        Foundation::HWND,
         System::WinRT::{RoInitialize, RO_INIT_SINGLETHREADED},
         UI::WindowsAndMessaging::{DispatchMessageW, GetMessageW, TranslateMessage, MSG},
     },
@@ -51,7 +50,7 @@ fn run() -> Result<()> {
 
     let mut message = MSG::default();
     unsafe {
-        while GetMessageW(&mut message, HWND(0), 0, 0).into() {
+        while GetMessageW(&mut message, None, 0, 0).into() {
             TranslateMessage(&message);
             DispatchMessageW(&message);
         }
