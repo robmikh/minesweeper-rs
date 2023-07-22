@@ -327,9 +327,6 @@ impl Minesweeper {
                 self.generate_mines(self.num_mines, x, y);
 
                 let index = self.index_helper.compute_index(x, y);
-                if self.neighbor_counts[index] != 0 {
-                    continue;
-                }
 
                 // Do a breadth-first search to count the empty tiles
                 sweeps.push_front(index);
