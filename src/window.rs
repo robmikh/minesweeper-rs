@@ -34,7 +34,7 @@ impl Window {
         REGISTER_WINDOW_CLASS.call_once(|| {
             let class = WNDCLASSW {
                 hCursor: unsafe { LoadCursorW(None, IDC_ARROW).ok().unwrap() },
-                hInstance: instance,
+                hInstance: instance.into(),
                 lpszClassName: WINDOW_CLASS_NAME,
                 lpfnWndProc: Some(Self::wnd_proc),
                 ..Default::default()
@@ -53,7 +53,7 @@ impl Window {
                 bottom: height as i32,
             };
             unsafe {
-                AdjustWindowRectEx(&mut rect, window_style, false, window_ex_style).ok()?;
+                AdjustWindowRectEx(&mut rect, window_style, false, window_ex_style)?;
             }
             (rect.right - rect.left, rect.bottom - rect.top)
         };
@@ -161,7 +161,7 @@ impl Window {
 fn get_window_size(window_handle: HWND) -> Result<SizeInt32> {
     unsafe {
         let mut rect = RECT::default();
-        GetClientRect(window_handle, &mut rect).ok()?;
+        GetClientRect(window_handle, &mut rect)?;
         let width = rect.right - rect.left;
         let height = rect.bottom - rect.top;
         Ok(SizeInt32 {
