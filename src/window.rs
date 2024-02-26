@@ -1,7 +1,7 @@
 use std::sync::Once;
 
 use windows::{
-    core::{w, ComInterface, Result, HSTRING, PCWSTR},
+    core::{w, Interface, Result, HSTRING, PCWSTR},
     Foundation::Numerics::Vector2,
     Graphics::SizeInt32,
     Win32::{

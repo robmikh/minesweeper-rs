@@ -1,7 +1,7 @@
 use crate::minesweeper::MineState;
 use std::collections::HashMap;
 use windows::{
-    core::{ComInterface, Result},
+    core::{Interface, Result},
     Foundation::Numerics::Vector2,
     UI::{
         Colors,
