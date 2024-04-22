@@ -46,7 +46,7 @@ pub fn shutdown_dispatcher_queue_controller_and_wait(
     let mut message = MSG::default();
     unsafe {
         while GetMessageW(&mut message, None, 0, 0).into() {
-            TranslateMessage(&message);
+            _ = TranslateMessage(&message);
             DispatchMessageW(&message);
         }
     }
