@@ -80,7 +80,7 @@ impl Window {
             )
             .ok()?
         };
-        unsafe { ShowWindow(window, SW_SHOW) };
+        unsafe { _ = ShowWindow(window, SW_SHOW) };
 
         Ok(result)
     }
