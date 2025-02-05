@@ -1,6 +1,6 @@
 use crate::comp_ui::CompUI;
 use crate::visual_grid::TileCoordinate;
-use rand::distributions::{Distribution, Uniform};
+use rand::distr::{Distribution, Uniform};
 use std::collections::VecDeque;
 use windows::{
     core::Result, Foundation::Numerics::Vector2, Graphics::SizeInt32,
@@ -389,8 +389,12 @@ impl Minesweeper {
             *mine = false;
         }
 
-        let between = Uniform::from(0..(self.game_board_width * self.game_board_height) as usize);
-        let mut rng = rand::thread_rng();
+        let between = Uniform::new(
+            0_usize,
+            (self.game_board_width * self.game_board_height) as usize,
+        )
+        .expect("Failed to create Uniform distribution");
+        let mut rng = rand::rng();
         for _i in 0..num_mines {
             let mut index: usize;
             let exclude_index = self.index_helper.compute_index(exclude_x, exclude_y);
