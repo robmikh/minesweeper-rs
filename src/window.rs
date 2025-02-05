@@ -5,7 +5,7 @@ use windows::{
     Foundation::Numerics::Vector2,
     Graphics::SizeInt32,
     Win32::{
-        Foundation::{HWND, LPARAM, LRESULT, RECT, WPARAM},
+        Foundation::{HINSTANCE, HWND, LPARAM, LRESULT, RECT, WPARAM},
         System::{LibraryLoader::GetModuleHandleW, WinRT::Composition::ICompositorDesktopInterop},
         UI::WindowsAndMessaging::{
             AdjustWindowRectEx, CreateWindowExW, DefWindowProcW, GetClientRect, GetWindowLongPtrW,
@@ -18,7 +18,7 @@ use windows::{
     UI::Composition::{Compositor, Desktop::DesktopWindowTarget},
 };
 
-use crate::{handle::CheckHandle, minesweeper::Minesweeper};
+use crate::minesweeper::Minesweeper;
 
 static REGISTER_WINDOW_CLASS: Once = Once::new();
 const WINDOW_CLASS_NAME: PCWSTR = w!("minesweeper-rs.Window");
@@ -59,10 +59,11 @@ impl Window {
         };
 
         let mut result = Box::new(Self {
-            handle: HWND(0),
+            handle: HWND::default(),
             game,
         });
 
+        let hinstance: HINSTANCE = instance.into();
         let window = unsafe {
             CreateWindowExW(
                 window_ex_style,
@@ -75,10 +76,9 @@ impl Window {
                 adjusted_height,
                 None,
                 None,
-                instance,
+                Some(hinstance),
                 Some(result.as_mut() as *mut _ as _),
-            )
-            .ok()?
+            )?
         };
         unsafe { _ = ShowWindow(window, SW_SHOW) };
 
