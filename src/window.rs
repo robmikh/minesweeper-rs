@@ -1,8 +1,6 @@
 use std::sync::Once;
-
 use windows::{
     core::{w, Interface, Result, HSTRING, PCWSTR},
-    Foundation::Numerics::Vector2,
     Graphics::SizeInt32,
     Win32::{
         Foundation::{HINSTANCE, HWND, LPARAM, LRESULT, RECT, WPARAM},
@@ -17,6 +15,7 @@ use windows::{
     },
     UI::Composition::{Compositor, Desktop::DesktopWindowTarget},
 };
+use windows_numerics::Vector2;
 
 use crate::minesweeper::Minesweeper;
 

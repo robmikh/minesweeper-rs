@@ -2,7 +2,6 @@ use crate::minesweeper::MineState;
 use std::collections::HashMap;
 use windows::{
     core::{Interface, Result},
-    Foundation::Numerics::Vector2,
     UI::{
         Colors,
         Composition::{
@@ -11,6 +10,7 @@ use windows::{
         },
     },
 };
+use windows_numerics::Vector2;
 
 fn get_dot_shape(
     compositor: &Compositor,

@@ -14,16 +14,15 @@ use interop::{
 };
 use minesweeper::Minesweeper;
 use window::Window;
-
 use windows::{
     core::Result,
-    Foundation::Numerics::Vector2,
     Win32::{
         System::WinRT::{RoInitialize, RO_INIT_SINGLETHREADED},
         UI::WindowsAndMessaging::{DispatchMessageW, GetMessageW, TranslateMessage, MSG},
     },
     UI::Composition::Compositor,
 };
+use windows_numerics::Vector2;
 
 fn run() -> Result<()> {
     unsafe { RoInitialize(RO_INIT_SINGLETHREADED)? };

@@ -5,10 +5,7 @@ use std::collections::VecDeque;
 use std::time::Duration;
 use windows::{
     core::{h, Result},
-    Foundation::{
-        Numerics::{Vector2, Vector3},
-        TimeSpan,
-    },
+    Foundation::TimeSpan,
     Graphics::SizeInt32,
     UI::{
         Colors,
@@ -18,6 +15,7 @@ use windows::{
         },
     },
 };
+use windows_numerics::{Vector2, Vector3};
 
 pub struct CompUI {
     compositor: Compositor,
