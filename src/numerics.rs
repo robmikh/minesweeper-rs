@@ -1,4 +1,4 @@
-use windows::Foundation::Numerics::{Vector2, Vector3};
+use windows_numerics::{Vector2, Vector3};
 
 pub trait FromVector2 {
     type Output;

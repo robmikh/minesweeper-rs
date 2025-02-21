@@ -2,13 +2,13 @@ use crate::minesweeper::IndexHelper;
 use crate::numerics::FromVector2;
 use windows::{
     core::Result,
-    Foundation::Numerics::{Vector2, Vector3},
     Graphics::SizeInt32,
     UI::{
         Colors,
         Composition::{Compositor, ContainerVisual, SpriteVisual},
     },
 };
+use windows_numerics::{Vector2, Vector3};
 
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
 pub struct TileCoordinate {

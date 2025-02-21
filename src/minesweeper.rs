@@ -2,10 +2,8 @@ use crate::comp_ui::CompUI;
 use crate::visual_grid::TileCoordinate;
 use rand::distr::{Distribution, Uniform};
 use std::collections::VecDeque;
-use windows::{
-    core::Result, Foundation::Numerics::Vector2, Graphics::SizeInt32,
-    UI::Composition::ContainerVisual,
-};
+use windows::{core::Result, Graphics::SizeInt32, UI::Composition::ContainerVisual};
+use windows_numerics::Vector2;
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
 pub enum MineState {

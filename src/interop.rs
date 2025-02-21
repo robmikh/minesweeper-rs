@@ -1,6 +1,5 @@
 use windows::{
     core::Result,
-    Foundation::AsyncActionCompletedHandler,
     System::DispatcherQueueController,
     Win32::{
         System::WinRT::{
@@ -13,6 +12,7 @@ use windows::{
         },
     },
 };
+use windows_future::AsyncActionCompletedHandler;
 
 pub fn create_dispatcher_queue_controller(
     thread_type: DISPATCHERQUEUE_THREAD_TYPE,
