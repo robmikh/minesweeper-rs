@@ -12,7 +12,6 @@ use windows::{
         },
     },
 };
-use windows_future::AsyncActionCompletedHandler;
 
 pub fn create_dispatcher_queue_controller(
     thread_type: DISPATCHERQUEUE_THREAD_TYPE,
@@ -35,13 +34,9 @@ pub fn shutdown_dispatcher_queue_controller_and_wait(
     controller: &DispatcherQueueController,
     exit_code: i32,
 ) -> Result<i32> {
-    let async_action = controller.ShutdownQueueAsync()?;
-    async_action.SetCompleted(&AsyncActionCompletedHandler::new(
-        move |_, _| -> Result<()> {
-            unsafe { PostQuitMessage(exit_code) };
-            Ok(())
-        },
-    ))?;
+    controller
+        .ShutdownQueueAsync()?
+        .when(move |_| unsafe { PostQuitMessage(exit_code) })?;
 
     let mut message = MSG::default();
     unsafe {

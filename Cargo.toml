@@ -6,11 +6,11 @@ edition = "2021"
 
 [dependencies]
 rand = "0.9"
-windows-numerics = "0.1"
-windows-future = "0.1"
+windows-numerics = "0.3"
+windows-future = "0.3"
 
 [dependencies.windows]
-version = "0.60.0"
+version = "0.62.0"
 features = [
     "Graphics",
     "System",
