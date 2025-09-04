@@ -7,7 +7,6 @@ edition = "2021"
 [dependencies]
 rand = "0.9"
 windows-numerics = "0.3"
-windows-future = "0.3"
 
 [dependencies.windows]
 version = "0.62.0"
