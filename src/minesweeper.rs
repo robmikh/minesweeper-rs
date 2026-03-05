@@ -310,9 +310,52 @@ impl Minesweeper {
 
     fn sweep(&mut self, x: i32, y: i32) -> Result<bool> {
         if self.mine_generation_state == MineGenerationState::Deferred {
-            // We don't want the first thing that the user clicks to be a mine.
-            // Generate mines but avoid putting it where the user clicked.
-            self.generate_mines(self.num_mines, x, y);
+            // Make the first sweep a large blank area.
+            let mut starting_field_size = 0;
+            let mut sweeps: VecDeque<usize>;
+            let mut visited: Vec<bool>;
+
+            while starting_field_size < 10 {
+                starting_field_size = 0;
+                sweeps = VecDeque::new();
+                visited = vec![false; self.game_board_height as usize * self.game_board_width as usize];
+
+                // We don't want the first thing that the user clicks to be a mine.
+                // Generate mines but avoid putting it where the user clicked.
+                self.generate_mines(self.num_mines, x, y);
+
+                let index = self.index_helper.compute_index(x, y);
+
+                // Do a breadth-first search to count the empty tiles
+                sweeps.push_front(index);
+                while !sweeps.is_empty() {
+                    let current_index = sweeps.pop_front().unwrap();
+                    let current_x: i32 = self.index_helper.compute_x_from_index(current_index);
+                    let current_y: i32 = self.index_helper.compute_y_from_index(current_index);
+
+                    if !visited[current_index] {
+                        starting_field_size += 1;
+                    }
+
+                    if !visited[current_index] && self.neighbor_counts[current_index] == 0 {
+                        visited[current_index] = true;
+
+                        for d_x in -1..=1 {
+                            for d_y in -1..=1 {
+                                let new_x = current_x + d_x;
+                                let new_y = current_y + d_y;
+                                let new_index = self.index_helper.compute_index(new_x, new_y);
+
+                                if self.index_helper.is_in_bounds(new_x, new_y) && !visited[new_index] {
+                                    sweeps.push_back(new_index);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+
             self.mine_generation_state = MineGenerationState::Generated;
         }
 
