@@ -2,8 +2,13 @@ use crate::comp_ui::CompUI;
 use crate::visual_grid::TileCoordinate;
 use rand::distr::{Distribution, Uniform};
 use std::collections::VecDeque;
-use windows::{core::Result, Graphics::SizeInt32, UI::Composition::ContainerVisual};
-use windows_numerics::Vector2;
+use windows_composition::{ContainerVisual, Result, Vector2};
+
+#[derive(Copy, Clone)]
+pub struct GridSize {
+    pub width: i32,
+    pub height: i32,
+}
 
 #[derive(Copy, Clone, PartialEq, Eq, Hash)]
 pub enum MineState {
@@ -75,23 +80,23 @@ pub struct Minesweeper {
 
 impl Minesweeper {
     pub fn new(parent_visual: &ContainerVisual, parent_size: &Vector2) -> Result<Self> {
-        let game_board_size_in_tiles = SizeInt32 {
-            Width: 16,
-            Height: 16,
+        let game_board_size_in_tiles = GridSize {
+            width: 16,
+            height: 16,
         };
         let ui = CompUI::new(parent_visual, parent_size, &game_board_size_in_tiles)?;
 
         let tile_count =
-            (game_board_size_in_tiles.Width * game_board_size_in_tiles.Height) as usize;
+            (game_board_size_in_tiles.width * game_board_size_in_tiles.height) as usize;
 
         let mut result = Self {
             ui,
 
-            game_board_width: game_board_size_in_tiles.Width,
-            game_board_height: game_board_size_in_tiles.Height,
+            game_board_width: game_board_size_in_tiles.width,
+            game_board_height: game_board_size_in_tiles.height,
             index_helper: IndexHelper::new(
-                game_board_size_in_tiles.Width,
-                game_board_size_in_tiles.Height,
+                game_board_size_in_tiles.width,
+                game_board_size_in_tiles.height,
             ),
 
             mine_states: vec![MineState::Empty; tile_count], // create vec of size tile_count filled with MineState::Empty
@@ -105,8 +110,8 @@ impl Minesweeper {
         };
 
         result.new_game(
-            game_board_size_in_tiles.Width,
-            game_board_size_in_tiles.Height,
+            game_board_size_in_tiles.width,
+            game_board_size_in_tiles.height,
             40,
         )?;
         result.on_parent_size_changed(parent_size)?;
@@ -291,9 +296,9 @@ impl Minesweeper {
         self.game_board_height = board_height;
         self.index_helper = IndexHelper::new(board_width, board_height);
 
-        self.ui.reset(&SizeInt32 {
-            Width: board_width,
-            Height: board_height,
+        self.ui.reset(&GridSize {
+            width: board_width,
+            height: board_height,
         })?;
 
         for mine_state in self.mine_states.iter_mut() {
