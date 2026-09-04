@@ -6,9 +6,8 @@ edition = "2021"
 
 [dependencies]
 rand = "0.9"
-windows-composition = "0.100.0"
-windows-core = "0.100.0"
-windows-window = "0.100.0"
+windows-composition = { git = "https://github.com/microsoft/windows-rs", rev = "fa5059c3e7462ce66982ff7b9c523fae55b9d189" }
+windows-window = { git = "https://github.com/microsoft/windows-rs", rev = "fa5059c3e7462ce66982ff7b9c523fae55b9d189" }
 
 [features]
 show-mines = []
