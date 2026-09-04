@@ -97,7 +97,7 @@ impl CompAssets {
         circle_geometry.set_radius(*tile_size / 12.0);
         let dot_brush = compositor.create_color_brush(colors::BLACK);
 
-        let append_dot = |shapes: &CompositionShapeCollection, offset: Vector2| -> Result<()> {
+        let append_shape = |shapes: &CompositionShapeCollection, offset: Vector2| -> Result<()> {
             shapes.append(&get_dot_shape(
                 compositor,
                 &circle_geometry,
@@ -110,7 +110,7 @@ impl CompAssets {
         {
             let container_shape = compositor.create_container_shape();
             let shapes = container_shape.shapes();
-            append_dot(&shapes, *tile_size / 2.0)?;
+            append_shape(&shapes, *tile_size / 2.0)?;
             self.mine_count_shapes.insert(1, container_shape);
         }
         {
@@ -118,8 +118,8 @@ impl CompAssets {
             let shapes = container_shape.shapes();
             let third_x = tile_size.x / 3.0;
             let half_y = tile_size.y / 2.0;
-            append_dot(&shapes, Vector2::new(third_x, half_y))?;
-            append_dot(&shapes, Vector2::new(third_x * 2.0, half_y))?;
+            append_shape(&shapes, Vector2::new(third_x, half_y))?;
+            append_shape(&shapes, Vector2::new(third_x * 2.0, half_y))?;
             self.mine_count_shapes.insert(2, container_shape);
         }
         {
@@ -127,9 +127,9 @@ impl CompAssets {
             let shapes = container_shape.shapes();
             let fourth_x = tile_size.x / 4.0;
             let fourth_y = tile_size.y / 4.0;
-            append_dot(&shapes, *tile_size / 2.0)?;
-            append_dot(&shapes, Vector2::new(fourth_x, fourth_y * 3.0))?;
-            append_dot(&shapes, Vector2::new(fourth_x * 3.0, fourth_y))?;
+            append_shape(&shapes, *tile_size / 2.0)?;
+            append_shape(&shapes, Vector2::new(fourth_x, fourth_y * 3.0))?;
+            append_shape(&shapes, Vector2::new(fourth_x * 3.0, fourth_y))?;
             self.mine_count_shapes.insert(3, container_shape);
         }
         {
@@ -137,10 +137,10 @@ impl CompAssets {
             let shapes = container_shape.shapes();
             let third_x = tile_size.x / 3.0;
             let third_y = tile_size.y / 3.0;
-            append_dot(&shapes, Vector2::new(third_x, third_y))?;
-            append_dot(&shapes, Vector2::new(third_x * 2.0, third_y))?;
-            append_dot(&shapes, Vector2::new(third_x, third_y * 2.0))?;
-            append_dot(&shapes, Vector2::new(third_x * 2.0, third_y * 2.0))?;
+            append_shape(&shapes, Vector2::new(third_x, third_y))?;
+            append_shape(&shapes, Vector2::new(third_x * 2.0, third_y))?;
+            append_shape(&shapes, Vector2::new(third_x, third_y * 2.0))?;
+            append_shape(&shapes, Vector2::new(third_x * 2.0, third_y * 2.0))?;
             self.mine_count_shapes.insert(4, container_shape);
         }
         {
@@ -148,11 +148,11 @@ impl CompAssets {
             let shapes = container_shape.shapes();
             let fourth_x = tile_size.x / 4.0;
             let fourth_y = tile_size.y / 4.0;
-            append_dot(&shapes, *tile_size / 2.0)?;
-            append_dot(&shapes, Vector2::new(fourth_x, fourth_y * 3.0))?;
-            append_dot(&shapes, Vector2::new(fourth_x * 3.0, fourth_y))?;
-            append_dot(&shapes, Vector2::new(fourth_x, fourth_y))?;
-            append_dot(&shapes, Vector2::new(fourth_x * 3.0, fourth_y * 3.0))?;
+            append_shape(&shapes, *tile_size / 2.0)?;
+            append_shape(&shapes, Vector2::new(fourth_x, fourth_y * 3.0))?;
+            append_shape(&shapes, Vector2::new(fourth_x * 3.0, fourth_y))?;
+            append_shape(&shapes, Vector2::new(fourth_x, fourth_y))?;
+            append_shape(&shapes, Vector2::new(fourth_x * 3.0, fourth_y * 3.0))?;
             self.mine_count_shapes.insert(5, container_shape);
         }
         {
@@ -160,12 +160,12 @@ impl CompAssets {
             let shapes = container_shape.shapes();
             let fourth_x = tile_size.x / 4.0;
             let fourth_y = tile_size.y / 4.0;
-            append_dot(&shapes, Vector2::new(fourth_x, fourth_y * 2.0))?;
-            append_dot(&shapes, Vector2::new(fourth_x, fourth_y * 3.0))?;
-            append_dot(&shapes, Vector2::new(fourth_x * 3.0, fourth_y))?;
-            append_dot(&shapes, Vector2::new(fourth_x, fourth_y))?;
-            append_dot(&shapes, Vector2::new(fourth_x * 3.0, fourth_y * 3.0))?;
-            append_dot(&shapes, Vector2::new(fourth_x * 3.0, fourth_y * 2.0))?;
+            append_shape(&shapes, Vector2::new(fourth_x, fourth_y * 2.0))?;
+            append_shape(&shapes, Vector2::new(fourth_x, fourth_y * 3.0))?;
+            append_shape(&shapes, Vector2::new(fourth_x * 3.0, fourth_y))?;
+            append_shape(&shapes, Vector2::new(fourth_x, fourth_y))?;
+            append_shape(&shapes, Vector2::new(fourth_x * 3.0, fourth_y * 3.0))?;
+            append_shape(&shapes, Vector2::new(fourth_x * 3.0, fourth_y * 2.0))?;
             self.mine_count_shapes.insert(6, container_shape);
         }
         {
@@ -173,13 +173,13 @@ impl CompAssets {
             let shapes = container_shape.shapes();
             let fourth_x = tile_size.x / 4.0;
             let fourth_y = tile_size.y / 4.0;
-            append_dot(&shapes, Vector2::new(fourth_x, fourth_y * 2.0))?;
-            append_dot(&shapes, Vector2::new(fourth_x, fourth_y * 3.0))?;
-            append_dot(&shapes, Vector2::new(fourth_x * 3.0, fourth_y))?;
-            append_dot(&shapes, Vector2::new(fourth_x, fourth_y))?;
-            append_dot(&shapes, Vector2::new(fourth_x * 3.0, fourth_y * 3.0))?;
-            append_dot(&shapes, Vector2::new(fourth_x * 3.0, fourth_y * 2.0))?;
-            append_dot(&shapes, *tile_size / 2.0)?;
+            append_shape(&shapes, Vector2::new(fourth_x, fourth_y * 2.0))?;
+            append_shape(&shapes, Vector2::new(fourth_x, fourth_y * 3.0))?;
+            append_shape(&shapes, Vector2::new(fourth_x * 3.0, fourth_y))?;
+            append_shape(&shapes, Vector2::new(fourth_x, fourth_y))?;
+            append_shape(&shapes, Vector2::new(fourth_x * 3.0, fourth_y * 3.0))?;
+            append_shape(&shapes, Vector2::new(fourth_x * 3.0, fourth_y * 2.0))?;
+            append_shape(&shapes, *tile_size / 2.0)?;
             self.mine_count_shapes.insert(7, container_shape);
         }
         {
@@ -189,14 +189,14 @@ impl CompAssets {
             let fourth_y = tile_size.y / 4.0;
             let half_x = tile_size.x / 2.0;
             let third_y = tile_size.y / 3.0;
-            append_dot(&shapes, Vector2::new(fourth_x, fourth_y * 2.0))?;
-            append_dot(&shapes, Vector2::new(fourth_x, fourth_y * 3.0))?;
-            append_dot(&shapes, Vector2::new(fourth_x * 3.0, fourth_y))?;
-            append_dot(&shapes, Vector2::new(fourth_x, fourth_y))?;
-            append_dot(&shapes, Vector2::new(fourth_x * 3.0, fourth_y * 3.0))?;
-            append_dot(&shapes, Vector2::new(fourth_x * 3.0, fourth_y * 2.0))?;
-            append_dot(&shapes, Vector2::new(half_x, third_y))?;
-            append_dot(&shapes, Vector2::new(half_x, third_y * 2.0))?;
+            append_shape(&shapes, Vector2::new(fourth_x, fourth_y * 2.0))?;
+            append_shape(&shapes, Vector2::new(fourth_x, fourth_y * 3.0))?;
+            append_shape(&shapes, Vector2::new(fourth_x * 3.0, fourth_y))?;
+            append_shape(&shapes, Vector2::new(fourth_x, fourth_y))?;
+            append_shape(&shapes, Vector2::new(fourth_x * 3.0, fourth_y * 3.0))?;
+            append_shape(&shapes, Vector2::new(fourth_x * 3.0, fourth_y * 2.0))?;
+            append_shape(&shapes, Vector2::new(half_x, third_y))?;
+            append_shape(&shapes, Vector2::new(half_x, third_y * 2.0))?;
             self.mine_count_shapes.insert(8, container_shape);
         }
 
