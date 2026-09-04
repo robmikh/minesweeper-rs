@@ -24,7 +24,7 @@ fn main() -> Result<()> {
     let compositor = Compositor::new()?;
 
     let root = compositor.create_container_visual();
-    root.set_relative_size_adjustment(Vector2::new(1.0, 1.0));
+    root.set_relative_size_adjustment(Vector2::one());
 
     let game: Rc<RefCell<Option<Minesweeper>>> = Rc::new(RefCell::new(None));
 

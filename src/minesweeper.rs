@@ -124,7 +124,7 @@ impl Minesweeper {
             return Ok(());
         }
 
-        let selected_tile = if let Some(tile) = self.ui.hit_test(point)? {
+        let selected_tile = if let Some(tile) = self.ui.hit_test(point) {
             self.last_tile = Some(tile);
             if self.mine_states[self.index_helper.compute_index(tile.x, tile.y)]
                 != MineState::Revealed

@@ -41,23 +41,20 @@ impl CompAssets {
         Ok(result)
     }
 
-    pub fn get_mine_brush(&self) -> CompositionColorBrush {
-        self.mine_brush.clone()
+    pub fn get_mine_brush(&self) -> &CompositionColorBrush {
+        &self.mine_brush
     }
 
-    pub fn get_shape_from_mine_count(&self, count: i32) -> CompositionContainerShape {
-        self.mine_count_shapes.get(&count).unwrap().clone()
+    pub fn get_shape_from_mine_count(&self, count: i32) -> &CompositionContainerShape {
+        self.mine_count_shapes.get(&count).unwrap()
     }
 
-    pub fn get_color_brush_from_mine_state(&self, state: MineState) -> CompositionColorBrush {
-        self.mine_state_brushes.get(&state).unwrap().clone()
+    pub fn get_color_brush_from_mine_state(&self, state: MineState) -> &CompositionColorBrush {
+        self.mine_state_brushes.get(&state).unwrap()
     }
 
-    pub fn get_color_brush_from_mine_count(&self, count: i32) -> CompositionColorBrush {
-        self.mine_count_background_brushes
-            .get(&count)
-            .unwrap()
-            .clone()
+    pub fn get_color_brush_from_mine_count(&self, count: i32) -> &CompositionColorBrush {
+        self.mine_count_background_brushes.get(&count).unwrap()
     }
 
     fn generate_assets(&mut self, compositor: &Compositor, tile_size: &Vector2) -> Result<()> {

@@ -42,7 +42,7 @@ impl VisualGrid {
         nine_grid_brush.set_center_hollow(true);
         nine_grid_brush.set_source(&color_brush);
         selection_visual.set_brush(&nine_grid_brush);
-        let offset = *margin * -1.0;
+        let offset = -*margin;
         selection_visual.set_offset(offset.x, offset.y, 0.0);
         selection_visual.set_visible(false);
         let size = *tile_size + *margin * 2.0;
@@ -80,11 +80,7 @@ impl VisualGrid {
         self.grid_height_in_tiles = grid_size_in_tiles.height;
         self.select_tile(None)?;
 
-        let root_size = (self.tile_size + self.margin)
-            * Vector2::new(
-                self.grid_width_in_tiles as f32,
-                self.grid_height_in_tiles as f32,
-            );
+        let root_size = self.size();
         self.root.set_size(root_size.x, root_size.y);
 
         for x in 0..self.grid_width_in_tiles {
@@ -107,8 +103,8 @@ impl VisualGrid {
         Ok(())
     }
 
-    pub fn tiles_iter(&self) -> impl Iterator<Item = &SpriteVisual> {
-        self.tiles.iter()
+    pub fn tiles(&self) -> &[SpriteVisual] {
+        &self.tiles
     }
 
     pub fn root(&self) -> &ContainerVisual {
@@ -119,8 +115,12 @@ impl VisualGrid {
         &self.selection_visual
     }
 
-    pub fn size(&self) -> Result<Vector2> {
-        Ok(self.root.size())
+    pub fn size(&self) -> Vector2 {
+        (self.tile_size + self.margin)
+            * Vector2::new(
+                self.grid_width_in_tiles as f32,
+                self.grid_height_in_tiles as f32,
+            )
     }
 
     pub fn hit_test(&self, point: &Vector2) -> Option<TileCoordinate> {
